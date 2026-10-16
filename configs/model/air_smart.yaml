@@ -5,3 +5,10 @@ num_heads: 4
 num_layers: 4
 lr: 0.0005
 label_smoothing: 0.1
+dropout: 0.1
+time_span: 18
+current_frame_idx: ${data.current_frame_idx}
+num_future_steps: ${data.future_frames}
+num_types: 32
+num_freq_bands: 16
+open_loop_modes: 6

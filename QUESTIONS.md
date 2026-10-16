@@ -28,3 +28,15 @@ Automatic review rejected sending these dataset statistics and implementation de
 ### Advisor access — resolved
 
 User explicitly authorized all implementation questions to the advisor. Retry succeeded; M1 statistics retained and M3 tolerance/filtering/sampling decisions recorded in PROGRESS.md. The advisor is read-only; Codex implements.
+
+## M5 resource wait — unresolved
+
+GPU access is working, but authorized physical GPUs1/3 both contain active compute processes. Per user instruction, do not share or terminate them. Recommendation: wait until one is unoccupied, then run M5 acceptance and full BC automatically. Only Yi-Chung can authorize changing resources. M6/M7 depend on M5 gate and remain unstarted.
+
+## M5 runner ERROR — 2026-10-16T05:55:35-04:00
+
+Exit code: 1. See outputs/m5_execution/runner.log, smoke.log and bc.log. M5 is not complete; M6/M7 must wait.
+
+## M5 checkpoint gate — resolved provisionally
+
+Full GPU run finished 128 epochs / 98304 steps; previous ERROR was an incorrect verifier assertion that last.ckpt must contain epoch127. Lightning2.4 save_last=link retained best epoch16. The advisor approved verifying complete CSV/log evidence and using best epoch16 checkpoint for M6; final epoch127 weights are unavailable. Future config now uses save_last=true. No resource change or rerun requested. Full Q/A in ../SYGARD_QA_LOG.md.
