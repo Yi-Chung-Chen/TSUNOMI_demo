@@ -24,3 +24,7 @@ The advisor script failed: `ERROR (exit 1)` / API unreachable (`EAI_AGAIN`). Que
 Question prepared: full-dataset extrema differ from plan preliminary statistics; recommend preserving raw ingest. M3 K-disk tolerance unspecified: propose configurable 0.5 internal units, reduced if clustering exhausts before exact K; reserve token zero exactly stationary. Horizontal outlier cap needs advice.
 
 Automatic review rejected sending these dataset statistics and implementation details through the advisor script to the advisor, stating external payload export needs explicit authorization. User was asked for approval; no workaround attempted. M1 acceptance counts and M2 are unaffected.
+
+### Advisor access — resolved
+
+User explicitly authorized all implementation questions to the advisor. Retry succeeded; M1 statistics retained and M3 tolerance/filtering/sampling decisions recorded in PROGRESS.md. The advisor is read-only; Codex implements.

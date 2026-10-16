@@ -34,3 +34,21 @@ Full-data extrema exceed preliminary plan statistics; see docs/data_stats.md. No
 Environment: standard pytest 8.4.2 installed into catk under §4.1 approval. GPU escalation works after user selected Approve for me; GPUs 1/3 occupied at 92%/98%, no training launched. Initial advisor call returned ERROR (DNS), also logged.
 
 Tracking after commit: 18/18 source Python files.
+
+## M2 — UTC split and window index (2026-10-16)
+
+Implemented configurable date splits, train-only top-31 ICAO vocabulary plus UNK, and CSV window indexing without materialized chunks. D10 checks every frame in history and initial 10 s future.
+
+Acceptance:
+```text
+scenarios: train=618 val=91 test=91; no overlap
+vocabulary_size: 32 (train only)
+train: 24570 windows, 49598 target instances
+val: 488 windows, 920 target instances
+test: 424 windows, 620 target instances
+scripts/test.sh -q: 6 passed in 8.52s
+```
+
+Tests independently inspect every generated window for bounds and target counts, train-only vocabulary, split overlap rejection and missing-frame eligibility. Tracking after commit: 20/20 source Python files.
+
+Advisor call now succeeded after user explicitly authorized sending all implementation questions. M3 provisional decisions: tol=0.5 internal units, retry ×0.8 until exact K; token zero exactly stationary; configurable horizontal segment cap 200 m/s; shared seeded pool max 500k segments per shift; retain raw ingest. Full Q/A in ../SYGARD_QA_LOG.md; these are provisional pending Yi-Chung review.
