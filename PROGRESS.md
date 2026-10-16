@@ -345,3 +345,73 @@ Yi-Chung's visual feedback; no taste iteration was performed after self-review.
 Ten GIFs, contact sheet and manifest remain under ignored `outputs/demo_gif/`.
 Code and acceptance record committed locally; no remote added. Draft v1 stops
 here pending Yi-Chung's review. Optional M8 remains unstarted.
+
+## M7 — Demo GIFs draft v2, colour revision (2026-10-16)
+
+Yi-Chung reviewed v1: 「大致上不差，但黑白的好醜，你跟你的顧問請教一下怎麼美化」.
+Asked the upgraded advisor script once with the milestone, implementation,
+observations and consolidated palette/style questions. The read-only advisor
+returned `ANSWER:` (not a provisional decision or DEFER); the complete exchange
+is in parent `SYGARD_QA_LOG.md`. Advisor inspected the RGB contact sheet, not the
+GIFs, and recommended a dark flight-radar theme, exact reserved track colours,
+larger marks, and contact sheets from decoded GIF frames. Codex implemented it.
+
+Confirmed the original failure quantitatively: two sampled v1 final frames
+contained zero pixels with RGB channel spread >80. Adaptive quantization had
+allocated nearly every palette entry to the map and lost the saturated lines.
+
+Implemented dark navy `#0b1622` map/frame with desaturated inverted OSM mapped
+to navy/blue-grey. Saturated coral/yellow/cyan/green/purple aircraft colours are
+assigned by sorted ID within each scene (no hash collisions for these windows).
+Solid GT/history uses 3.5 pt strokes with a navy halo; lighter dashed predictions
+use 2.6 pt strokes; filled/hollow aircraft markers are 26/22 pt and boxed labels
+11 pt. Full-path ghosts use an explicit muted colour, avoiding alpha blending.
+`--theme light` retains a light OSM alternative. No additional visual variant
+was rendered in this revision.
+
+Encoding reserves 124 entries for background/text, exact trajectory colours,
+prediction/ghost variants and antialias blends; 131 entries serve the map-only
+quantization and one entry is reserved for transparency. All frames share this
+palette. Explicit transparent deltas plus `optimize=False, disposal=1` compress
+the static map while preserving the reserved indices. The contact sheet is now
+assembled from the decoded GIF final frames, not pre-encoding RGB frames.
+
+Command (existing cached tiles, CPU rendering only):
+
+```bash
+scripts/catk.sh -m src.eval.demo_gif --output-dir outputs/demo_gif_v2
+scripts/test.sh -q tests/test_demo_gif.py
+```
+
+Original v1 files remain under `outputs/demo_gif/`; the new ten GIFs, contact
+sheet and manifest are under ignored `outputs/demo_gif_v2/`. No model execution,
+training, packages, remote, input data or checkpoint changes. Selection, joint
+rollout indices and NPZ input hashes match v1 exactly.
+
+Acceptance (`docs/demo_gif_v2_acceptance.json` includes every window):
+
+```json
+{"draft":"v2","theme":"dark","gifs":10,"frames_each":109,
+ "size":[1200,900],"max_bytes":982727,"total_bytes":7948730,
+ "playback_frame_ms":110,"last_hold_ms":1500,
+ "inputs_and_rollout_indices_match_v1":true,"input_hashes_unchanged":true,
+ "protected_artifacts_unchanged":true,"exact_gt_colours_survive_all_ten":true}
+```
+
+**4 tests passed**, 18 existing dependency deprecation warnings. Added a
+regression with tiny saturated marks on a neutral gradient background: decoded
+GIF GT and prediction centre pixels must equal the reserved RGB exactly; the
+complete composited frame must equal the original quantized frame, including
+erasure of old icons. Existing synthetic animation also compares its decoded
+final frame against the renderer. Real-output acceptance decoded all109 frames
+of each GIF, checked dimensions/timing/loop/size, exact GT colour presence in
+all10 final frames, original input and rollout identity, and protected hashes.
+
+One visual self-review: viewed the decoded-GIF contact sheet and frames
+0/18/36/60/84/108 of scenarios000667_f0720 and000497_f0540. Saturated aircraft
+colours survive encoding and stand out clearly from the dark map. No obvious
+animation remnants or major ID-label clutter in these examples. GT/prediction
+remain visually close where paths almost coincide; attribution/key and map
+labels are intentionally subdued and small at contact-sheet scale. The map
+could feel too dark depending on display; leave that judgement to Yi-Chung.
+No taste iterations after this self-review. Commit locally and stop for feedback.

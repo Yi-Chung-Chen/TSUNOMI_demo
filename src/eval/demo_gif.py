@@ -1,4 +1,4 @@
-"""Draft-v1 top-down animations from saved rollouts; never invokes a model."""
+"""Colour-preserving top-down animations from saved rollouts; never invokes a model."""
 import argparse
 import hashlib
 import io
@@ -11,8 +11,9 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.path import Path as MarkerPath
 from matplotlib.transforms import Affine2D
+import matplotlib.patheffects as pe
 import numpy as np
-from PIL import Image, ImageEnhance
+from PIL import Image, ImageEnhance, ImageOps
 import requests
 
 from src.eval.load_rollout import load_rollout
@@ -21,7 +22,10 @@ ORIGIN = (41.980103, -87.903868)
 RADIUS = 6378137.
 SIZE = (1200, 900)
 MAP_RECT = (.025, .055, .95, .86)
-PALETTE = ['#007f86', '#b74b34', '#6652a3', '#278048', '#ab3581', '#ad7900', '#2368ac', '#764b36']
+PALETTE = ['#ff6b6b', '#ffd166', '#4cc9f0', '#80ed99', '#c77dff',
+           '#ff9f1c', '#f72585', '#3a86ff', '#2ec4b6', '#fca311']
+THEMES = dict(dark=dict(background='#0b1622', text='#e8eef5', muted='#8fa3b8'),
+              light=dict(background='#f5f8f7', text='#233e48', muted='#526873'))
 # East-pointing aircraft silhouette, heading is counter-clockwise from east.
 PLANE = MarkerPath(np.array([(1, 0), (.65, .12), (.12, .12), (-.35, .85),
     (-.55, .85), (-.35, .12), (-.75, .12), (-.95, .35), (-1, .35),
@@ -72,7 +76,7 @@ def view_bounds(points, aspect=SIZE[0]*MAP_RECT[2]/(SIZE[1]*MAP_RECT[3])):
     return np.stack((center-span/2, center+span/2))
 
 
-def basemap(bounds, cache):
+def basemap(bounds, cache, theme='dark'):
     span = bounds[1]-bounds[0]
     world_m = 2*np.pi*RADIUS*np.cos(np.radians(ORIGIN[0]))
     zoom = max(0, min(18, int(math.floor(math.log2(min(1140/span[0], 774/span[1])*world_m/256)))))
@@ -95,8 +99,41 @@ def basemap(bounds, cache):
                     mosaic.paste(tile.convert('RGB'), ((x-x0)*256, (y-y0)*256))
     # Crop to exact projected bounds, avoiding stretching entire boundary tiles.
     crop = mosaic.crop((left-x0*256, top-y0*256, right-x0*256, bottom-y0*256))
-    faded = Image.blend(ImageEnhance.Color(crop).enhance(.25), Image.new('RGB', crop.size, 'white'), .60)
+    if theme == 'dark':
+        faded = ImageOps.colorize(ImageOps.invert(ImageOps.grayscale(crop)), '#0b1622', '#55677d')
+        faded = ImageEnhance.Contrast(faded).enhance(.8)
+    else:
+        faded = Image.blend(ImageEnhance.Color(crop).enhance(.45), Image.new('RGB', crop.size, 'white'), .45)
     return faded, zoom, np.array([[left, top], [right, bottom]])
+
+
+def rgb(color):
+    return np.array(matplotlib.colors.to_rgb(color))
+
+
+def track_colours(color, theme):
+    base = rgb(color)
+    return base, base*.55+.45, base*.25+rgb(THEMES[theme]['background'])*.75
+
+
+def fixed_palette(map_image, theme='dark'):
+    """Reserve trajectory colours and antialias blends; map gets remaining slots."""
+    style = THEMES[theme]
+    colours = [tuple(round(x*255) for x in rgb(style[key])) for key in ('background','text','muted')]
+    colours.append((255,255,255))
+    for color in PALETTE:
+        for variant in track_colours(color, theme):
+            for weight in (1., .75, .5, .25):
+                mixed = variant*weight+rgb(style['background'])*(1-weight)
+                colours.append(tuple(np.rint(mixed*255).astype(int)))
+    remaining = 255-len(colours)  # Index255 is reserved solely for delta transparency.
+    mapped = map_image.convert('RGB').quantize(colors=remaining, dither=Image.Dither.NONE)
+    raw = mapped.getpalette()
+    colours += [tuple(raw[i*3:i*3+3]) for i in range(remaining)]
+    colours.append((1,2,3))
+    palette = Image.new('P',(1,1))
+    palette.putpalette([component for color in colours for component in color])
+    return palette
 
 
 def select_windows(root):
@@ -113,7 +150,7 @@ def select_windows(root):
     return selected
 
 
-def render_window(data, cache, skip=1):
+def render_window(data, cache, skip=1, theme='dark'):
     rollout, scores = choose_rollout(data)
     gt = data['gt_position'][..., :2].astype(float).copy()
     valid = data['valid_mask']
@@ -124,31 +161,34 @@ def render_window(data, cache, skip=1):
     pred[~pred_valid] = np.nan
     points = np.concatenate((gt[valid], data['position'][rollout, valid.any(axis=1), :, :2].reshape(-1, 2)))
     bounds = view_bounds(points)
-    image, zoom, pb = basemap(bounds, cache)
+    image, zoom, pb = basemap(bounds, cache, theme)
+    palette = fixed_palette(image, theme)
+    style = THEMES[theme]
     gtpx, predpx = enu_to_pixel(gt, zoom), enu_to_pixel(pred, zoom)
-    fig = plt.figure(figsize=(12, 9), dpi=100, facecolor='#f5f8f7')
+    fig = plt.figure(figsize=(12, 9), dpi=100, facecolor=style['background'])
     ax = fig.add_axes(MAP_RECT)
     ax.imshow(image, extent=(pb[0,0], pb[1,0], pb[1,1], pb[0,1]))
     ax.set(xlim=(pb[0,0], pb[1,0]), ylim=(pb[1,1], pb[0,1]), aspect='equal')
     ax.axis('off')
-    fig.text(.035, .955, f'{data["date"]} · {data["scenario"]}', fontsize=17, color='#233e48', weight='medium')
-    fig.text(.035, .025, '━━  ground truth      ┄┄  prediction', fontsize=10, color='#526873')
-    fig.text(.975, .025, '© OpenStreetMap contributors', ha='right', fontsize=9, color='#526873')
-    clock = fig.text(.965, .955, '', ha='right', fontsize=14, color='#233e48', animated=True)
+    fig.text(.035, .955, f'{data["date"]} · {data["scenario"]}', fontsize=18, color=style['text'], weight='medium')
+    fig.text(.035, .025, '━━  ground truth      ┄┄  prediction', fontsize=10, color=style['muted'])
+    fig.text(.975, .025, '© OpenStreetMap contributors', ha='right', fontsize=9, color=style['muted'])
+    clock = fig.text(.965, .955, '', ha='right', fontsize=16, fontfamily='monospace', color=style['text'], animated=True)
     artists = [clock]
     tracks = []
+    colour_index = {str(agent): i % len(PALETTE) for i, agent in enumerate(sorted(map(str,data['agent_id'])))}
     for a, agent in enumerate(data['agent_id']):
         if not valid[a].any():
             continue
-        index = int(hashlib.sha256(str(agent).encode()).hexdigest()[:8], 16) % len(PALETTE)
-        color = np.array(matplotlib.colors.to_rgb(PALETTE[index])); tint = color*.55+.45
-        ax.plot(*gtpx[a].T, color=color, alpha=.15, lw=1.2)
-        truth, = ax.plot([], [], color=color, lw=1.8, animated=True)
-        future, = ax.plot([], [], color=tint, lw=1.45, ls=(0,(4,3)), animated=True)
-        icon, = ax.plot([], [], marker=PLANE, ms=17, mfc=color, mec='white', mew=.6, ls='', animated=True)
-        ghost, = ax.plot([], [], marker=PLANE, ms=16, mfc='white', mec=tint, mew=1.3, ls='', animated=True)
-        label = ax.text(0, 0, str(agent), fontsize=8, color=color, animated=True,
-                        bbox=dict(facecolor='white', edgecolor='none', alpha=.65, pad=1))
+        color, tint, faint = track_colours(PALETTE[colour_index[str(agent)]], theme)
+        ax.plot(*gtpx[a].T, color=faint, lw=1.5)
+        truth, = ax.plot([], [], color=color, lw=3.5, animated=True,
+                        path_effects=[pe.Stroke(linewidth=6,foreground=style['background']),pe.Normal()])
+        future, = ax.plot([], [], color=tint, lw=2.6, ls=(0,(6,4)), animated=True)
+        icon, = ax.plot([], [], marker=PLANE, ms=26, mfc=color, mec=style['background'], mew=1.2, ls='', animated=True)
+        ghost, = ax.plot([], [], marker=PLANE, ms=22, mfc=style['background'], mec=tint, mew=2, ls='', animated=True)
+        label = ax.text(0, 0, str(agent), fontsize=11, color=style['text'], animated=True,
+                        bbox=dict(facecolor=style['background'], edgecolor=color, linewidth=1, pad=2))
         tracks.append((a, truth, future, icon, ghost, label))
         artists.extend([truth, future, ghost, icon, label])
     fig.canvas.draw()
@@ -166,7 +206,8 @@ def render_window(data, cache, skip=1):
             if valid[a,t]:
                 icon.set_data([gtpx[a,t,0]], [gtpx[a,t,1]])
                 icon.set_marker(PLANE.transformed(Affine2D().rotate(float(data['gt_heading'][a,t]))))
-                label.set_position(gtpx[a,t]+np.array([12, -12]))
+                # Convert a 16-display-pixel offset to map coordinates.
+                label.set_position(ax.transData.inverted().transform(ax.transData.transform(gtpx[a,t])+[16,16]))
             show_pred = k > 0 and pred_valid[a,k-1]
             ghost.set_visible(bool(show_pred))
             if show_pred:
@@ -175,34 +216,47 @@ def render_window(data, cache, skip=1):
         for artist in artists:
             (artist.axes.draw_artist if artist.axes else fig.draw_artist)(artist)
         frame = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[...,:3].copy())
-        frames.append(frame)
+        frames.append(frame.quantize(palette=palette, dither=Image.Dither.NONE))
     plt.close(fig)
     return frames, dict(rollout_index=rollout, scene_ADE_3d_m=float(scores[rollout]), zoom=zoom,
-                        bounds_enu_m=bounds.tolist(), frames=len(frames), skip=skip)
+                        bounds_enu_m=bounds.tolist(), frames=len(frames), skip=skip, theme=theme,
+                        aircraft_colours={str(a):PALETTE[colour_index[str(a)]] for a in data['agent_id']})
 
 
 def save_gif(frames, path, skip):
-    # One palette across time keeps the static basemap identical in GIF deltas.
-    atlas = Image.new('RGB', (600, 450*3))
-    for row, index in enumerate((0, len(frames)//2, len(frames)-1)):
-        atlas.paste(frames[index].convert('RGB').resize((600,450)), (0,row*450))
-    palette = atlas.quantize(colors=128, dither=Image.Dither.NONE)
-    frames = [frame.convert('RGB').quantize(palette=palette, dither=Image.Dither.NONE) for frame in frames]
+    # Explicit transparent deltas compress the static map without re-indexing
+    # the exact reserved colours (Pillow's optimize=True can re-index palettes).
+    palette = frames[0].getpalette()
+    encoded, previous = [], None
+    for frame in frames:
+        if frame.mode != 'P' or frame.getpalette() != palette:
+            raise ValueError('Frames must share the reserved palette')
+        indices = np.asarray(frame).copy()
+        indices[indices == 255] = 0
+        delta = indices.copy()
+        if previous is not None:
+            delta[indices == previous] = 255
+        converted = Image.fromarray(delta, mode='P')
+        converted.putpalette(palette)
+        encoded.append(converted)
+        previous = indices
     durations = [round(1000/9)*skip]*len(frames)
     durations[-1] = 1500
-    frames[0].save(path, save_all=True, append_images=frames[1:], duration=durations,
-                   loop=0, optimize=True, disposal=1)
+    encoded[0].save(path, save_all=True, append_images=encoded[1:], duration=durations,
+                   loop=0, optimize=False, disposal=1, transparency=255)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parents[2])
+    parser.add_argument('--output-dir', type=Path, default=Path('outputs/demo_gif'))
+    parser.add_argument('--theme', choices=THEMES, default='dark')
     args = parser.parse_args()
-    root = args.root.resolve(); out = root/'outputs/demo_gif'; out.mkdir(parents=True, exist_ok=True)
+    root = args.root.resolve(); out = root/args.output_dir; out.mkdir(parents=True, exist_ok=True)
     records, thumbs = [], []
     for path in select_windows(root):
         data = load_rollout(path)
-        frames, record = render_window(data, root/'data/basemap_cache')
+        frames, record = render_window(data, root/'data/basemap_cache', theme=args.theme)
         dest = out/f'{data["scenario"]}_f{int(data["start_frame"]):04d}.gif'
         save_gif(frames, dest, 1)
         if dest.stat().st_size > 8_000_000:
@@ -210,16 +264,19 @@ def main():
             save_gif(frames, dest, 2)
         if dest.stat().st_size > 8_000_000:
             raise RuntimeError(f'GIF exceeds 8 MB: {dest}')
-        thumb = frames[-1].convert('RGB'); thumb.thumbnail((480,360)); thumbs.append(thumb)
+        with Image.open(dest) as decoded:
+            decoded.seek(decoded.n_frames-1)
+            thumb = decoded.convert('RGB')
+        thumb.thumbnail((480,360)); thumbs.append(thumb)
         record.update(input=str(path.relative_to(root)), output=dest.name, bytes=dest.stat().st_size,
                       input_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
         records.append(record)
         print(json.dumps(record), flush=True)
-    sheet = Image.new('RGB', (2400,720), '#f5f8f7')
+    sheet = Image.new('RGB', (2400,720), THEMES[args.theme]['background'])
     for i, thumb in enumerate(thumbs):
         sheet.paste(thumb, ((i%5)*480, (i//5)*360))
     sheet.save(out/'contact_sheet.png')
-    (out/'manifest.json').write_text(json.dumps(dict(seed=0, draft='v1', selection='six existing + four random >=3 valid aircraft; no error ranking',
+    (out/'manifest.json').write_text(json.dumps(dict(seed=0, draft='v2', theme=args.theme, contact_sheet_source='decoded GIF last frames', selection='six existing + four random >=3 valid aircraft; no error ranking',
         score='equal-aircraft mean 3D ADE over all valid future frames of targets', windows=records), indent=2)+'\n')
 
 

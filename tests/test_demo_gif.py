@@ -42,7 +42,7 @@ def test_joint_argmin_uses_all_targets_full_valid_horizon():
 
 
 def test_synthetic_render_and_encoded_animation(tmp_path,monkeypatch):
-    def fake_map(bounds,cache):
+    def fake_map(bounds,cache,theme):
         pixels=gif.enu_to_pixel(bounds,12)
         return Image.new('RGB',(100,100),'white'),12,np.stack((pixels.min(axis=0),pixels.max(axis=0)))
     monkeypatch.setattr(gif,'basemap',fake_map)
@@ -55,3 +55,29 @@ def test_synthetic_render_and_encoded_animation(tmp_path,monkeypatch):
         assert image.info['loop']==0
         image.seek(108)
         assert image.info['duration']==1500
+        np.testing.assert_array_equal(np.asarray(image.convert('RGB')),np.asarray(frames[-1].convert('RGB')))
+
+
+def test_reserved_colours_survive_encoding_and_delta_erases_old_icons(tmp_path):
+    # Tiny coloured marks on a detailed neutral map formerly all became grey.
+    grey=np.tile(np.arange(256,dtype=np.uint8),(128,1))
+    background=Image.fromarray(np.repeat(grey[:,:,None],3,axis=2))
+    palette=gif.fixed_palette(background)
+    frames=[]; samples=[]
+    for step in range(2):
+        arr=np.array(background)
+        for i,color in enumerate(gif.PALETTE):
+            for j,variant in enumerate(gif.track_colours(color,'dark')[:2]):
+                value=np.rint(variant*255).astype(np.uint8)
+                x,y=10+i*24,10+step*50+j*15
+                arr[y:y+3,x:x+3]=value
+                samples.append((step,x+1,y+1,value))
+        frames.append(Image.fromarray(arr).quantize(palette=palette,dither=Image.Dither.NONE))
+    path=tmp_path/'colours.gif'; gif.save_gif(frames,path,1)
+    with Image.open(path) as decoded:
+        for step,x,y,value in samples:
+            decoded.seek(step)
+            np.testing.assert_array_equal(np.asarray(decoded.convert('RGB'))[y,x],value)
+        decoded.seek(1)
+        # Check the complete composite, including where icons existed in frame0.
+        np.testing.assert_array_equal(np.asarray(decoded.convert('RGB')),np.asarray(frames[1].convert('RGB')))

@@ -17,13 +17,15 @@ This command merges the existing date indexes if needed, loads `outputs/air_pre_
 
 The active split is train=09-28..10-02 (618 scenarios), val=10-03+10-04 (182 scenarios, 912 existing windows). There is no test split in this set. Original date indexes are retained under ignored `data/splits/legacy_date_splits/`; merging never rebuilds windows. Train indexes, type vocabulary, motion dictionary and BC checkpoint remain byte-for-byte unchanged. 10-03 selected epoch 16 and dictionary configuration (K2048/chord heading); 10-04 did not participate in either choice, so results are reported separately and combined.
 
-To render draft-v1 GIFs from existing BC rollout files, without loading a model:
+To render GIFs from existing BC rollout files, without loading a model:
 
 ```bash
-scripts/catk.sh -m src.eval.demo_gif
+scripts/catk.sh -m src.eval.demo_gif --output-dir outputs/demo_gif_v2
 ```
 
-This writes ten 1200×900 top-down animations, `contact_sheet.png` and a selection/validation `manifest.json` under ignored `outputs/demo_gif/`. Windows are the six existing examples plus four seed-0 random windows with at least three valid aircraft. Each scene uses one joint rollout minimizing the equal-aircraft mean 3D ADE over targets' full valid future horizons; this visualization selection does not change M6 metrics. OSM tiles use a descriptive User-Agent and are reused from ignored `data/basemap_cache/`. Rendering needs network access only for uncached tiles. Draft v1 stops after one visual self-review, pending Yi-Chung's feedback.
+This writes ten 1200×900 top-down animations, `contact_sheet.png` and a selection/validation `manifest.json` under ignored `outputs/demo_gif_v2/`. Omit `--output-dir` to use `outputs/demo_gif/`. Windows are the six existing examples plus four seed-0 random windows with at least three valid aircraft. Each scene uses one joint rollout minimizing the equal-aircraft mean 3D ADE over targets' full valid future horizons; this visualization selection does not change M6 metrics. OSM tiles use a descriptive User-Agent and are reused from ignored `data/basemap_cache/`. Rendering needs network access only for uncached tiles.
+
+Draft v2 follows Yi-Chung's feedback on v1's grey GIF colours: a dark navy map, saturated aircraft colours, thicker trajectories and larger icons/labels. `--theme light` provides a light map alternative. A shared 256-entry palette reserves exact track colours plus antialias blends before allocating the remaining entries to the map. Explicit transparent frame deltas preserve both colour and compression. The contact sheet uses decoded GIF frames so it reflects the encoded animations. Original v1 outputs are retained in `outputs/demo_gif/`. Each revision stops after one visual self-review for Yi-Chung's feedback.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 
