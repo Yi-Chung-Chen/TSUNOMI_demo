@@ -288,3 +288,60 @@ Combined all-agent comparison (horizontal, metres):
 BC beats CV on combined/all horizontal and vertical minADE/ADE/FDE at each10/20/30s horizon. This is not a statement about every ground/date subgroup; full per-subgroup yes/no comparisons are in outputs/eval/summary.md and docs/demo_results.md. Counts at10/20/30s:1540/1321/1090 agent-window instances. Report explicitly discloses10-03 dictionary-configuration and checkpoint selection;10-04 unused before Demo.
 
 Done-when outputs verified:outputs/eval/summary.csv, summary.md, outputs/demo/6PNG files; selection.json lists seed0 and phase-selected targets, never ranked by error. PNGs visually inspected for history/GT/32predictions and altitude panel. The old M7 is merged into this M6; optional M8 was not started.
+
+## M7 — Demo GIFs draft v1 (2026-10-16)
+
+Implemented plan §4.1 item8 / new M7 in `src/eval/demo_gif.py`.
+Command: `scripts/catk.sh -m src.eval.demo_gif`. Reads existing BC NPZ only;
+no model execution, training, GPU use or package installation. OSM standard tiles
+are fetched with a descriptive User-Agent and reused under ignored
+`data/basemap_cache/`. Network sandbox escalation was used for those downloads.
+
+Selection: the six existing `outputs/demo/selection.json` windows, then four
+seed-0 random windows among remaining windows with at least three aircraft having
+valid GT. No window error ranking. One coherent joint rollout per scene minimizes
+equal-aircraft mean 3D ADE over each target's full valid future horizon. This is
+visualization-only selection and leaves the M6 evaluation unchanged.
+
+Rendering: fixed top-down equal-aspect view; all GT and chosen-rollout xy bounds
+with approximately 10% padding; local tangent plane about (41.980103,-87.903868)
+to Web Mercator; desaturated OSM blended with 60% white. Solid GT/history, faint
+full-GT ghost, lighter dashed predictions, heading-rotated aircraft, subtle IDs,
+minimal key and OSM attribution. Prediction trails and markers stop at the first
+invalid GT after current time; GT gaps break lines. Stable ID-derived qualitative
+colours are used before GIF quantization. Full animation is -6 through +30 s,
+109 frames at native 3 Hz, playback 110 ms/frame and final 1500 ms hold, looping.
+One shared 128-colour palette and transparent GIF deltas meet the size limit
+without frame skipping.
+
+Acceptance output (`docs/demo_gif_acceptance.json` contains per-window details):
+
+```json
+{"gifs":10,"frames_each":109,"size":[1200,900],"max_bytes":745132,
+ "total_bytes":6338442,"playback_frame_ms":110,"last_hold_ms":1500,
+ "rollout_argmin_verified":10,"input_hashes_unchanged":true,
+ "protected_artifacts_unchanged":true}
+```
+
+`scripts/test.sh -q tests/test_demo_gif.py`: **3 passed**, 18 existing matplotlib /
+pyparsing deprecation warnings. Tests independently check origin and ENU/pixel
+round-trip, bounds inclusion, joint ADE argmin with non-target/invalid outliers,
+and actual synthetic 109-frame GIF encoding including loop and final hold.
+Acceptance additionally decoded every frame of all ten real GIFs, checked timing,
+resolution, size, deterministic selection, argmin, input SHA256, and protected
+train indexes/vocabulary/dictionary/checkpoint hashes against the M6 receipt.
+
+One visual self-review completed: inspected `outputs/demo_gif/contact_sheet.png`
+and decoded frames 0/18/36/60/84/108 of both
+`scenario_000667_aircraft_f0720.gif` and `scenario_000497_aircraft_f0540.gif`.
+Paths grow and the view stays fixed. No major label clutter in these examples;
+the map is readable but competes with the thin trajectories at reduced size.
+**Known visual limitation:** quantization noticeably washes out aircraft colours
+in the GIFs compared with the RGB contact sheet, making some aircraft colours
+and overlapping GT/prediction lines harder to distinguish. Small IDs and the
+tiny dashed key are also hard to read in thumbnails. These are recorded for
+Yi-Chung's visual feedback; no taste iteration was performed after self-review.
+
+Ten GIFs, contact sheet and manifest remain under ignored `outputs/demo_gif/`.
+Code and acceptance record committed locally; no remote added. Draft v1 stops
+here pending Yi-Chung's review. Optional M8 remains unstarted.

@@ -1,0 +1,228 @@
+{
+  "gifs": 10,
+  "frames_each": 109,
+  "size": [
+    1200,
+    900
+  ],
+  "max_bytes": 745132,
+  "total_bytes": 6338442,
+  "playback_frame_ms": 110,
+  "last_hold_ms": 1500,
+  "rollout_argmin_verified": 10,
+  "input_hashes_unchanged": true,
+  "protected_artifacts_unchanged": true,
+  "tests": "3 passed, 18 existing dependency deprecation warnings",
+  "windows": [
+    {
+      "rollout_index": 27,
+      "scene_ADE_3d_m": 108.20322808159722,
+      "zoom": 14,
+      "bounds_enu_m": [
+        [
+          -3038.3424560546873,
+          -4153.097815326892
+        ],
+        [
+          4652.874438476562,
+          1068.8336551706416
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000667_aircraft_f0720.npz",
+      "output": "scenario_000667_aircraft_f0720.gif",
+      "bytes": 658792,
+      "input_sha256": "61052585f359ae3c45df1514ff78c870fc3d31387580e4ae283d9afc72a4d435"
+    },
+    {
+      "rollout_index": 12,
+      "scene_ADE_3d_m": 13.146371120876736,
+      "zoom": 14,
+      "bounds_enu_m": [
+        [
+          -493.35333518094785,
+          -1874.6694274902343
+        ],
+        [
+          3999.7482784182525,
+          1175.910089111328
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000497_aircraft_f0540.npz",
+      "output": "scenario_000497_aircraft_f0540.gif",
+      "bytes": 602817,
+      "input_sha256": "ab5289cb6d8d0737a025c3128eccec067b633ad2426c5408009550bcf24f56e0"
+    },
+    {
+      "rollout_index": 11,
+      "scene_ADE_3d_m": 3.796995326450893,
+      "zoom": 15,
+      "bounds_enu_m": [
+        [
+          -1552.7743408203125,
+          1560.5205825966282
+        ],
+        [
+          1276.7052490234375,
+          3481.588304122122
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000387_aircraft_f0360.npz",
+      "output": "scenario_000387_aircraft_f0360.gif",
+      "bytes": 315093,
+      "input_sha256": "c3a77ab0a7536c47a6bc0b6fd3d50859433fdcaadc04e1ff49cc274b13f49a57"
+    },
+    {
+      "rollout_index": 0,
+      "scene_ADE_3d_m": 26.57584703233507,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -2472.7816247274704,
+          -7188.342358398437
+        ],
+        [
+          7176.64099972747,
+          -636.8922607421878
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000336_aircraft_f0270.npz",
+      "output": "scenario_000336_aircraft_f0270.gif",
+      "bytes": 528848,
+      "input_sha256": "97ffab44c322fefe34012a13f4f57903745fe2461ac78042b7a06c77c2f5f458"
+    },
+    {
+      "rollout_index": 25,
+      "scene_ADE_3d_m": 55.062706841362846,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -3667.50859375,
+          -2210.4381550678454
+        ],
+        [
+          4755.8708984375,
+          3508.5931843647204
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000334_aircraft_f0360.npz",
+      "output": "scenario_000334_aircraft_f0360.gif",
+      "bytes": 745132,
+      "input_sha256": "361c43b53de493e84df87df9b85252f154b5eba5843b48ebb31bf709b6c7b415"
+    },
+    {
+      "rollout_index": 24,
+      "scene_ADE_3d_m": 80.6437301070602,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -3976.7362316042863,
+          -6802.181604003906
+        ],
+        [
+          8570.236231604285,
+          1716.5523315429682
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000197_aircraft_f0180.npz",
+      "output": "scenario_000197_aircraft_f0180.gif",
+      "bytes": 714383,
+      "input_sha256": "e97e112c9852d7f870ed6f66d66045d8c1764428198516544d848c7d7c955160"
+    },
+    {
+      "rollout_index": 30,
+      "scene_ADE_3d_m": 65.06870930989584,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -4639.30205078125,
+          -5294.296473195929
+        ],
+        [
+          5416.04521484375,
+          1532.7550913599916
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000204_aircraft_f0720.npz",
+      "output": "scenario_000204_aircraft_f0720.gif",
+      "bytes": 681487,
+      "input_sha256": "02ee014d9c9e25a7759c6e1453d9a31a9d4837ee082320f2eccb821ef5903ea6"
+    },
+    {
+      "rollout_index": 19,
+      "scene_ADE_3d_m": 28.303331163194443,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -4734.277587890625,
+          -4931.253268271998
+        ],
+        [
+          6242.760498046875,
+          2521.577853232936
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000333_aircraft_f0720.npz",
+      "output": "scenario_000333_aircraft_f0720.gif",
+      "bytes": 721856,
+      "input_sha256": "ebd161f8db7db30ebc76e2d4ab2339d529fff52e9d1e6f936a3093c83134b3fc"
+    },
+    {
+      "rollout_index": 10,
+      "scene_ADE_3d_m": 41.00577211733218,
+      "zoom": 13,
+      "bounds_enu_m": [
+        [
+          -3396.12958984375,
+          -4108.095556897615
+        ],
+        [
+          8363.92548828125,
+          3876.3628908819906
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000536_aircraft_f0090.npz",
+      "output": "scenario_000536_aircraft_f0090.gif",
+      "bytes": 694926,
+      "input_sha256": "78519fdc18011ebcb7c8ba663567996f4c6b14c612a597481aef882bb770b590"
+    },
+    {
+      "rollout_index": 2,
+      "scene_ADE_3d_m": 73.56141283540113,
+      "zoom": 14,
+      "bounds_enu_m": [
+        [
+          -1766.4991821289063,
+          -3588.319698422081
+        ],
+        [
+          3405.363562011719,
+          -76.89709845291918
+        ]
+      ],
+      "frames": 109,
+      "skip": 1,
+      "input": "outputs/demo_rollouts/bc/scenario_000337_aircraft_f0540.npz",
+      "output": "scenario_000337_aircraft_f0540.gif",
+      "bytes": 675108,
+      "input_sha256": "889efcc4052f9209dd00064e84b48e07ab1893bc3a30fc39bd65205ffa0b0967"
+    }
+  ]
+}

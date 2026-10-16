@@ -1,6 +1,6 @@
 # sygard-motion
 
-BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6/7, and M6 Demo. No CAT-K or retraining is part of the Demo.
+BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–8, M6 Demo and M7 Demo GIFs. No CAT-K or retraining is part of the Demo.
 
 Run from this repository in the existing catk environment:
 
@@ -16,6 +16,14 @@ This command merges the existing date indexes if needed, loads `outputs/air_pre_
 - `outputs/eval/acceptance.json`: runtime, checkpoint identity and unchanged protected-artifact hashes.
 
 The active split is train=09-28..10-02 (618 scenarios), val=10-03+10-04 (182 scenarios, 912 existing windows). There is no test split in this set. Original date indexes are retained under ignored `data/splits/legacy_date_splits/`; merging never rebuilds windows. Train indexes, type vocabulary, motion dictionary and BC checkpoint remain byte-for-byte unchanged. 10-03 selected epoch 16 and dictionary configuration (K2048/chord heading); 10-04 did not participate in either choice, so results are reported separately and combined.
+
+To render draft-v1 GIFs from existing BC rollout files, without loading a model:
+
+```bash
+scripts/catk.sh -m src.eval.demo_gif
+```
+
+This writes ten 1200×900 top-down animations, `contact_sheet.png` and a selection/validation `manifest.json` under ignored `outputs/demo_gif/`. Windows are the six existing examples plus four seed-0 random windows with at least three valid aircraft. Each scene uses one joint rollout minimizing the equal-aircraft mean 3D ADE over targets' full valid future horizons; this visualization selection does not change M6 metrics. OSM tiles use a descriptive User-Agent and are reused from ignored `data/basemap_cache/`. Rendering needs network access only for uncached tiles. Draft v1 stops after one visual self-review, pending Yi-Chung's feedback.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 
