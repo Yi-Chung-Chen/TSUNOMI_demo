@@ -13,7 +13,7 @@ The implementer is Codex or Yi-Chung. The plan author wrote this plan only and d
 
    Copy code into the new repo. Do not import from these repos and do not symlink into them.
 3. Do not copy raw data into the repo. Read it via a config path. Processed outputs go to `data/` (git-ignored).
-4. Work milestone by milestone (M0 to M7 below). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
+4. Work milestone by milestone (M0 through the current M6 Demo). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
 5. `.gitignore` must use **anchored** patterns (`/data/`, `/logs/`, `/outputs/`).
    - Lesson learned: `catk_starcraft_release` had `datasets/`, which silently dropped `src/starcraft/datasets/sc_dataset.py` from git.
    - After each commit, run `git ls-files src | wc -l` and confirm that every `src/**/*.py` is tracked.
@@ -58,7 +58,7 @@ sygard-motion/
     model/   air_smart.py  decoder.py  agent_decoder.py                      (M5)
     metrics/ cross_entropy.py                                                (M5)
     rollout/ sampling.py  rollout_io.py                                      (M6)
-    eval/    load_rollout.py  kinematics.py  log_kde.py  metrics/*  aggregate.py  (M7)
+    eval/    load_rollout.py  demo_plots.py  metrics/*  aggregate.py  (M6 Demo)
   scripts/                  # thin CLI wrappers + shell scripts for each stage
   tests/
   data/                     # git-ignored: processed/, splits/, motion_dict/
@@ -68,3 +68,6 @@ sygard-motion/
 
 ## Commands
 Use `scripts/catk.sh -m src.run --help` and `scripts/test.sh -q`. Follow the parent SYGARD_MOTION_PLAN.md sections 4.1 and 4.2. Record validation in PROGRESS.md; unresolved advisor decisions in QUESTIONS.md. GPU visibility must be 1,3 and usage checked before training.
+
+## Current scope override (2026-10-16)
+D1 / plan §4.1 items6/7 override earlier text: val=10-03+10-04, merge existing indexes only; no test split. M6 is BC-only Demo from epoch_016.ckpt, 32 rollouts, topk5/temp1, CPU if GPU busy. No CAT-K, no retraining, no old M7. Future BC config20epochs only; do not launch training. Preserve train manifests/windows, vocabulary, dictionary and checkpoint bytes.

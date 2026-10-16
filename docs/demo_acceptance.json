@@ -1,0 +1,27 @@
+{
+  "windows": 912,
+  "dates": {
+    "2026-10-03": 488,
+    "2026-10-04": 424
+  },
+  "rollouts": 32,
+  "num_k": 5,
+  "temp": 1.0,
+  "device": "cpu",
+  "checkpoint": "outputs/air_pre_bc/checkpoints/epoch_016.ckpt",
+  "checkpoint_epoch": 16,
+  "plot_count": 6,
+  "elapsed_s": 511.9214086429565,
+  "seed": 817,
+  "plot_seed": 0,
+  "protected_sha256": {
+    "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+    "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+    "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a"
+  },
+  "gt_replay_exact_zero": true,
+  "no_training": true,
+  "full_demo": true
+}

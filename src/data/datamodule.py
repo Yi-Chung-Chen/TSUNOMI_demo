@@ -19,8 +19,8 @@ class AirDataModule(L.LightningDataModule):
             self.val_dataset = AirDataset(**self.dataset_config, split='val')
         if stage == 'validate':
             self.val_dataset = AirDataset(**self.dataset_config, split='val')
-        if stage in (None, 'test'):
-            self.test_dataset = AirDataset(**self.dataset_config, split='test')
+        if stage == 'test':
+            raise ValueError('This dataset has no test split; use merged val')
 
     def _loader(self, dataset, batch_size, shuffle=False):
         return DataLoader(dataset, batch_size=batch_size, shuffle=shuffle,
@@ -34,4 +34,4 @@ class AirDataModule(L.LightningDataModule):
         return self._loader(self.val_dataset, self.val_batch_size)
 
     def test_dataloader(self):
-        return self._loader(self.test_dataset, self.val_batch_size)
+        raise ValueError('No test split is defined')

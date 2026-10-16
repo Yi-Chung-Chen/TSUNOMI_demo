@@ -52,6 +52,7 @@ class AirDataset(torch.utils.data.Dataset):
         agent['train_mask'] = torch.from_numpy(target_mask(valid, self.current_frame_idx, self.min_future_frames))
         graph['scenario'] = row['scenario']
         graph['start_frame'] = start
+        graph['date'] = str(d['date'])
         graph['pos_scale'] = self.pos_scale
         graph['bounds_json'] = str(d['bounds_json'])
         return graph

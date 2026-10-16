@@ -45,7 +45,7 @@ def main():
     p.add_argument('--train-stride', type=int, default=15)
     p.add_argument('--eval-stride', type=int, default=90)
     args = p.parse_args()
-    for split in ['train', 'val', 'test']:
+    for split in ['train', 'val']:
         names = (args.split_dir / f'{split}_manifest.txt').read_text().splitlines()
         rows = index_windows(args.processed_dir, names,
                              args.train_stride if split == 'train' else args.eval_stride,

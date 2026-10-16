@@ -40,3 +40,19 @@ Exit code: 1. See outputs/m5_execution/runner.log, smoke.log and bc.log. M5 is n
 ## M5 checkpoint gate — resolved provisionally
 
 Full GPU run finished 128 epochs / 98304 steps; previous ERROR was an incorrect verifier assertion that last.ckpt must contain epoch127. Lightning2.4 save_last=link retained best epoch16. The advisor approved verifying complete CSV/log evidence and using best epoch16 checkpoint for M6; final epoch127 weights are unavailable. Future config now uses save_last=true. No resource change or rerun requested. Full Q/A in ../SYGARD_QA_LOG.md.
+
+## M6 resource wait
+
+Implementation and27 tests pass, including a32-rollout CPU integration. GPU1/3 both occupied at100%, about45GB each. Wait for one to be entirely unoccupied; no sharing/termination authorized. M7 waits for M6 GPU gate. Any runner ERROR is appended here automatically.
+
+### M6 CPU checkpoint load ERROR — resolved
+
+Copied run.py deserialized GPU checkpoint storages without map_location, failing under CPU sandbox. Fixed to map_location=cpu before Trainer placement; CPU train+32-rollout validation now passes. This prevents loading onto a different logical GPU than the selected one.
+
+## Prior M6 resource wait — superseded
+
+User replaced CAT-K/GPU M6 with BC-only CPU Demo, merged val/test indexes without rebuilding, and prohibited retraining. Stopped waiting tmux before training; no GPU wait remains. Old M6 resource questions/runner cancellation are closed by the new scope. Metrics and plot ambiguities resolved provisionally via the advisor; full Q/A in ../SYGARD_QA_LOG.md.
+
+## M6 Demo complete
+
+No unresolved blocker. Full CPU Demo passed; protected inputs unchanged; no training. Provisional metric/plot details and validation-selection disclosure are documented in PROGRESS.md and docs/demo_results.md. Old GPU/CAT-K wait is closed.

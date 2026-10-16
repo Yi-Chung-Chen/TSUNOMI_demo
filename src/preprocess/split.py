@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 DEFAULT_DATES = dict(train=['2026-09-28', '2026-09-29', '2026-09-30', '2026-10-01', '2026-10-02'],
-                     val=['2026-10-03'], test=['2026-10-04'])
+                     val=['2026-10-03', '2026-10-04'])
 
 
 def create_splits(processed_dir, output_dir, dates=None, top_types=31):

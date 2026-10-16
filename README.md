@@ -1,35 +1,30 @@
 # sygard-motion
 
-Aircraft trajectory prediction on the 800-scenario SYGARD ORD dataset. Work follows `../SYGARD_MOTION_PLAN.md`. Raw data stays outside this repository; all processed outputs are ignored.
+BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6/7, and M6 Demo. No CAT-K or retraining is part of the Demo.
 
-Use the existing `catk` environment through `scripts/catk.sh`. Training uses only physical GPUs 1 and 3 after verifying availability. No remote is configured.
-
-Timing: 3 Hz, 6 s history, 2 s tokens, 30 s future. Split by UTC date; flights may continue across midnight at split boundaries. Heights use altitude minus 166 m and retain altitude fallback flags.
-
-Code attribution: copied SMART/CAT-K files retain their original headers; see LICENSE and LICENSE.SMART. Raw data originates from ADSB.lol historical traces (ODbL 1.0); see the source dataset README for provenance.
-
-Implemented preprocessing commands (run from this repository):
+Run from this repository in the existing catk environment:
 
 ```bash
-scripts/catk.sh -m src.preprocess.ingest --workers 4
-scripts/catk.sh -m src.preprocess.split
-scripts/catk.sh -m src.preprocess.windows
-scripts/catk.sh -m src.preprocess.motion_dict
-scripts/catk.sh -m src.preprocess.motion_dict_eval
+scripts/catk.sh -m scripts.run_demo
+```
+
+This command merges the existing date indexes if needed, loads `outputs/air_pre_bc/checkpoints/epoch_016.ckpt` on CPU, generates 32 joint rollouts with topk_prob K=5/temp=1, evaluates 3D constant velocity and exact GT replay, and writes:
+
+- `outputs/eval/summary.csv` and `summary.md`: 10/20/30s horizontal/vertical minADE, ADE, FDE and 30 s horizontal miss rate, split by date and current ground status; explicit BC-vs-CV comparisons.
+- `outputs/demo/*.png`: six windows selected by seeded GT phase strata (climbing/descending/level/ground), never by prediction error.
+- `outputs/demo_rollouts/{bc,constant_velocity,gt_replay}/*.npz`: metre-valued positions `[32,N,90,3]`, raw GT `[N,109,3]`, validity/target masks, date and agent metadata.
+- `outputs/eval/acceptance.json`: runtime, checkpoint identity and unchanged protected-artifact hashes.
+
+The active split is train=09-28..10-02 (618 scenarios), val=10-03+10-04 (182 scenarios, 912 existing windows). There is no test split in this set. Original date indexes are retained under ignored `data/splits/legacy_date_splits/`; merging never rebuilds windows. Train indexes, type vocabulary, motion dictionary and BC checkpoint remain byte-for-byte unchanged. 10-03 selected epoch 16 and dictionary configuration (K2048/chord heading); 10-04 did not participate in either choice, so results are reported separately and combined.
+
+The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
+
+Timing: 3 Hz, 6 s history, 2 s tokens, 30 s future. The committed dictionary is K=2048/shift=6/causal chord heading. Rollout starts at tokenized current pose and never reads future GT. ADE/FDE average the 32 rollouts; minADE picks the best full trajectory per agent independently for horizontal/vertical errors. Miss rate is the fraction of eligible agents whose 32 endpoints all exceed 500 m horizontally; the mean per-rollout miss fraction is also shown. Eligibility requires every GT frame through the horizon. Counts refer to agent-window instances.
+
+```bash
 scripts/test.sh -q
 ```
 
-The committed dictionary is K2048, shift 6, causal chord heading. See [motion dictionary validation](docs/motion_dict.md) for the full train-only vocabulary sweep and val reconstruction results. Dictionary selection never uses test. Forecasting will use only aircraft present at current time; future entrants are excluded.
+Geometry uses float64; neural features use float32. Unit conversions are centralized in `src/common/units.py`. Heights are altitude minus 166 m; altitude-fallback flags are preserved. Flights may continue across midnight at split boundaries. Raw data stays outside this repo; all generated data and outputs are ignored. No Git remote is configured.
 
-Geometry uses float64 during nearest-token matching and detokenization for consistent NumPy/Torch reconstruction. Trainable neural embeddings use float32. Position scaling and altitude reference conversions are centralized in `src/common/units.py`.
-
-M5 training (requires an external terminal or approved sandbox escalation):
-
-```bash
-scripts/catk.sh -m scripts.check_overfit
-scripts/run_m5_when_idle.sh
-```
-
-The runner waits until GPU 1 or 3 has no compute process and is idle on two consecutive checks. It runs a real CUDA one-epoch smoke check, then full 128-epoch BC with batch size 32. It checks CUDA log evidence, both checkpoints, val accuracy/minADE and horizon counts before marking M5 complete and committing. It never terminates other GPU work. Full training includes all train/val windows; smoke uses 16 train batches and 4 val batches.
-
-M5 open-loop minADE is a teacher-forced diagnostic: six rank-based token modes decoded from GT-conditioned anchors, evaluated against raw GT over 30 s in 3D. Closed-loop forecast metrics belong to M6/M7.
+Copied SMART/CAT-K code retains original headers; see LICENSE and LICENSE.SMART. Dataset provenance: ADSB.lol historical traces (ODbL 1.0), as documented in the source dataset README. Historical dictionary reconstruction results (day 10-03) are in `docs/motion_dict.md`; they are not forecast errors.

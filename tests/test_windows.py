@@ -21,7 +21,7 @@ def test_train_only_vocabulary_and_date_split(tmp_path):
     for i, (day, kind) in enumerate([('2026-09-28', 'B738'), ('2026-10-03', 'VAL_ONLY'), ('2026-10-04', 'TEST_ONLY')]):
         np.savez(data / f's{i}.npz', date=day, agent_type=[kind])
     names, vocab = create_splits(data, tmp_path / 'splits')
-    assert names == {'train': ['s0'], 'val': ['s1'], 'test': ['s2']}
+    assert names == {'train': ['s0'], 'val': ['s1', 's2']}
     assert vocab == {'UNK': 0, 'B738': 1}
     with pytest.raises(ValueError, match='overlap'):
         create_splits(data, tmp_path / 'bad', dict(train=['x'], val=['x']))
@@ -33,7 +33,7 @@ def test_all_generated_windows():
     if not split_dir.exists():
         pytest.skip('Run split and windows CLIs for integration acceptance')
     sets = []
-    for split in ['train', 'val', 'test']:
+    for split in ['train', 'val']:
         scenarios = set((split_dir / f'{split}_manifest.txt').read_text().splitlines())
         sets.append(scenarios)
         cache = {}
@@ -47,6 +47,6 @@ def test_all_generated_windows():
                         cache[name] = d['valid']
                 n = target_mask(cache[name][:, start:start + 109]).sum()
                 assert n >= 1 and n == int(row['n_targets'])
-    assert not (sets[0] & sets[1] or sets[0] & sets[2] or sets[1] & sets[2])
-    assert [len(s) for s in sets] == [618, 91, 91]
+    assert not sets[0] & sets[1]
+    assert [len(s) for s in sets] == [618, 182]
     assert len(json.loads((split_dir / 'type_vocab.json').read_text())) == 32
