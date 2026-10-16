@@ -1,0 +1,11 @@
+# @package _global_
+action: finetune
+model:
+  lr: 0.00005
+  label_smoothing: 0.0
+  finetune: true
+  num_k: 32
+  temp: 0.00001
+  n_rollout_closed_val: 32
+trainer:
+  max_epochs: 8

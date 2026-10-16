@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - data: sygard
+  - model: air_smart
+  - callbacks: default
+  - logger: wandb
+  - trainer: default
+  - paths: default
+  - hydra: default
+  - experiment: air_pre_bc
+action: fit
+task_name: sygardmotion
+ckpt_path: null
+train_log_dir: null
+seed: 817

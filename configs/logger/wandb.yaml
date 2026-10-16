@@ -1,0 +1,5 @@
+wandb:
+  _target_: lightning.pytorch.loggers.WandbLogger
+  project: sygard-motion
+  save_dir: ${paths.output_dir}
+  offline: true

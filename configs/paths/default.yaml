@@ -1,0 +1,7 @@
+root_dir: ${hydra:runtime.cwd}
+log_dir: ${paths.root_dir}/logs/
+output_dir: ${hydra:runtime.output_dir}
+sygard_root: /local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_training_800_3hz
+processed_dir: ${paths.root_dir}/data/processed
+split_dir: ${paths.root_dir}/data/splits
+motion_dict: ${paths.root_dir}/assets/motion_dict_K1024_s6.pkl

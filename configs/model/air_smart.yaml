@@ -1,0 +1,7 @@
+_target_: src.model.air_smart.AirSMART
+motion_dict: ${paths.motion_dict}
+hidden_dim: 64
+num_heads: 4
+num_layers: 4
+lr: 0.0005
+label_smoothing: 0.1

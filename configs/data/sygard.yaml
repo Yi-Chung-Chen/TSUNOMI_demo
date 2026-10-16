@@ -1,0 +1,10 @@
+_target_: src.data.datamodule.AirDataModule
+processed_dir: ${paths.processed_dir}
+split_dir: ${paths.split_dir}
+pos_scale: 10.0
+current_frame_idx: 18
+future_frames: 90
+min_future_frames: 30
+train_batch_size: 4
+val_batch_size: 4
+num_workers: 4

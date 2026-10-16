@@ -1,0 +1,6 @@
+# Local, credential-free experiment logging.
+csv:
+  _target_: lightning.pytorch.loggers.CSVLogger
+  save_dir: ${paths.output_dir}
+  name: metrics
+  version: ""
