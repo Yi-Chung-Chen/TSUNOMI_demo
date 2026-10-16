@@ -8,3 +8,4 @@ min_future_frames: 30
 train_batch_size: 4
 val_batch_size: 4
 num_workers: 4
+radius: 2.0

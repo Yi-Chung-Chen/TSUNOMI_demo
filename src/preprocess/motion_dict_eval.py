@@ -37,6 +37,9 @@ def load_validation(processed_dir, split_dir, split='val', current_frame_idx=18,
 
 def reconstruct(dictionary, position_m, heading, valid, on_ground, horizon_s,
                 autoregressive=True, current_frame_idx=18):
+    # Float64 geometry avoids platform-dependent nearest-token ties in long chains.
+    position_m = position_m.astype(np.float64)
+    heading = heading.astype(np.float64)
     shift = dictionary['meta']['shift']
     horizon = int(round(horizon_s * FRAME_HZ))
     eligible = valid[:, current_frame_idx:current_frame_idx + horizon + 1].all(-1)
