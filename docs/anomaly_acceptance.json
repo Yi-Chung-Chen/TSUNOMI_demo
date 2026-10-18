@@ -1,0 +1,146 @@
+{
+  "milestone": "M8",
+  "device": "cuda:0",
+  "checkpoint_epoch": 16,
+  "sha256": {
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c"
+  },
+  "drone_interpolation": {
+    "native_reads": 902,
+    "unique_native_timestamps": 901,
+    "identical_duplicate_reads": 1,
+    "native_time_range_s": [
+      0.075,
+      300.105
+    ],
+    "grid_frames": 901,
+    "grid_valid_frames": 900,
+    "invalid_grid_frames": [
+      0
+    ],
+    "heading_median_absolute_velocity_difference_rad": 0.00041578094233707397,
+    "native_knot_interpolation_max_error_m": 0.0
+  },
+  "scenarios_by_date": {
+    "2026-10-03": 91,
+    "2026-10-04": 91
+  },
+  "scored_tokens": 28413,
+  "window_frames": 109,
+  "stride_frames": 6,
+  "history_s": 6,
+  "future_token_s": 2,
+  "nll_node": 3,
+  "gt_label_node": 4,
+  "single_agent": true,
+  "training": false,
+  "protected_sha256": {
+    "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+    "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+    "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a"
+  },
+  "protected_artifacts_unchanged": true,
+  "elapsed_s": 20.673345042974688,
+  "drone_track_mean_nll_percentile_vs_10_04_airborne": 16.666666666666664,
+  "normal_airborne_track_segments": 354,
+  "summary": [
+    {
+      "group": "drone",
+      "token_count": 146,
+      "nll_mean": 3.392360185923642,
+      "nll_median": 2.657752513885498,
+      "nll_p95": 7.857883453369141,
+      "nll_auroc": null,
+      "residual_horizontal_m_mean": 1.7017342746181754,
+      "residual_horizontal_m_median": 1.6759408737948447,
+      "residual_horizontal_m_p95": 2.959578602885038,
+      "residual_horizontal_m_auroc": null,
+      "residual_vertical_m_mean": 0.2915920369614786,
+      "residual_vertical_m_median": 0.13958309505316474,
+      "residual_vertical_m_p95": 1.1784252319039108,
+      "residual_vertical_m_auroc": null
+    },
+    {
+      "group": "aircraft-airborne (2026-10-04)",
+      "token_count": 9200,
+      "nll_mean": 4.067865201145734,
+      "nll_median": 3.8981361389160156,
+      "nll_p95": 7.083407211303705,
+      "nll_auroc": 0.3362440440738535,
+      "residual_horizontal_m_mean": 2.2137678407475923,
+      "residual_horizontal_m_median": 1.975062969307038,
+      "residual_horizontal_m_p95": 4.690551727716677,
+      "residual_horizontal_m_auroc": 0.39983323406789756,
+      "residual_vertical_m_mean": 1.4322382008170633,
+      "residual_vertical_m_median": 1.216572323193151,
+      "residual_vertical_m_p95": 3.5086117357015594,
+      "residual_vertical_m_auroc": 0.1114405896366885
+    },
+    {
+      "group": "aircraft-ground (2026-10-04)",
+      "token_count": 2638,
+      "nll_mean": 2.078109676850122,
+      "nll_median": 1.458126187324524,
+      "nll_p95": 5.773180103302003,
+      "nll_auroc": 0.7596690103544611,
+      "residual_horizontal_m_mean": 1.1975332394610219,
+      "residual_horizontal_m_median": 1.0733166073291502,
+      "residual_horizontal_m_p95": 2.497991152847344,
+      "residual_horizontal_m_auroc": 0.7047965976715445,
+      "residual_vertical_m_mean": 0.11011922003924317,
+      "residual_vertical_m_median": 0.00064812199222312,
+      "residual_vertical_m_p95": 0.6908580635519105,
+      "residual_vertical_m_auroc": 0.8698396460581387
+    },
+    {
+      "group": "aircraft-airborne (2026-10-03)",
+      "token_count": 11097,
+      "nll_mean": 4.452595746951178,
+      "nll_median": 4.312692642211914,
+      "nll_p95": 7.543422126770019,
+      "nll_auroc": 0.28293775560715534,
+      "residual_horizontal_m_mean": 2.1780222168388086,
+      "residual_horizontal_m_median": 1.8882243596782793,
+      "residual_horizontal_m_p95": 4.781151130876652,
+      "residual_horizontal_m_auroc": 0.41726382917263827,
+      "residual_vertical_m_mean": 1.4467971394374932,
+      "residual_vertical_m_median": 1.0415193041165574,
+      "residual_vertical_m_p95": 3.6998152732848966,
+      "residual_vertical_m_auroc": 0.13033511463668448
+    },
+    {
+      "group": "aircraft-ground (2026-10-03)",
+      "token_count": 5332,
+      "nll_mean": 2.1234844195847216,
+      "nll_median": 1.5274222493171692,
+      "nll_p95": 5.7660325765609715,
+      "nll_auroc": 0.7466691159091142,
+      "residual_horizontal_m_mean": 1.2755163359387198,
+      "residual_horizontal_m_median": 1.1118294075105348,
+      "residual_horizontal_m_p95": 2.691806262729567,
+      "residual_horizontal_m_auroc": 0.6846553247901016,
+      "residual_vertical_m_mean": 0.1754704414600822,
+      "residual_vertical_m_median": 0.00010580613699554911,
+      "residual_vertical_m_p95": 0.7990096476860344,
+      "residual_vertical_m_auroc": 0.8363165277620775
+    }
+  ],
+  "cuda_visible_devices": "1,3",
+  "tests": "41 passed, 19 existing dependency deprecation warnings",
+  "duplicate_score_keys": 0,
+  "all_auroc_pairwise_check": true,
+  "spot_checked_groups_on_cpu": 5,
+  "cpu_gpu_max_absolute_difference": {
+    "nll": 4.76837158203125e-07,
+    "residual_horizontal_m": 4.440892098500626e-16,
+    "residual_vertical_m": 1.7763568394002505e-15
+  },
+  "plots_visually_inspected": [
+    "nll_hist.png",
+    "drone_timeline.png"
+  ]
+}

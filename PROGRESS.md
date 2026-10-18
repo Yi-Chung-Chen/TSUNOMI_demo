@@ -415,3 +415,109 @@ remain visually close where paths almost coincide; attribution/key and map
 labels are intentionally subdued and small at contact-sheet scale. The map
 could feel too dark depending on display; leave that judgement to Yi-Chung.
 No taste iterations after this self-review. Commit locally and stop for feedback.
+
+## M8 — Anomaly scoring MVP (2026-10-18)
+
+Re-read plan §4.1 item9 and the new M8. Before implementation, invoked
+the advisor script (`--refork`) once to synchronize the read-only advisor with the
+updated main planning session. Full Q/A is in parent `SYGARD_QA_LOG.md`.
+Advisor returned **DECISION (provisional, Yi-Chung to confirm)**: scan all
+10-04/10-03 scenario tracks at stride6 instead of reusing M6 windows; batch
+isolated agents with distinct scene IDs; report the drone's track-mean NLL rank.
+These three clarifications are followed provisionally pending Yi-Chung's review.
+Other concrete advice included invalid tail padding, full-history eligibility,
+heading-convention validation, raw-anchor residuals and source-domain caveats.
+No DEFER or ERROR was returned.
+
+Implemented `src/eval/anomaly_score.py` with a CLI. Uses the frozen
+`epoch_016.ckpt` and existing K2048/shift6 dictionary. State dict loads strictly;
+checkpoint tokenizer buffers are checked against the requested dictionary file.
+No model/source-model changes, training, installs or state-plausibility scores.
+
+Data and masks:
+
+- Drone: read `simulation_poses_native.jsonl` directly. Its902 reads have901
+  unique timestamps: reads195/196 repeat the exact same pose/heading at65.49s.
+  Collapse identical duplicates in memory; reject conflicting duplicates.
+  Piecewise-linear xyz interpolation and unwrapped heading interpolation to
+  frames0..900 at3Hz. Do not extrapolate: t=0 precedes the first read at0.075s
+  and is invalid; frames1..900 are valid. Native-knot interpolation error is
+  exactly0m. Height = ENU z +2250−166m; `on_ground=False`, type=UNK0,
+  same radius and position scale as aircraft.
+  Native heading vs velocity median absolute difference0.00041578rad
+  (0.02382°), consistent with CCW from east; no heading replacement needed.
+- Aircraft: all91 scenarios per10-03 and10-04 from the existing val manifest,
+  read from `data/processed/`. No source dataset or existing indexes rebuilt.
+- Slide109-frame windows at starts0,6,12,… over each scenario/track. Pad the
+  unneeded tail past scenario end invalid. Require frames0..24 all valid:
+  6s history/current plus the first2s future. Score every eligible agent once
+  per start; no additional10s future requirement. Drone produces146 tokens
+  at scored-token starts8,10,…,298s. No duplicate score keys.
+
+Scoring:
+
+- One agent per graph, distinct graph batch IDs: no spatial context for either
+  class. Unsmoothed `cross_entropy(logits[:,3], gt_idx[:,4])` is the one-step
+  NLL in nats, using the unchanged default autoregressive GT tokenizer chain.
+  No history nodes or later future tokens are scored. Model is in eval mode.
+- Residual is a separate `reconstruct(..., start_frame=18, horizon_frames=6,
+  one_shot=True)` call with the existing raw-anchor/chord-heading matcher.
+  Report mean pointwise horizontal distance and mean absolute vertical error
+  over frames19..24, in metres. Accumulated chain error is excluded.
+- Split aircraft at `on_ground` at the scored-token start. NumPy AUROC uses
+  average ranks for ties; drone is positive and larger NLL/residual is anomalous.
+
+Execution: `nvidia-smi` outside the sandbox confirmed GPUs1/3 both idle (0MiB,
+0%); the wrapper fixed `CUDA_VISIBLE_DEVICES=1,3`. Ran
+`scripts/catk.sh -m src.eval.anomaly_score --device cuda:0`, using physical GPU1
+only. Full inference: **20.67s**, **28,413 scored tokens** from182 aircraft
+scenarios plus the drone. No GPU0/2 use.
+
+Results (primary aircraft comparison is10-04;10-03 reference only):
+
+| group | tokens | NLL mean / median / p95 | horizontal residual mean / p95 (m) | vertical residual mean / p95 (m) | NLL AUROC | horizontal / vertical residual AUROC |
+| --- | ---: | --- | --- | --- | ---: | --- |
+| Drone | 146 | 3.392 / 2.658 / 7.858 | 1.702 / 2.960 | 0.292 / 1.178 | — | — |
+|10-04 airborne|9,200|4.068 / 3.898 / 7.083|2.214 / 4.691|1.432 / 3.509|0.336|0.400 / 0.111|
+|10-04 ground|2,638|2.078 / 1.458 / 5.773|1.198 / 2.498|0.110 / 0.691|0.760|0.705 / 0.870|
+|10-03 airborne (reference)|11,097|4.453 / 4.313 / 7.543|2.178 / 4.781|1.447 / 3.700|0.283|0.417 / 0.130|
+|10-03 ground (reference)|5,332|2.123 / 1.527 / 5.766|1.276 / 2.692|0.175 / 0.799|0.747|0.685 / 0.836|
+
+Plain conclusion: **The drone is typically more likely under the transition
+model than airborne aircraft, not less likely. High one-step NLL does not
+reliably flag this route. It reconstructs at least as well as airborne aircraft
+on average (both horizontal and vertical residuals are lower).** Some drone
+time segments still show high NLL, as the timeline makes clear. Drone track-mean
+NLL is at the16.7th percentile among 354 10-04 airborne aircraft track-segment
+means. This descriptive rank is not a new anomaly score. All positives come
+from one simulated route and are correlated; native smooth near3Hz drone reads
+vs interpolated near1Hz ADS-B aircraft can shift both diagnostics. No claim of
+general drone detection or detection threshold is made.
+
+Required outputs exist under ignored `outputs/anomaly/`:
+`summary.md`, `summary.csv`, `nll_hist.png`, `drone_timeline.png`; also
+`token_scores.csv` and `acceptance.json` for reproducibility. Both plots were
+visually inspected: distinct overlaid distributions, labelled counts/units, and
+drone timeline with10-04 airborne median/p95 reference lines. Committed copies
+of tables/conclusion/receipt are `docs/anomaly_results.md`,
+`docs/anomaly_summary.csv`, `docs/anomaly_acceptance.json`.
+
+Validation:
+
+```text
+scripts/test.sh -q
+41 passed, 19 existing dependency deprecation warnings in48.83s
+```
+
+Five new tests verify model unsmoothed CE equality on an actual val window;
+causality under perturbations after frame24 and isolated batching; native-knot
+interpolation, duplicate handling, grid bounds, height and heading; AUROC1/.5/0
+and tied pairwise reference; stride, eligibility and tail padding. Acceptance
+also independently recomputed every reported AUROC by pairwise comparison,
+checked all28,413 score keys unique, and reproduced one GPU score per group on
+CPU: maximum NLL difference4.77e-7 nats; residual differences≤1.78e-15m.
+Raw drone/checkpoint/dictionary hashes and protected train indexes/vocabulary
+match their original receipts. All source Python tracked; no Git remote added.
+
+M8 Done-when met. Commit locally and **stop here for Yi-Chung's review**.
+No state-plausibility fallback, further experiment or optional M9 was started.

@@ -13,7 +13,7 @@ The implementer is Codex or Yi-Chung. The plan author wrote this plan only and d
 
    Copy code into the new repo. Do not import from these repos and do not symlink into them.
 3. Do not copy raw data into the repo. Read it via a config path. Processed outputs go to `data/` (git-ignored).
-4. Work milestone by milestone (M0 through the current M7 Demo GIFs). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
+4. Work milestone by milestone (M0 through the current M8 Anomaly scoring MVP). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
 5. `.gitignore` must use **anchored** patterns (`/data/`, `/logs/`, `/outputs/`).
    - Lesson learned: `catk_starcraft_release` had `datasets/`, which silently dropped `src/starcraft/datasets/sc_dataset.py` from git.
    - After each commit, run `git ls-files src | wc -l` and confirm that every `src/**/*.py` is tracked.
@@ -72,4 +72,12 @@ Use `scripts/catk.sh -m src.run --help` and `scripts/test.sh -q`. Follow the par
 ## Current scope override (2026-10-16)
 D1 / plan §4.1 items6/7 override earlier text: val=10-03+10-04, merge existing indexes only; no test split. M6 is BC-only Demo from epoch_016.ckpt, 32 rollouts, topk5/temp1, CPU if GPU busy. No CAT-K, no retraining, no old M7. Future BC config20epochs only; do not launch training. Preserve train manifests/windows, vocabulary, dictionary and checkpoint bytes.
 
-Plan §4.1 item8 adds the new M7 Demo GIFs: read existing rollout files only, no model execution, training or package installs. Follow the rendering/selection/tests in M7, commit draft v1 after one visual self-review, then stop for Yi-Chung's feedback. Optional M8 remains unstarted.
+Plan §4.1 item8 adds the new M7 Demo GIFs: read existing rollout files only, no model execution, training or package installs. Follow the rendering/selection/tests in M7, commit draft v1 after one visual self-review, then stop for Yi-Chung's feedback. Later revisions require Yi-Chung's feedback.
+
+Plan §4.1 item9 (2026-10-18) adds M8 Anomaly scoring MVP; the old optional M8 is
+now M9. Use frozen epoch_016.ckpt and the existing dictionary to score isolated
+agents' first future token, with the default teacher-forced GT tokenizer chain.
+Compare the native-pose drone interpolated to3Hz against10-04 aircraft, and10-03
+for reference. Report NLL, raw-anchor token residuals and NumPy AUROC. No training,
+model changes, package installs or state-plausibility fallback score. Commit
+after required outputs/tests and stop for Yi-Chung. Optional M9 is not authorized.

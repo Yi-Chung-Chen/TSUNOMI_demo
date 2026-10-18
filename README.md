@@ -1,6 +1,6 @@
 # sygard-motion
 
-BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–8, M6 Demo and M7 Demo GIFs. No CAT-K or retraining is part of the Demo.
+BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–9, M6 Demo, M7 Demo GIFs and M8 Anomaly scoring MVP. No CAT-K or retraining is part of this scope.
 
 Run from this repository in the existing catk environment:
 
@@ -26,6 +26,30 @@ scripts/catk.sh -m src.eval.demo_gif --output-dir outputs/demo_gif_v2
 This writes ten 1200×900 top-down animations, `contact_sheet.png` and a selection/validation `manifest.json` under ignored `outputs/demo_gif_v2/`. Omit `--output-dir` to use `outputs/demo_gif/`. Windows are the six existing examples plus four seed-0 random windows with at least three valid aircraft. Each scene uses one joint rollout minimizing the equal-aircraft mean 3D ADE over targets' full valid future horizons; this visualization selection does not change M6 metrics. OSM tiles use a descriptive User-Agent and are reused from ignored `data/basemap_cache/`. Rendering needs network access only for uncached tiles.
 
 Draft v2 follows Yi-Chung's feedback on v1's grey GIF colours: a dark navy map, saturated aircraft colours, thicker trajectories and larger icons/labels. `--theme light` provides a light map alternative. A shared 256-entry palette reserves exact track colours plus antialias blends before allocating the remaining entries to the map. Explicit transparent frame deltas preserve both colour and compression. The contact sheet uses decoded GIF frames so it reflects the encoded animations. Original v1 outputs are retained in `outputs/demo_gif/`. Each revision stops after one visual self-review for Yi-Chung's feedback.
+
+M8 anomaly scoring runs frozen-checkpoint teacher-forced inference:
+
+```bash
+scripts/catk.sh -m src.eval.anomaly_score
+```
+
+CPU is the default. After checking GPU availability, `--device cuda:0` uses
+physical GPU1 under the wrapper's `CUDA_VISIBLE_DEVICES=1,3`. Each sample is an
+isolated agent, scored at node3→4 after6s history; the target is the default
+autoregressive GT tokenizer label. Scenarios are scanned at stride6, with invalid
+tail padding, independently of the old stride90 Demo windows. Full history and
+the next2s token must be valid. The native drone pose file is read directly and
+interpolated to3Hz, without extrapolation. Residuals separately match the scored
+segment from its raw anchor using the existing dictionary metric, avoiding
+accumulated chain drift.
+
+Outputs under ignored `outputs/anomaly/` are `token_scores.csv`, `summary.csv`,
+`summary.md`, `nll_hist.png`, `drone_timeline.png` and `acceptance.json`. Summary
+groups separate10-04 airborne/ground aircraft and10-03 reference aircraft. AUROC
+uses drone-positive ranks with average ties, implemented in NumPy. All drone
+samples are from one simulated route, so token-level AUROC is descriptive.
+No state-plausibility/fallback scores are added. M8 stops after reporting;
+optional M9 requires a new request.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 
