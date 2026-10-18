@@ -521,3 +521,87 @@ match their original receipts. All source Python tracked; no Git remote added.
 
 M8 Done-when met. Commit locally and **stop here for Yi-Chung's review**.
 No state-plausibility fallback, further experiment or optional M9 was started.
+
+## M8 follow-up — GT replay with object NLL (2026-10-18)
+
+Yi-Chung explicitly requested the existing rollout GIF style with GT trajectories
+only, per-object NLL anomaly scores, red object boxes for **NLL >7**, and a thick
+red outline around the matching GT route segments. This authorizes this M8
+visualization follow-up; optional M9 and additional anomaly scores remain out of
+scope.
+
+Asked the continuing read-only advisor once about score timing and gaps. Its
+`ANSWER:` confirmed the latest-completed-token display rule: token[f,f+6] is
+available at frame f+6, shown for the next6frames until a new token completes.
+Labels show the actual scored interval in absolute scenario time. Expired or
+missing tokens show N/A, never a carried-forward or zero/normal score. High GT
+segments turn red only once their token completes. Full exchange is recorded
+in parent `SYGARD_QA_LOG.md`; no DEFER/ERROR or new provisional score decision.
+
+Implemented `src/eval/anomaly_gif.py`, reusing the M7 v2 dark OSM map, geometry,
+palette and GIF writer. It reads existing `outputs/anomaly/token_scores.csv`
+without model/checkpoint loading or inference; drone GT is deterministically
+interpolated with the existing M8 loader and aircraft GT comes from the same ten
+saved Demo windows. No predicted paths or future GT ghosts are drawn. Aircraft
+and drone use the saved single-agent NLL even when displayed in a multi-object
+GT scene. The footer explicitly says offline, single-agent, teacher-forced NLL.
+
+Objects have a numeric NLL and scored-time interval. A strict >7 comparison adds
+a red rectangle around the icon and a red label border. For the path, a red
+8pt stroke sits under its ordinary coloured3pt GT core on the exact six edges of
+each completed high token. Historical red segments remain after the current
+score becomes low, while the object's red box clears. Invalid GT breaks paths
+and hides icons. Score grids must align with the displayed absolute frame grid;
+misaligned objects get a recorded warning and no rounded/interpolated score.
+All actual input grids align. Reserved red `#ff3038` plus antialias blends are
+added to the exact GIF palette; normal track colours avoid red.
+
+Command:
+
+```bash
+scripts/catk.sh -m src.eval.anomaly_gif
+scripts/test.sh -q tests/test_anomaly_gif.py tests/test_demo_gif.py
+```
+
+Rendering used CPU and existing packages, with network escalation only for
+uncached OSM tiles. Outputs under ignored `outputs/anomaly/gifs/`:
+
+- `drone01_full.gif`: the full0..300s drone GT route,901 native3Hz frames.
+- Ten original aircraft examples,109frames each, GT-only, per-object scores.
+- `contact_sheet.png`, built from decoded GIF final frames.
+- `drone_low.png`, `drone_high.png`, `drone_low_after_high.png`, extracted from
+  actual decoded GIF frames (t10,162,164s), plus reproducibility `manifest.json`.
+
+Acceptance is committed as `docs/anomaly_gif_acceptance.json`:
+
+```json
+{"gif_count":11,"total_frames":1991,"drone_frames":901,
+ "aircraft_frames_each":109,"size":[1200,900],"max_bytes":3436926,
+ "threshold":7.0,"strict_greater_than":true,
+ "source_scores_unchanged":true,"protected_artifacts_unchanged":true,
+ "prediction_trajectories_drawn":false,"model_execution":false,
+ "training":false,"all_frames_decoded":true,"all_score_grids_aligned":true}
+```
+
+All GIFs retain native frames (no skip), play110ms/frame, hold the final frame
+1500ms and loop. All1991 encoded frames were decoded and checked for counts,
+dimensions, durations, loop, file sizes and source hashes. Original M8 scores,
+checkpoint/dictionary, raw drone source, aircraft rollout inputs and protected
+train artifacts remain unchanged. No package installs or new anomaly metric.
+
+**7 tests passed**,19 existing dependency warnings: score availability and
+expiry at exact boundaries; unscored gaps; strict threshold7 exclusion; absolute
+frame alignment and invalid GT edges; actual GIF pixels switching from no red
+to high-score box/path and then back to low-score object while retaining the
+old high trail; existing M7 palette/encoding/geometry regressions also pass.
+
+One visual self-review completed: inspected the decoded contact sheet, drone
+t10/162/164s snapshots, and aircraft scenario000667_f0720 decoded frames
+0/18/36/60/84/108. Numeric labels and scored intervals are readable at full size.
+At t162s the drone shows NLL7.19 for160–162s with a red icon box and red path
+halo; at t164s NLL2.54 for162–164s clears the object box, preserving the prior
+short red segment. Exact red-pixel counts in these snapshots are0/1528/43.
+Drone has14 high tokens among146; first160–162s, maximum10.49 at262–264s.
+The full-route camera makes individual2s red segments short, but they remain
+visible. No taste iteration after this review. Commit locally and stop for
+Yi-Chung to inspect the animations.

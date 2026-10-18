@@ -116,7 +116,7 @@ def track_colours(color, theme):
     return base, base*.55+.45, base*.25+rgb(THEMES[theme]['background'])*.75
 
 
-def fixed_palette(map_image, theme='dark'):
+def fixed_palette(map_image, theme='dark', extra_colours=()):
     """Reserve trajectory colours and antialias blends; map gets remaining slots."""
     style = THEMES[theme]
     colours = [tuple(round(x*255) for x in rgb(style[key])) for key in ('background','text','muted')]
@@ -126,6 +126,10 @@ def fixed_palette(map_image, theme='dark'):
             for weight in (1., .75, .5, .25):
                 mixed = variant*weight+rgb(style['background'])*(1-weight)
                 colours.append(tuple(np.rint(mixed*255).astype(int)))
+    for color in extra_colours:
+        for weight in (1., .75, .5, .25):
+            mixed = rgb(color)*weight+rgb(style['background'])*(1-weight)
+            colours.append(tuple(np.rint(mixed*255).astype(int)))
     remaining = 255-len(colours)  # Index255 is reserved solely for delta transparency.
     mapped = map_image.convert('RGB').quantize(colors=remaining, dither=Image.Dither.NONE)
     raw = mapped.getpalette()

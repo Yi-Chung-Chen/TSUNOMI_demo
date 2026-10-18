@@ -51,6 +51,25 @@ samples are from one simulated route, so token-level AUROC is descriptive.
 No state-plausibility/fallback scores are added. M8 stops after reporting;
 optional M9 requires a new request.
 
+Yi-Chung's M8 visualization follow-up replays GT with the existing per-object
+NLL and a strict red-outline threshold of7:
+
+```bash
+scripts/catk.sh -m src.eval.anomaly_gif
+```
+
+This reads `outputs/anomaly/token_scores.csv` without model execution. Outputs
+under `outputs/anomaly/gifs/` include `drone01_full.gif` (the entire300s route),
+the ten original aircraft examples with predictions removed, a contact sheet,
+low/high drone snapshots and a manifest. Native3Hz positions play at about9fps.
+Each object label displays the **latest completed2s token** and its scenario-time
+interval; its score appears only at the interval end and expires after2s without
+a new valid score. N/A is never interpreted as normal. NLL>7 adds a red box
+around the object and a thick red halo under the corresponding completed GT
+segment. Historical red segments persist when the current score becomes low.
+These are offline, single-agent, teacher-forced diagnostics shown over a GT scene;
+no new score, inference, training or anomaly metric is introduced.
+
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 
 Timing: 3 Hz, 6 s history, 2 s tokens, 30 s future. The committed dictionary is K=2048/shift=6/causal chord heading. Rollout starts at tokenized current pose and never reads future GT. ADE/FDE average the 32 rollouts; minADE picks the best full trajectory per agent independently for horizontal/vertical errors. Miss rate is the fraction of eligible agents whose 32 endpoints all exceed 500 m horizontally; the mean per-rollout miss fraction is also shown. Eligibility requires every GT frame through the horizon. Counts refer to agent-window instances.
