@@ -85,7 +85,7 @@ def high_segments(xy, valid, frame_offset, rows, threshold):
     return np.asarray(segments).reshape(-1,2,2), np.asarray(completions)
 
 
-def render_scene(data, tracks, cache, threshold=7.):
+def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
     source, scenario = str(data['source']), str(data['scenario'])
     marker = DRONE if source=='drone' else visual.PLANE
     offset = int(data['start_frame'])
@@ -104,7 +104,8 @@ def render_scene(data, tracks, cache, threshold=7.):
     ax.axis('off')
     fig.text(.035,.958,f'{data["date"]} · {scenario}',fontsize=16,color=style['text'])
     clock = fig.text(.965,.958,'',ha='right',fontsize=15,fontfamily='monospace',color=style['text'],animated=True)
-    fig.text(.035,.032,f'GT replay · offline NLL (single-agent, teacher-forced) · red outline: NLL > {threshold:g}',fontsize=10,color=style['text'])
+    description = 'offline NLL (single-agent, teacher-forced)' if score_label=='NLL' else 'combined = max(z_transition, z_state)'
+    fig.text(.035,.032,f'GT replay · {description} · red outline: {score_label} > {threshold:.3g}',fontsize=10,color=style['text'])
     fig.text(.035,.012,'Latest completed 2 s GT token. Intervals use scenario time; N/A = no valid score.',fontsize=8,color=style['muted'])
     fig.text(.975,.015,'© OpenStreetMap contributors',ha='right',fontsize=8,color=style['muted'])
     colours = {agent:TRACK_COLOURS[i%len(TRACK_COLOURS)] for i,agent in enumerate(sorted(map(str,data['agent_id'])))}
@@ -159,7 +160,7 @@ def render_scene(data, tracks, cache, threshold=7.):
                 dy,va = (20,'bottom') if above_space>65 else (-20,'top')
                 label.set_position(ax.transData.inverted().transform(screen+[dx,dy]))
                 label.set_ha(ha); label.set_va(va)
-                label.set_text(f'{agent}  NLL {row["nll"]:.2f}\n[{row["start"]/3:g}–{row["end"]/3:g} s]' if row else f'{agent}  NLL N/A')
+                label.set_text(f'{agent}  {score_label} {row["nll"]:.2f}\n[{row["start"]/3:g}–{row["end"]/3:g} s]' if row else f'{agent}  {score_label} N/A')
                 label.get_bbox_patch().set_edgecolor(ALERT if high else colours[agent])
                 label.get_bbox_patch().set_linewidth(2 if high else 1)
         for artist in artists:
@@ -169,7 +170,7 @@ def render_scene(data, tracks, cache, threshold=7.):
     plt.close(fig)
     return frames,dict(source=source,scenario=scenario,start_frame=offset,frames=len(frames),
         threshold=threshold,objects=len(objects),bounds_enu_m=bounds.tolist(),zoom=zoom,warnings=warnings,
-        icon='quadcopter' if source=='drone' else 'aircraft')
+        icon='quadcopter' if source=='drone' else 'aircraft',score_label=score_label)
 
 
 def main():

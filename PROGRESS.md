@@ -624,3 +624,116 @@ warnings. Decoded all901 updated frames and checked dimensions/timing; visually
 inspected the actual high-score snapshot to confirm four rotor rings remain
 recognizable inside the red box and the NLL interval label remains readable.
 Updated `docs/anomaly_gif_acceptance.json`. Commit locally and stop for feedback.
+
+## M8b — Location-conditioned state density (2026-10-18)
+
+Read the updated plan §4.1 item10, M8b and §4.2. Continued Yi-Chung's already
+initialized **plan-based** advisor session with one consolidated question; no
+--refork or expensive --fork-main was used. Advisor returned `ANSWER:` confirming
+the proposed units, fixed grid/binning, pooling/normalisation, reference split
+and time alignment. Optional combined GIFs use the **10-04 airborne combined
+p95**, matching the plan's timeline and exceedance reference. Nothing was
+missing from the plan; no unanswered decision/DEFER/ERROR to log. Q/A remains
+in parent `SYGARD_QA_LOG.md`.
+
+Implemented `src/eval/anomaly_state.py`. Fixed non-neural density fit uses only
+the618 train scenarios from09-28..10-02 and **1,007,315 eligible3Hz states**.
+Eligibility requires valid endpoints t−6 and t; speed/course come only from that
+past2s displacement. Aircraft processed z and the existing drone loader already
+contain height above166m, so no second height conversion is applied.
+
+Metadata bounds south41.94/north42.015/west−87.95/east−87.845 are converted by
+the M7 fixed-origin tangent plane. Grid is35×34 cells of250m, plus one outside
+bucket (1,191 cells total). Last cells are partial and exact upper bounds are
+included in those cells. Height boundaries15/100/300/600m; speed boundaries
+5/10/20/…/120m/s (14bins);12course bins begin at−pi. Stationary atan2(0,0)=0.
+
+Raw counts are retained for audit. Joint, speed and course histograms pool over
+3×3 in-grid neighbours at fixed height with zero padding. Outside pools itself.
+With alpha=.5, joint p(cell,height) normalises over all5,955 categories;
+conditional speed/course denominators are pooled_joint + alpha×14/12. All
+conditionals normalise independently. State NLL is the sum of location/height,
+conditional speed, and conditional course NLL, all in nats. No drone tuning.
+
+Scored the **exact28,413 M8 token rows**, including146drone tokens, with no
+drops or replacements. State is measured at token_start_frame; existing M8
+transition NLL is joined unchanged. Standardisation uses only all16,42910-03
+aircraft tokens (airborne+ground):
+
+| score |10-03 median|10-03 IQR|
+|---|---:|---:|
+|transition NLL|3.7179174423|3.0186932087|
+|state NLL|9.2971473064|1.9010103151|
+
+Combined = max(z_transition,z_state). Zero/invalid IQR raises an error; there is
+no fitted fallback.10-04 remains the clean evaluation set.
+
+Primary results, drone vs9,20010-04 airborne tokens:
+
+| score | AUROC | drone fraction > that score's10-04 airborne p95 |
+|---|---:|---:|
+|transition NLL|0.336244|9.59%|
+|location/height NLL|0.965998|75.34%|
+|speed NLL|0.987441|91.10%|
+|course NLL|0.975782|91.78%|
+|state NLL|0.999902|100%|
+|combined|0.999902|100%|
+
+State median drone23.8186 vs airborne8.3655nats; airborne state p95=11.5871.
+Combined median drone7.6388 vs airborne0.2106; airborne combined p95=1.466696.
+The largest mean component excesses are course+5.335 and speed+5.151nats;
+location/height adds+3.646nats. Full tables include10-04 ground and10-03 reference
+groups, with count/mean/median/p95/AUROC and the fixed exceedance statistic.
+
+Plain conclusion: **location-conditioned state density flags this drone route
+where the transition score largely did not. All146drone tokens exceed the
+10-04 airborne state p95; unusual course and speed at the given place/height
+drive most of the excess.** Combined has the same AUROC as state alone here.
+This is one drone and one correlated route, a demonstration rather than a
+validated detector.10-04 p95 is descriptive, not a validated deployment threshold.
+
+Run `scripts/catk.sh -m src.eval.anomaly_state --gifs`. The required density,
+scoring and two plots took4.18s on CPU before optional GIF rendering. No neural
+training, model execution, new packages, GPU allocation or reference-repo edits.
+Outputs under ignored `outputs/anomaly_state/`:
+
+- `summary.md`, `summary.csv`, `token_scores.csv` with all component/state/z
+  scores and position/speed/course bins, `standardization.json`, `acceptance.json`.
+- `state_density.npz` contains raw/pooled counts and normalised probabilities.
+- `traffic_density.png`: five height panels of log(1+raw eligible train counts)
+  over faded cached OSM, with drone path only in matching height panels.
+- `drone_timeline_state.png`: separate state-NLL/transition-NLL/combined panels
+  and each10-04-airborne p95 line. Separate panels preserve score units.
+- Optional `gifs/`:11GT-only combined replays, contact sheet and drone preview;
+ 901drone frames and109frames per aircraft example. Largest4,303,801bytes.
+  All use the quadcopter/aircraft icons and display **combined**, not NLL. Red
+  threshold1.466696 comes only from10-04 airborne combined p95, never the drone.
+  State is known at token start; combined is displayed only when the following
+  transition token completes, with its actual interval. Original M8 GIFs remain.
+
+Committed copies: `docs/anomaly_state_results.md`, `docs/anomaly_state_summary.csv`,
+`docs/anomaly_state_acceptance.json`. Both required plots and the decoded
+combined contact sheet/drone frames0/30/300/486/792/900 were visually inspected.
+The new combined display flags steady drone flight from the first completed
+score at10s, unlike the old transition-only display. No further taste iteration.
+
+Validation:
+
+```text
+scripts/test.sh -q
+51 passed, 19 existing dependency deprecation warnings in45.46s
+```
+
+Six density tests cover eligible count equality/train-file isolation,
+pooled-count consistency and all distribution sums, empty-vs-busy synthetic
+states, causality/invalid endpoints,10-03-only reference and zero-IQR failure,
+fixed bin boundaries and outside-cell routing. The actual GIF regression now
+tests both NLL and combined labels. Runtime acceptance independently verified
+all28,413 original token keys/transition scores, count totals, every probability
+sum, every z-score/component sum/max, every reported AUROC by pairwise
+comparison and every exceedance fraction. All1,991 combined GIF frames decoded
+with resolution/timing/loop/size checks. Protected train indexes, vocabulary,
+dictionary, checkpoint and original M8 score CSV hashes are unchanged.
+
+M8b Done-when met. Commit locally, keep no remote, and **stop for Yi-Chung's
+review**. Optional M9 and NN retraining remain unstarted.

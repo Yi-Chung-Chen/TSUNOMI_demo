@@ -13,7 +13,7 @@ The implementer is Codex or Yi-Chung. The plan author wrote this plan only and d
 
    Copy code into the new repo. Do not import from these repos and do not symlink into them.
 3. Do not copy raw data into the repo. Read it via a config path. Processed outputs go to `data/` (git-ignored).
-4. Work milestone by milestone (M0 through the current M8 Anomaly scoring MVP). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
+4. Work milestone by milestone (M0 through the current M8b location-conditioned state density). Each milestone has a **Done when** check. Do not start the next milestone until that check passes. Commit once per milestone.
 5. `.gitignore` must use **anchored** patterns (`/data/`, `/logs/`, `/outputs/`).
    - Lesson learned: `catk_starcraft_release` had `datasets/`, which silently dropped `src/starcraft/datasets/sc_dataset.py` from git.
    - After each commit, run `git ls-files src | wc -l` and confirm that every `src/**/*.py` is tracked.
@@ -81,3 +81,16 @@ Compare the native-pose drone interpolated to3Hz against10-04 aircraft, and10-03
 for reference. Report NLL, raw-anchor token residuals and NumPy AUROC. No training,
 model changes, package installs or state-plausibility fallback score. Commit
 after required outputs/tests and stop for Yi-Chung. Optional M9 is not authorized.
+
+Plan §4.1 item10 authorizes M8b: fit fixed250m location/height, speed and course
+histograms only on09-28..10-02 train states. Standardise state/transition NLL by
+all10-03 aircraft medians/IQRs; combine with max. Evaluate exact M8 token rows on
+10-04, with10-03 reference. No NN training, model changes, new packages or drone
+tuning. Required outputs/tests are specified in M8b. Optional combined GIFs may
+reuse the existing GT renderer; use10-04-airborne combined p95 as the visual red
+threshold. Commit and stop for Yi-Chung's review. M9 remains unauthorized.
+
+Advisor usage follows current plan §4.2: default continues a plan-based session;
+--refork starts a cheap new plan-based session after a plan change; --fork-main
+is reserved for hard questions the plan cannot resolve. Batch questions, never
+call in parallel, and log missing plan information in QUESTIONS.md.

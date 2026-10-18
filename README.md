@@ -1,6 +1,6 @@
 # sygard-motion
 
-BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–9, M6 Demo, M7 Demo GIFs and M8 Anomaly scoring MVP. No CAT-K or retraining is part of this scope.
+BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–10, M6 Demo, M7 Demo GIFs and M8/M8b anomaly scoring MVP. No CAT-K or NN retraining is part of this scope.
 
 Run from this repository in the existing catk environment:
 
@@ -71,6 +71,28 @@ These are offline, single-agent, teacher-forced diagnostics shown over a GT scen
 no new score, inference, training or anomaly metric is introduced.
 The drone uses an original vector quadcopter icon (four rotor rings and a
 heading-oriented body); aircraft retain the aircraft silhouette.
+
+M8b adds the plan's fixed non-neural location-conditioned state density:
+
+```bash
+scripts/catk.sh -m src.eval.anomaly_state --gifs
+```
+
+The density fits only eligible3Hz train states (09-28..10-02) with250m cells,
+five height bins,14speed bins and12course bins,3×3 spatial pooling and alpha0.5.
+Speed and course use only the past2s displacement. It scores the exact M8 token
+rows; 10-03 aircraft, both airborne and ground, provide each score's median/IQR.
+Combined score is `max(z_transition, z_state)`. No drone-dependent tuning,
+neural inference, training or new packages are involved.
+
+`outputs/anomaly_state/` contains per-token and group CSVs, `summary.md`, the
+saved histogram/probability arrays, reference parameters, `traffic_density.png`,
+`drone_timeline_state.png` and an acceptance receipt. `--gifs` additionally writes
+eleven GT-only combined-score replays and a contact sheet under `gifs/`. Their
+red threshold is the10-04-airborne combined p95; labels show combined z-units,
+not NLL nats. Combined appears only when the transition's2s token completes.
+10-04 p95 exceedance is descriptive; one drone/route does not validate a detector.
+M8b stops after reporting and a local commit; optional M9 remains out of scope.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 
