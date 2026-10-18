@@ -11,6 +11,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from matplotlib.patches import Rectangle
+from matplotlib.path import Path as MarkerPath
 from matplotlib.transforms import Affine2D
 import matplotlib.patheffects as pe
 import numpy as np
@@ -23,6 +24,24 @@ from src.eval.load_rollout import load_rollout
 ALERT = '#ff3038'
 # Avoid red as a normal track colour, so the anomaly outline has one meaning.
 TRACK_COLOURS = [visual.PALETTE[i] for i in [2, 1, 3, 4, 5, 7, 8]]
+
+
+def drone_marker():
+    """Original vector quadcopter: four rotor rings, X arms and a nose."""
+    parts = []
+    for x,y in [(-.6,-.6),(-.6,.6),(.6,-.6),(.6,.6)]:
+        outer=MarkerPath.unit_circle().transformed(Affine2D().scale(.29).translate(x,y))
+        inner=MarkerPath.unit_circle().transformed(Affine2D().scale(-.16,.16).translate(x,y))
+        parts.extend([outer,inner])  # Opposite winding leaves an open rotor centre.
+    for angle in [np.pi/4,-np.pi/4]:
+        arm=MarkerPath([[-.85,-.08],[.85,-.08],[.85,.08],[-.85,.08],[-.85,-.08]])
+        parts.append(arm.transformed(Affine2D().rotate(angle)))
+    # East-facing nose makes CCW-from-east heading visible despite rotor symmetry.
+    parts.append(MarkerPath([[-.2,-.17],[.2,-.17],[.43,0],[.2,.17],[-.2,.17],[-.2,-.17]]))
+    return MarkerPath.make_compound_path(*parts)
+
+
+DRONE = drone_marker()
 
 
 def read_scores(path):
@@ -68,6 +87,7 @@ def high_segments(xy, valid, frame_offset, rows, threshold):
 
 def render_scene(data, tracks, cache, threshold=7.):
     source, scenario = str(data['source']), str(data['scenario'])
+    marker = DRONE if source=='drone' else visual.PLANE
     offset = int(data['start_frame'])
     valid = data['valid_mask']
     gt = data['gt_position'][..., :2].astype(float).copy()
@@ -100,7 +120,7 @@ def render_scene(data, tracks, cache, threshold=7.):
         ax.add_collection(halo); ax.add_collection(core)
         box = Rectangle((0,0),1,1,fill=False,edgecolor=ALERT,linewidth=2.2,animated=True)
         ax.add_patch(box)
-        icon, = ax.plot([],[],marker=visual.PLANE,ms=25,mfc=colour,mec=style['background'],mew=1.1,ls='',animated=True)
+        icon, = ax.plot([],[],marker=marker,ms=29 if source=='drone' else 25,mfc=colour,mec=style['background'],mew=.7 if source=='drone' else 1.1,ls='',animated=True)
         label = ax.text(0,0,'',fontsize=10,color=style['text'],animated=True,
             bbox=dict(facecolor=style['background'],edgecolor=colour,linewidth=1,pad=2))
         rows = tracks.get((source,scenario,str(agent)),[])
@@ -129,7 +149,7 @@ def render_scene(data, tracks, cache, threshold=7.):
                 point = pixels[a,local]
                 screen = ax.transData.transform(point)
                 icon.set_data([point[0]],[point[1]])
-                icon.set_marker(visual.PLANE.transformed(Affine2D().rotate(float(data['gt_heading'][a,local]))))
+                icon.set_marker(marker.transformed(Affine2D().rotate(float(data['gt_heading'][a,local]))))
                 left,bottom = ax.transData.inverted().transform(screen-[23,23])
                 right,top = ax.transData.inverted().transform(screen+[23,23])
                 box.set_bounds(left,bottom,right-left,top-bottom)
@@ -148,7 +168,8 @@ def render_scene(data, tracks, cache, threshold=7.):
         frames.append(rgb.quantize(palette=palette,dither=Image.Dither.NONE))
     plt.close(fig)
     return frames,dict(source=source,scenario=scenario,start_frame=offset,frames=len(frames),
-        threshold=threshold,objects=len(objects),bounds_enu_m=bounds.tolist(),zoom=zoom,warnings=warnings)
+        threshold=threshold,objects=len(objects),bounds_enu_m=bounds.tolist(),zoom=zoom,warnings=warnings,
+        icon='quadcopter' if source=='drone' else 'aircraft')
 
 
 def main():

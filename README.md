@@ -69,6 +69,8 @@ around the object and a thick red halo under the corresponding completed GT
 segment. Historical red segments persist when the current score becomes low.
 These are offline, single-agent, teacher-forced diagnostics shown over a GT scene;
 no new score, inference, training or anomaly metric is introduced.
+The drone uses an original vector quadcopter icon (four rotor rings and a
+heading-oriented body); aircraft retain the aircraft silhouette.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 

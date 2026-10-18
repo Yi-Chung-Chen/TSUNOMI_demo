@@ -605,3 +605,22 @@ Drone has14 high tokens among146; first160–162s, maximum10.49 at262–264s.
 The full-route camera makes individual2s red segments short, but they remain
 visible. No taste iteration after this review. Commit locally and stop for
 Yi-Chung to inspect the animations.
+
+## M8 visualization follow-up — drone icon (2026-10-18)
+
+Yi-Chung requested a drone-specific icon. Replaced the drone's aircraft marker
+with an original vector quadcopter: four open rotor rings, X arms and a small
+east-facing body/nose, rotated by the same heading convention. Aircraft retain
+their original marker. No external icon assets or packages are needed.
+
+Re-rendered only `outputs/anomaly/gifs/drone01_full.gif` and its low/high/return-low
+snapshots, then updated the drone cell of the contact sheet. Added a close-up
+`drone_icon_preview.png` from the decoded high-score frame. All ten aircraft GIF
+hashes and the saved NLL CSV hash are unchanged. The drone GIF remains901frames,
+1200×900,110ms/frame with1500ms final hold, now3,872,853bytes. No model execution.
+
+`scripts/test.sh -q tests/test_anomaly_gif.py`: **3 passed**,19 existing dependency
+warnings. Decoded all901 updated frames and checked dimensions/timing; visually
+inspected the actual high-score snapshot to confirm four rotor rings remain
+recognizable inside the red box and the NLL interval label remains readable.
+Updated `docs/anomaly_gif_acceptance.json`. Commit locally and stop for feedback.

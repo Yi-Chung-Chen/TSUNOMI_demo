@@ -7,7 +7,7 @@
     1200,
     900
   ],
-  "max_bytes": 3436926,
+  "max_bytes": 3872853,
   "threshold": 7.0,
   "strict_greater_than": true,
   "score_sha256": "2c3cd0973fe244c2a75c933b64e0705ececf0e1e2c44bd3f81f9bb0ad72ebd99",
@@ -22,8 +22,8 @@
   "semantics": "latest completed 2s GT token; score expires after2s without a new valid token; high trail appears only after completion",
   "snapshot_red_pixel_counts": {
     "drone_low": 0,
-    "drone_high": 1528,
-    "drone_low_after_high": 43
+    "drone_high": 1549,
+    "drone_low_after_high": 73
   },
   "drone_high_intervals": [
     {
@@ -120,9 +120,10 @@
       "output": "drone01_full.gif",
       "encoded_frames": 901,
       "skip": 1,
-      "bytes": 3436926,
+      "bytes": 3872853,
       "input": "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/simulation_poses_native.jsonl",
-      "input_sha256": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c"
+      "input_sha256": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c",
+      "icon": "quadcopter"
     },
     {
       "source": "aircraft",
@@ -384,5 +385,8 @@
       "input": "/local/scratch/a/chen5262/PythonProject/sygard-motion/outputs/demo_rollouts/bc/scenario_000337_aircraft_f0540.npz",
       "input_sha256": "889efcc4052f9209dd00064e84b48e07ab1893bc3a30fc39bd65205ffa0b0967"
     }
-  ]
+  ],
+  "drone_icon": "quadcopter",
+  "aircraft_gifs_unchanged_after_icon_update": true,
+  "icon_update_tests": "3 passed, 19 existing dependency warnings"
 }
