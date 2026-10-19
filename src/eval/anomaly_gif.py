@@ -105,7 +105,8 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
     fig.text(.035,.958,f'{data["date"]} · {scenario}',fontsize=16,color=style['text'])
     clock = fig.text(.965,.958,'',ha='right',fontsize=15,fontfamily='monospace',color=style['text'],animated=True)
     description = 'offline NLL (single-agent, teacher-forced)' if score_label=='NLL' else 'combined = max(z_transition, z_state)'
-    fig.text(.035,.032,f'GT replay · {description} · red outline: {score_label} > {threshold:.3g}',fontsize=10,color=style['text'])
+    cutoff_text=f'{threshold:g}' if score_label=='NLL' else f'{threshold:.5f}'
+    fig.text(.035,.032,f'GT replay · {description} · red outline: {score_label} > {cutoff_text}',fontsize=10,color=style['text'])
     fig.text(.035,.012,'Latest completed 2 s GT token. Intervals use scenario time; N/A = no valid score.',fontsize=8,color=style['muted'])
     fig.text(.975,.015,'© OpenStreetMap contributors',ha='right',fontsize=8,color=style['muted'])
     colours = {agent:TRACK_COLOURS[i%len(TRACK_COLOURS)] for i,agent in enumerate(sorted(map(str,data['agent_id'])))}
@@ -160,7 +161,11 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
                 dy,va = (20,'bottom') if above_space>65 else (-20,'top')
                 label.set_position(ax.transData.inverted().transform(screen+[dx,dy]))
                 label.set_ha(ha); label.set_va(va)
-                label.set_text(f'{agent}  {score_label} {row["nll"]:.2f}\n[{row["start"]/3:g}–{row["end"]/3:g} s]' if row else f'{agent}  {score_label} N/A')
+                if row:
+                    value_text=f'{row["nll"]:.5f}' if score_label=='combined' and abs(row['nll']-threshold)<.01 else f'{row["nll"]:.2f}'
+                    label.set_text(f'{agent}  {score_label} {value_text}\n[{row["start"]/3:g}–{row["end"]/3:g} s]')
+                else:
+                    label.set_text(f'{agent}  {score_label} N/A')
                 label.get_bbox_patch().set_edgecolor(ALERT if high else colours[agent])
                 label.get_bbox_patch().set_linewidth(2 if high else 1)
         for artist in artists:

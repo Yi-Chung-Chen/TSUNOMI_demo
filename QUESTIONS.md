@@ -56,3 +56,23 @@ User replaced CAT-K/GPU M6 with BC-only CPU Demo, merged val/test indexes withou
 ## M6 Demo complete
 
 No unresolved blocker. Full CPU Demo passed; protected inputs unchanged; no training. Provisional metric/plot details and validation-selection disclosure are documented in PROGRESS.md and docs/demo_results.md. Old GPU/CAT-K wait is closed.
+
+## M8b speed/course smoothing — provisional rule to add to plan
+
+Yi-Chung explicitly authorized the smoothing correction after the aa0300 false
+positive. The current plan specifies only spatial3×3 pooling and alpha; please
+record the new categorical smoothing rule in §4.1/M8b.
+
+Options considered: physical-distance smoothing with a new speed bandwidth and
+an artificial centre for the open speed tail; or a fixed adjacent-bin kernel.
+Recommendation and advisor DECISION (provisional, Yi-Chung to confirm): use
+`[1,2,1]/4` on the existing bins, circular for course and reflecting for speed.
+Apply after spatial pooling, before alpha; preserve counts and normalisation.
+Speed edges send3/4 mass to themselves and1/4 to their only neighbour. This is
+by bin index rather than uniform m/s; there is no new bandwidth/tail centre.
+Do not smooth height/joint or tune to the drone/aa0300. Recompute10-03 reference
+parameters and10-04 p95; compare with frozen old calibration/cutoffs as well.
+
+Implementation proceeds under the user's authorization and binding provisional
+advisor rule. No work is blocked; plan documentation remains pending Yi-Chung.
+Full consolidated Q/A is in parent SYGARD_QA_LOG.md.

@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pytest
 
-from src.eval.anomaly_state import StateDensity,states_at,standardize,fit_density
+from src.eval.anomaly_state import StateDensity,states_at,standardize,fit_density,smooth_bins
 
 
 def fixture_data():
@@ -96,3 +96,45 @@ def test_fixed_bin_boundaries_and_outside_cell():
     assert list(speed)==[0,1,2,13,13]
     assert list(course)==[0,0,6,6,6]
     assert cell[0]==0 and cell[1]==8 and cell[2]==9
+
+
+def test_bin_kernel_preserves_each_source_mass_and_wraps_course():
+    circular=smooth_bins(np.eye(12),True)
+    reflecting=smooth_bins(np.eye(14),False)
+    np.testing.assert_array_equal(circular.sum(-1),np.ones(12))
+    np.testing.assert_array_equal(reflecting.sum(-1),np.ones(14))
+    assert circular[0,11]==circular[11,0]==.25
+    assert circular[0,0]==circular[11,11]==.5
+    np.testing.assert_array_equal(np.roll(circular[0],11),circular[11])
+    np.testing.assert_array_equal(reflecting[0,:2],[.75,.25])
+    np.testing.assert_array_equal(reflecting[-1,-2:],[.25,.75])
+    assert reflecting[0,-1]==reflecting[-1,0]==0
+
+
+def test_bin_smoothing_changes_only_conditionals_and_retains_raw_counts():
+    data=fixture_data();a,t=np.nonzero(data['valid'][:,6:] & data['valid'][:,:-6])
+    states=states_at(data,a,t+6)
+    smooth=StateDensity([[0,0],[1750,1750]],True);legacy=StateDensity(smooth.bounds,False)
+    for model in [smooth,legacy]:
+        model.add(states);model.finish()
+    for name in ['joint','speed','course','pooled_joint','pooled_speed','pooled_course','p_joint']:
+        np.testing.assert_array_equal(getattr(smooth,name),getattr(legacy,name))
+    for hist,prob in [('smoothed_speed','p_speed'),('smoothed_course','p_course')]:
+        np.testing.assert_allclose(getattr(smooth,hist).sum(-1),smooth.pooled_joint)
+        np.testing.assert_allclose(getattr(smooth,prob).sum(-1),1.)
+    assert not np.array_equal(smooth.p_speed,legacy.p_speed)
+    assert not np.array_equal(smooth.p_course,legacy.p_course)
+
+
+def test_near_identical_westward_courses_borrow_across_seam():
+    train=dict(position=np.tile([800.,800.,150.],(1000,1)),speed=np.full(1000,24.),
+               course=np.full(1000,np.radians(-179.)))
+    probes=dict(position=np.tile([800.,800.,150.],(2,1)),speed=np.full(2,24.),
+                course=np.radians([-179.,179.]))
+    differences=[]
+    for enabled in [False,True]:
+        model=StateDensity([[0,0],[1750,1750]],enabled)
+        model.add(train);model.finish()
+        scores=model.score(probes)['course_nll']
+        differences.append(abs(scores[1]-scores[0]))
+    assert differences[1]<differences[0] and differences[1]<np.log(2.)

@@ -737,3 +737,104 @@ dictionary, checkpoint and original M8 score CSV hashes are unchanged.
 
 M8b Done-when met. Commit locally, keep no remote, and **stop for Yi-Chung's
 review**. Optional M9 and NN retraining remain unstarted.
+
+## M8b follow-up — circular course and reflecting speed smoothing (2026-10-18)
+
+Yi-Chung authorized smoothing after the normal-aircraft aa0300 false alert.
+Continued the cheap plan-based advisor once with the kernel, nonuniform speed
+bins, open tail, calibration and comparison questions batched. Advisor returned
+**DECISION (provisional, Yi-Chung to confirm)**: fixed[1,2,1]/4 by adjacent-bin
+index, circular course, reflecting speed, after spatial3×3 pooling and before
+alpha. Do not introduce physical bandwidths, artificial tail centres or smooth
+height/joint. The missing plan specification is recorded in QUESTIONS.md for
+Yi-Chung to add to §4.1; implementation proceeds under user authorization.
+
+Each interior bin keeps1/2 mass and sends1/4 to each neighbour. Course bins11/0
+are neighbours. Speed end bins keep3/4 and send1/4 to their only neighbour.
+This preserves mass exactly, including the >=120m/s tail; it is not equal-m/s
+smoothing because speed bins have unequal widths. The numeric speed/course of
+aircraft and their trajectories are unchanged. No temporal smoothing or tuning.
+
+`StateDensity` now retains raw/pooled counts and additionally saves
+`smoothed_speed`/`smoothed_course`. Joint probabilities, spatial/height handling
+and alpha are unchanged. Conditional probabilities use the same denominators,
+with smoothed counts in their numerators. Hard bin lookup remains: this reduces
+adjacent-bin differences but does not make a continuous density or eliminate
+all steps/false alerts.
+
+Current command: `scripts/catk.sh -m src.eval.anomaly_state --gifs`.
+Default output is **outputs/anomaly_state_smoothed/**; the22 original files under
+outputs/anomaly_state are preserved byte-for-byte. `--legacy-bins` reproduces
+the original method. Smoothed10-03 state median/IQR and10-04 reference p95 are
+recomputed; transition reference and all28,413 original token rows are unchanged.
+Comparison additionally freezes the *old* medians/IQRs and cutoffs, preventing
+calibration-scale mixing when comparing combined false-alert counts.
+
+The reported aa0300 example is **still flagged**, without special-case changes:
+
+| quantity, token28–30s (display t30s) | before | smoothed |
+|---|---:|---:|
+|speed NLL|2.357830|2.049774|
+|course NLL|2.727231|2.733274|
+|state NLL|12.447265|12.145251|
+|combined, own10-03 reference|1.657075|1.384783|
+|10-04 airborne combined p95|1.466696|1.384230|
+|flagged|true|true|
+
+Across the−179.82°/+179.20° seam in tokens26/28s, the course-NLL difference
+decreases **0.610144→0.223548**. The target-bin course NLL itself does not drop;
+the speed component drops. Frozen-reference combined at28s is1.498205, also
+above the old cutoff. No cutoff was raised to conceal this example. Because
+the new value is only0.000553 above cutoff, GIFs show5decimal threshold/nearby
+score values instead of rounding both to1.38.
+
+Combined flagged-token counts (normal aircraft treated as clean):
+
+| group | before | after, frozen old calibration/cutoff | after, recalibrated |
+|---|---:|---:|---:|
+|drone|146/146|146/146|146/146|
+|10-04 airborne|460/9200|436/9200|459/9200|
+|10-04 ground|75/2638|76/2638|81/2638|
+|10-03 airborne reference|1249/11097|1064/11097|1106/11097|
+|10-03 ground reference|469/5332|374/5332|379/5332|
+
+Recalibrated10-04 airborne exceedance stays approximately5% by construction
+(strict ties can make it slightly lower). **This does not demonstrate a general
+false-positive reduction:** ground flags slightly increase. Course/velocity
+boundary noise is reduced, but the reported plane and other normal rare states
+can remain red. Do not claim the false-positive problem is solved.
+
+Drone-vs10-04-airborne AUROC: speed0.995804, course0.980103, state0.999764,
+combined0.999751. State/combined still flag146/146drone tokens above the new
+airborne p95. These figures are not used to select a kernel; there was one
+fixed advisor choice, no sweep or drone-dependent tuning. One-route caveat
+and descriptive-threshold limitations remain.
+
+Outputs in the new directory include refreshed tables, plots,11combined GIFs,
+`smoothing_comparison.csv/.json` and `aa0300_comparison.csv`. Per-component and
+frozen/recalibrated comparisons are explicit. Updated GIF example:
+gifs/scenario_000536_aircraft_f0090.gif and decoded gifs/aa0300_t30.png. Required
+plots and that decoded frame were visually inspected; actual display reads
+combined1.38478 and red cutoff1.38423. No visual change hides the residual flag.
+Committed result/summary/acceptance and comparison tables have smoothed/smoothing
+names under docs/, preserving earlier committed results.
+
+Validation:
+
+```text
+scripts/test.sh -q
+54 passed,19 existing dependency warnings in50.09s
+scripts/test.sh -q tests/test_anomaly_gif.py
+4 passed,19 existing dependency warnings in5.15s
+```
+
+Three new regressions verify every source-bin mass sums to1, exact circular and
+reflecting edges, raw/pooled/joint invariance and conditional sums, and actual
+near-westward course scoring borrowing across the seam. Existing causality,
+train-only fit,10-03-only standardisation and rendering tests pass. Acceptance
+rechecks all raw arrays/joint probabilities against the original; exact kernel
+outputs and totals; per-token conditional NLL;10-03-only parameters; every
+AUROC independently by pairwise comparison. All1,991 updated GIF frames decode
+with correct counts/timing/size/loop. All22 original output hashes and protected
+checkpoint/dictionary/train artifacts are unchanged. CPU only; no NN/model
+execution, training, installs or M9 work. Commit locally and stop for review.

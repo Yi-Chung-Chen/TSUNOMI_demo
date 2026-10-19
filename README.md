@@ -85,7 +85,7 @@ rows; 10-03 aircraft, both airborne and ground, provide each score's median/IQR.
 Combined score is `max(z_transition, z_state)`. No drone-dependent tuning,
 neural inference, training or new packages are involved.
 
-`outputs/anomaly_state/` contains per-token and group CSVs, `summary.md`, the
+Current smoothed results in `outputs/anomaly_state_smoothed/` contain per-token and group CSVs, `summary.md`, the
 saved histogram/probability arrays, reference parameters, `traffic_density.png`,
 `drone_timeline_state.png` and an acceptance receipt. `--gifs` additionally writes
 eleven GT-only combined-score replays and a contact sheet under `gifs/`. Their
@@ -93,6 +93,22 @@ red threshold is the10-04-airborne combined p95; labels show combined z-units,
 not NLL nats. Combined appears only when the transition's2s token completes.
 10-04 p95 exceedance is descriptive; one drone/route does not validate a detector.
 M8b stops after reporting and a local commit; optional M9 remains out of scope.
+
+Yi-Chung's speed/course smoothing correction applies the fixed `[1,2,1]/4`
+kernel after spatial pooling and before alpha. Course wraps circularly; speed
+reflects at the first/last bin. It preserves histogram mass and leaves raw,
+joint and height counts unchanged. This is adjacency by bin index, not a
+uniform m/s bandwidth. Hard lookup remains, so boundary steps and false alerts
+can remain. The advisor's provisional rule is recorded in `QUESTIONS.md` for
+inclusion in the plan.
+
+The current default writes to `outputs/anomaly_state_smoothed/`, preserving the
+original `outputs/anomaly_state/`. `--legacy-bins` reproduces the original
+spatial/alpha-only method. Each method uses its own10-03 state median/IQR and
+10-04-airborne p95. `smoothing_comparison.csv` also evaluates the new scores
+with frozen original calibration/cutoffs; recalibrated airborne exceedance is
+approximately5% by construction, so that figure alone cannot show improvement.
+`aa0300_comparison.csv` preserves the reported false-positive example over time.
 
 The BC checkpoint comes from the historical 128-epoch M5 run. Future `air_pre_bc` config uses 20 epochs and keeps best val/loss; the Demo never starts training. Historical GPU acceptance scripts are not Demo entry points. The old M6 training wait/verification scripts are disabled.
 

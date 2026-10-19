@@ -94,3 +94,10 @@ Advisor usage follows current plan §4.2: default continues a plan-based session
 --refork starts a cheap new plan-based session after a plan change; --fork-main
 is reserved for hard questions the plan cannot resolve. Batch questions, never
 call in parallel, and log missing plan information in QUESTIONS.md.
+
+Yi-Chung subsequently authorized speed/course smoothing. The provisional
+advisor rule in QUESTIONS.md is fixed[1,2,1]/4, circular course and reflecting
+speed, after spatial pooling and before alpha. Do not smooth joint/height or
+tune to examples. Default outputs are outputs/anomaly_state_smoothed; preserve
+the original outputs/anomaly_state for comparison and report residual false
+alerts honestly with frozen and recalibrated cutoff comparisons.

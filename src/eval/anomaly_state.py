@@ -20,6 +20,17 @@ METRICS = ['transition_nll','location_height_nll','speed_nll','course_nll','stat
 HEIGHT_LABELS = ['<15 m','15–100 m','100–300 m','300–600 m','≥600 m']
 
 
+def smooth_bins(counts,circular):
+    """Fixed mass-preserving binomial kernel; no fitted bandwidth or centres."""
+    values=np.asarray(counts,dtype=np.float64)
+    if circular:
+        left,right=np.roll(values,1,axis=-1),np.roll(values,-1,axis=-1)
+    else:
+        left=np.concatenate((values[...,:1],values[...,:-1]),axis=-1)
+        right=np.concatenate((values[...,1:],values[...,-1:]),axis=-1)
+    return .25*left+.5*values+.25*right
+
+
 def enu_bounds(bounds):
     """Same local tangent plane as the M7 basemap; no extra z conversion."""
     lat0,lon0 = visual.ORIGIN
@@ -42,8 +53,9 @@ def states_at(data, agents, frames):
 
 
 class StateDensity:
-    def __init__(self,bounds):
+    def __init__(self,bounds,bin_smoothing=True):
         self.bounds = np.asarray(bounds,dtype=float)
+        self.bin_smoothing=bin_smoothing
         self.nx,self.ny = np.ceil((self.bounds[1]-self.bounds[0])/CELL_M).astype(int)
         self.n_cells = self.nx*self.ny+1
         self.joint = np.zeros((self.n_cells,5),dtype=np.int64)
@@ -85,9 +97,13 @@ class StateDensity:
         self.pooled_speed,self.pooled_course = self.pool(self.speed),self.pool(self.course)
         assert np.array_equal(self.pooled_speed.sum(-1),self.pooled_joint)
         assert np.array_equal(self.pooled_course.sum(-1),self.pooled_joint)
+        self.smoothed_speed=smooth_bins(self.pooled_speed,False) if self.bin_smoothing else self.pooled_speed.astype(float)
+        self.smoothed_course=smooth_bins(self.pooled_course,True) if self.bin_smoothing else self.pooled_course.astype(float)
+        assert np.allclose(self.smoothed_speed.sum(-1),self.pooled_joint)
+        assert np.allclose(self.smoothed_course.sum(-1),self.pooled_joint)
         self.p_joint = (self.pooled_joint+ALPHA)/(self.pooled_joint.sum()+ALPHA*self.joint.size)
-        self.p_speed = (self.pooled_speed+ALPHA)/(self.pooled_joint[...,None]+ALPHA*14)
-        self.p_course = (self.pooled_course+ALPHA)/(self.pooled_joint[...,None]+ALPHA*12)
+        self.p_speed = (self.smoothed_speed+ALPHA)/(self.pooled_joint[...,None]+ALPHA*14)
+        self.p_course = (self.smoothed_course+ALPHA)/(self.pooled_joint[...,None]+ALPHA*12)
         assert np.isclose(self.p_joint.sum(),1.)
         assert np.allclose(self.p_speed.sum(-1),1.) and np.allclose(self.p_course.sum(-1),1.)
         return self
@@ -107,7 +123,7 @@ def load_processed(path):
         return {key:arrays[key] for key in arrays.files}
 
 
-def fit_density(root):
+def fit_density(root,bin_smoothing=True):
     names = (root/'data/splits/train_manifest.txt').read_text().splitlines()
     model,expected_bounds = None,None
     receipt = dict(scenarios=len(names),dates={},eligible_by_scenario={},raw_eligible_states=0)
@@ -118,7 +134,7 @@ def fit_density(root):
             raise ValueError(f'Non-train date in density fit: {date}')
         bounds = json.loads(str(data['bounds_json']))
         if model is None:
-            expected_bounds = bounds;model = StateDensity(enu_bounds(bounds))
+            expected_bounds = bounds;model = StateDensity(enu_bounds(bounds),bin_smoothing)
         assert bounds==expected_bounds
         # Plan says endpoints, not every intervening frame: all valid3Hz states.
         agents,frames = np.nonzero(data['valid'][:,6:] & data['valid'][:,:-6])
@@ -133,7 +149,9 @@ def fit_density(root):
     receipt.update(bounds_latlon=expected_bounds,bounds_enu_m=model.bounds.tolist(),grid=[int(model.nx),int(model.ny)],
         cells_including_outside=int(model.n_cells),cell_size_m=CELL_M,alpha=ALPHA,
         height_edges_m=HEIGHT_EDGES.tolist(),speed_edges_mps=SPEED_EDGES.tolist(),course_bins=12,
-        train_manifest_sha256=hashlib.sha256((root/'data/splits/train_manifest.txt').read_bytes()).hexdigest())
+        train_manifest_sha256=hashlib.sha256((root/'data/splits/train_manifest.txt').read_bytes()).hexdigest(),
+        bin_smoothing=dict(enabled=bin_smoothing,kernel=[.25,.5,.25],course='circular',speed='reflecting',
+            coordinate='adjacent bin index; no physical bandwidth',order='spatial pooling, bin kernel, alpha, normalize'))
     return model.finish(),receipt
 
 
@@ -295,12 +313,14 @@ def write_report(summary,reference,fit,output):
         '- Processed aircraft z and the existing interpolated drone z are already height above166m; no second altitude conversion. Speed/course use past2s displacement only. atan2(0,0)=0 for stationary course.',
         '- Metadata geographic bounds use the M7 fixed-origin tangent-plane conversion.250m grid anchored at west/south ENU bounds; final cells are partial. Exact upper bounds are included in the final cells; all other out-of-bounds states use one separate outside bucket.',
         '- Pool raw joint and conditional counts over3×3 spatial neighbours at fixed height with zero padding; outside pools only itself. Add alpha0.5 to every bin. Joint normalises over all(cell,height) including outside; speed/course normalise conditionally.',
+        ('- User-authorized adjacent-bin smoothing: fixed[1,2,1]/4 on pooled histograms before alpha, circular for course and reflecting for speed. Raw/joint/height counts are unchanged. This is by bin index, not an equal physical m/s bandwidth; no125m/s tail representative is introduced. Hard bin lookup remains, so residual boundary steps can still occur.'
+         if fit.get('bin_smoothing',{}).get('enabled') else '- No adjacent speed/course smoothing in this legacy run.'),
         '- State NLL = location_height_nll + speed_nll + course_nll. Height boundaries15/100/300/600m; speed boundaries5/10/20/…/120m/s (14bins);12course bins begin at−pi.',
         f'- Standardisation fits only {reference["count"]:,}10-03 aircraft tokens, airborne+ground. Each score uses its own median/IQR; combined=max(z_transition,z_state). Parameters are in standardization.json. A zero IQR raises an error; no fallback/tuning.',
         '- Scores join the exact M8 token rows at token_start_frame. State is causal at the start; transition uses the following2s GT and is available at token end. Combined is not an online score at token start.',
         '- AUROC treats drone as positive and higher scores as anomalous, with average ranks for ties. Exceedance is strict > the separately computed10-04-airborne p95 of each metric.',
         '- Optional combined-score GIFs use that same10-04 airborne combined p95 for the red outline; the labels show combined z-units, not NLL nats. State is known at token start, but the combined label appears only once its transition token completes.',
-        '- All bin sizes, smoothing and combination rules were fixed by the plan before evaluating the drone. No NN training/model changes, package installs or drone tuning.',
+        '- Original bins/spatial smoothing/combination follow the plan. The adjacent-bin correction was requested by Yi-Chung and fixed provisionally by the advisor before recomputing results; see QUESTIONS.md. No NN training/model changes, package installs or drone tuning.',
         '', 'Detailed counts/probabilities: state_density.npz; all token joins: token_scores.csv; run checks: acceptance.json.', '']
     (output/'summary.md').write_text('\n'.join(lines))
 
@@ -349,33 +369,117 @@ def write_combined_gifs(root,rows,summary,output):
     return result
 
 
+def write_smoothing_comparison(root,rows,summary,reference,output):
+    baseline=root/'outputs/anomaly_state'
+    with (baseline/'token_scores.csv').open() as stream:
+        old=list(csv.DictReader(stream))
+    old_reference=json.loads((baseline/'standardization.json').read_text())
+    def key(row):
+        return row['source'],row['scenario'],row['agent_id'],int(row['token_start_frame'])
+    assert [key(r) for r in old]==[key(r) for r in rows]
+    for row in old:
+        row['on_ground']=row['on_ground']=='True'
+        for metric in METRICS:
+            row[metric]=float(row[metric])
+    old_lookup={key(r):r for r in old}
+    groups,old_groups=grouped_rows(rows),dict(grouped_rows(old))
+    air_old=old_groups['aircraft-airborne (2026-10-04)']
+    def frozen_combined(row):
+        z=[]
+        for metric in ['transition_nll','state_nll']:
+            params=old_reference['scores'][metric]
+            z.append((row[metric]-params['median'])/params['iqr'])
+        return max(z)
+    results=[]
+    for metric in METRICS:
+        before_cut=float(np.percentile([r[metric] for r in air_old],95))
+        after_cut=next(r['p95'] for r in summary if r['score']==metric and r['group']=='aircraft-airborne (2026-10-04)')
+        for name,items in groups:
+            before=np.array([old_lookup[key(r)][metric] for r in items])
+            after=np.array([r[metric] for r in items])
+            frozen=np.array([frozen_combined(r) for r in items]) if metric=='combined_score' else after
+            results.append(dict(score=metric,group=name,token_count=len(items),old_cutoff=before_cut,new_cutoff=after_cut,
+                old_flagged=int((before>before_cut).sum()),old_fraction=float(np.mean(before>before_cut)),
+                after_frozen_calibration_flagged=int((frozen>before_cut).sum()),after_frozen_calibration_fraction=float(np.mean(frozen>before_cut)),
+                after_recalibration_flagged=int((after>after_cut).sum()),after_recalibration_fraction=float(np.mean(after>after_cut))))
+    write_csv(output/'smoothing_comparison.csv',results)
+    case=[]
+    old_cut=next(r['old_cutoff'] for r in results if r['score']=='combined_score')
+    new_cut=next(r['new_cutoff'] for r in results if r['score']=='combined_score')
+    for row in rows:
+        if row['scenario']!='scenario_000536_aircraft' or row['agent_id']!='aa0300' or not 24<=row['token_start_s']<=66:
+            continue
+        previous=old_lookup[key(row)]
+        case.append(dict(token_start_s=row['token_start_s'],display_at_s=row['token_start_s']+2,
+            course_deg=float(np.degrees(row['course_rad'])),speed_mps=row['speed_mps'],
+            old_course_nll=previous['course_nll'],new_course_nll=row['course_nll'],
+            old_speed_nll=previous['speed_nll'],new_speed_nll=row['speed_nll'],
+            old_state_nll=previous['state_nll'],new_state_nll=row['state_nll'],
+            old_combined=previous['combined_score'],new_combined_old_reference=frozen_combined(row),
+            new_combined=row['combined_score'],old_flag=previous['combined_score']>old_cut,
+            new_frozen_flag=frozen_combined(row)>old_cut,new_flag=row['combined_score']>new_cut))
+    write_csv(output/'aa0300_comparison.csv',case)
+    target=next(r for r in case if r['token_start_s']==28.)
+    compare=dict(baseline=str(baseline.relative_to(root)),old_reference=old_reference,new_reference=reference,
+        combined_old_cutoff=old_cut,combined_new_cutoff=new_cut,aa0300_at_28s=target,groups=results)
+    (output/'smoothing_comparison.json').write_text(json.dumps(compare,indent=2)+'\n')
+    with (output/'summary.md').open('a') as stream:
+        stream.write('\n## Smoothing correction: before / after\n\n')
+        stream.write('Fixed adjacent-bin[1,2,1]/4 kernel: circular course, reflecting speed, then alpha. '
+            'No physical-distance bandwidth, new height/joint smoothing or drone-dependent parameter. '
+            'Original outputs remain untouched. Hard bin lookup still permits residual steps.\n\n')
+        stream.write(f'aa0300 token28–30s: combined {target["old_combined"]:.4f} → {target["new_combined"]:.4f}; '
+            f'old cutoff {old_cut:.4f}, recalibrated cutoff {new_cut:.4f}; '
+            f'flagged before/after = {target["old_flag"]}/{target["new_flag"]}. '
+            f'Course NLL {target["old_course_nll"]:.4f} → {target["new_course_nll"]:.4f}; '
+            f'speed NLL {target["old_speed_nll"]:.4f} → {target["new_speed_nll"]:.4f}.\n\n')
+        stream.write('| Group | Before combined flags | After, frozen old calibration/cutoff | After, recalibrated |\n|---|---:|---:|---:|\n')
+        for result in results:
+            if result['score']=='combined_score':
+                stream.write(f'| {result["group"]} | {result["old_flagged"]}/{result["token_count"]} ({result["old_fraction"]:.2%}) '
+                    f'| {result["after_frozen_calibration_flagged"]} ({result["after_frozen_calibration_fraction"]:.2%}) '
+                    f'| {result["after_recalibration_flagged"]} ({result["after_recalibration_fraction"]:.2%}) |\n')
+        stream.write('\nRecalibrated10-04 airborne exceedance is approximately5% by construction (strict ties can make it slightly lower); that is not evidence of an improved false-positive rate. '
+            'Frozen combined comparisons use both the old10-03 medians/IQRs and old cutoff, rather than mixing calibration scales. '
+            'Normal-aircraft flags are false alerts under the clean-aircraft assumption. The corrected example is not a claim that all false alerts disappear. '
+            'Full per-component comparisons and case timeline are in smoothing_comparison.csv and aa0300_comparison.csv.\n')
+    return compare
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root',type=Path,default=Path(__file__).resolve().parents[2])
-    parser.add_argument('--output-dir',type=Path,default=Path('outputs/anomaly_state'))
+    parser.add_argument('--output-dir',type=Path)
+    parser.add_argument('--legacy-bins',action='store_true',help='Reproduce original spatial/alpha-only density without adjacent-bin smoothing')
     parser.add_argument('--gifs',action='store_true',help='Also render the11 existing GT examples with combined-score outlines')
-    args=parser.parse_args();root=args.root.resolve();output=root/args.output_dir
+    args=parser.parse_args();root=args.root.resolve()
+    output=root/(args.output_dir or Path('outputs/anomaly_state' if args.legacy_bins else 'outputs/anomaly_state_smoothed'))
+    if not args.legacy_bins and output.resolve()==(root/'outputs/anomaly_state').resolve():
+        parser.error('Preserve original outputs/anomaly_state; choose a separate smoothed output directory')
     output.mkdir(parents=True,exist_ok=True);started=time.monotonic()
     protected=protected_hashes(root)
     source=root/'outputs/anomaly/token_scores.csv';score_hash=hashlib.sha256(source.read_bytes()).hexdigest()
-    model,fit=fit_density(root)
+    model,fit=fit_density(root,bin_smoothing=not args.legacy_bins)
     rows,drone,drone_info=score_m8_rows(root,model)
     reference=standardize(rows);summary=summarize(rows)
     write_csv(output/'token_scores.csv',rows);write_csv(output/'summary.csv',summary)
     (output/'standardization.json').write_text(json.dumps(reference,indent=2)+'\n')
     np.savez_compressed(output/'state_density.npz',bounds=model.bounds,joint=model.joint,speed=model.speed,course=model.course,
         pooled_joint=model.pooled_joint,pooled_speed=model.pooled_speed,pooled_course=model.pooled_course,
+        smoothed_speed=model.smoothed_speed,smoothed_course=model.smoothed_course,
         p_joint=model.p_joint,p_speed=model.p_speed,p_course=model.p_course)
     plot_density(model,drone,root/'data/basemap_cache',output/'traffic_density.png')
     plot_timeline(rows,summary,output/'drone_timeline_state.png')
     write_report(summary,reference,fit,output)
+    comparison=write_smoothing_comparison(root,rows,summary,reference,output) if not args.legacy_bins else None
     gif_receipt=write_combined_gifs(root,rows,summary,output) if args.gifs else None
     assert protected_hashes(root)==protected
     assert score_hash==hashlib.sha256(source.read_bytes()).hexdigest()
     receipt=dict(milestone='M8b',density_fit=fit,standardization=reference,token_rows=len(rows),
         m8_scores_sha256=score_hash,protected_sha256=protected,protected_artifacts_unchanged=True,
         source_scores_unchanged=True,neural_training=False,model_execution=False,device='cpu',
-        drone_interpolation=drone_info,elapsed_s=time.monotonic()-started,summary=summary,combined_gifs=gif_receipt)
+        drone_interpolation=drone_info,elapsed_s=time.monotonic()-started,summary=summary,combined_gifs=gif_receipt,
+        smoothing_comparison=comparison)
     (output/'acceptance.json').write_text(json.dumps(receipt,indent=2)+'\n')
     print(json.dumps(dict(eligible_train_states=fit['raw_eligible_states'],token_rows=len(rows),reference=reference,
         elapsed_s=receipt['elapsed_s'],primary=[r for r in summary if r['group']=='aircraft-airborne (2026-10-04)']),indent=2),flush=True)
