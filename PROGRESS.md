@@ -930,3 +930,27 @@ baseline artifacts verified byte-identical. ZIP integrity verified. Visual
 self-review of drone snapshot, scenario000536 aircraft snapshot and contact
 sheet completed; headers/labels readable with no interval/formula. Numerical
 receipt archived at docs/anomaly_demo_acceptance.json. git diff --check passed.
+
+## Quarterly report rollout figures — 2026-10-19
+
+Yi-Chung requested simulation rollout figures for a quarterly report. Exported
+six existing seeded Demo cases as presentation/report figures from saved
+32-rollout BC arrays (epoch016), without rerunning a model or training. New
+command: scripts/catk.sh -m scripts.export_rollout_report. Output directory:
+outputs/quarterly_rollouts. Each case has horizontal trajectories and vertical
+profiles; dark blue6s history, orange recorded30s future, light blue all32
+sampled futures. A six-case horizontal overview, suggested English caption,
+provenance manifest and ZIP package are included.300dpi PNGs (individual3900×1740,
+overview4500×3000) and vector PDFs. Equal-distance map geometry retained;
+straight tracks get expanded axis limits so axes stay readable without cropping
+rollouts. No error-ranked scene selection or best-rollout selection introduced.
+Flight-phase labels retain the original Demo's GT-based classification.
+
+Validation: all six input SHA256 checks unchanged; all32 plotted samples in
+both horizontal and vertical panels match source arrays. Six PNG dimensions
+and seven PDF signatures checked; overview dimensions checked;16-file ZIP
+integrity passed. Visual review of overview, climb and descent panels passed
+after fixing collapsed straight-track axes and header spacing. No packages,
+GPU, density fitting or model execution. Receipt: docs/quarterly_rollout_acceptance.json.
+Caption documents validation reuse and sampled trajectories rather than
+calibrated confidence intervals. Original rollout/data artifacts unchanged.

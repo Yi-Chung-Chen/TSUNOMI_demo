@@ -137,3 +137,14 @@ and input hashes stay in the manifest; scores and alert logic are unchanged.
 This export reads saved score tables and recorded GT only, without fitting
 histograms, model execution or training. Scientific output directories remain
 separate and unchanged.
+
+Quarterly report figures from the six existing seeded Demo cases:
+
+```bash
+scripts/catk.sh -m scripts.export_rollout_report
+```
+
+`outputs/quarterly_rollouts/` contains six individual horizontal/vertical
+figures, a six-case overview (300dpi PNG + vector PDF), `CAPTION.md` and a ZIP
+package. All32 saved rollout samples are drawn alongside6s history and30s
+recorded future. No model execution, training or error-ranked selection.

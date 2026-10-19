@@ -1,0 +1,20 @@
+{
+  "individual_figures": 6,
+  "overview": 1,
+  "formats": [
+    "300dpi PNG",
+    "vector PDF"
+  ],
+  "source_hashes_unchanged": true,
+  "all_32_samples_match_saved_arrays": true,
+  "history_s": 6,
+  "future_s": 30,
+  "model_execution": false,
+  "zip_entries": 16,
+  "zip_integrity": true,
+  "visual_review": [
+    "six-case overview",
+    "climb horizontal and vertical",
+    "descent horizontal and vertical"
+  ]
+}
