@@ -121,3 +121,19 @@ scripts/test.sh -q
 Geometry uses float64; neural features use float32. Unit conversions are centralized in `src/common/units.py`. Heights are altitude minus 166 m; altitude-fallback flags are preserved. Flights may continue across midnight at split boundaries. Raw data stays outside this repo; all generated data and outputs are ignored. No Git remote is configured.
 
 Copied SMART/CAT-K code retains original headers; see LICENSE and LICENSE.SMART. Dataset provenance: ADSB.lol historical traces (ODbL 1.0), as documented in the source dataset README. Historical dictionary reconstruction results (day 10-03) are in `docs/motion_dict.md`; they are not forecast errors.
+
+Presentation exports from existing anomaly scores:
+
+```bash
+scripts/catk.sh -m scripts.export_anomaly_demo
+```
+
+Writes `outputs/anomaly_demo/scenes/` (11 individual1200×900 PNGs, last frame
+of each replay), `gifs/` (matching animations and contact sheet), and
+`manifest.json`; `scene_images.zip` packages all individual PNGs. Uses the restored five-height smoothed baseline. Demo labels
+say “Anomaly score”, with scene-local aircraft/drone numbers and no token
+intervals, internal scenario IDs or formula. Source IDs, exact cutoff, timing
+and input hashes stay in the manifest; scores and alert logic are unchanged.
+This export reads saved score tables and recorded GT only, without fitting
+histograms, model execution or training. Scientific output directories remain
+separate and unchanged.

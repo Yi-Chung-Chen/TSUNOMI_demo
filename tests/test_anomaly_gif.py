@@ -29,8 +29,9 @@ def test_red_segments_strict_threshold_absolute_frames_and_gaps():
     assert np.all(segments[:,0,0]>=6) and np.all(segments[:,1,0]<=18)
 
 
+@pytest.mark.parametrize('presentation',[False,True])
 @pytest.mark.parametrize('score_label',['NLL','combined'])
-def test_gt_animation_red_pixels_appear_only_after_high_token_completion(tmp_path,monkeypatch,score_label):
+def test_gt_animation_red_pixels_appear_only_after_high_token_completion(tmp_path,monkeypatch,score_label,presentation):
     def fake_map(bounds,cache,theme):
         pixels=gif.visual.enu_to_pixel(bounds,16)
         return Image.new('RGB',(100,100),'#0b1622'),16,np.stack((pixels.min(axis=0),pixels.max(axis=0)))
@@ -39,7 +40,7 @@ def test_gt_animation_red_pixels_appear_only_after_high_token_completion(tmp_pat
     data=dict(source='drone',scenario='synthetic',date='test',start_frame=24,
         gt_position=position,gt_heading=np.zeros((1,19)),valid_mask=np.ones((1,19),bool),agent_id=np.array(['drone']))
     tracks={('drone','synthetic','drone'):[dict(start=24,end=30,nll=8.),dict(start=30,end=36,nll=2.)]}
-    frames,record=gif.render_scene(data,tracks,tmp_path,score_label=score_label)
+    frames,record=gif.render_scene(data,tracks,tmp_path,score_label=score_label,presentation=presentation)
     assert len(frames)==19 and record['objects']==1 and record['score_label']==score_label
     path=tmp_path/'gt_only.gif';gif.visual.save_gif(frames,path,1)
     alert=np.array([255,48,56],dtype=np.uint8)

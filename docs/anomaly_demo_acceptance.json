@@ -1,0 +1,22 @@
+{
+  "pngs": 11,
+  "gifs": 11,
+  "dimensions": [
+    1200,
+    900
+  ],
+  "png_equals_final_gif_frame": true,
+  "score_source": "five-height smoothed baseline",
+  "threshold": 1.3842295463291823,
+  "unchanged_baseline_artifacts": 47,
+  "tests": "20 passed,19 dependency warnings,6.51s",
+  "model_execution": false,
+  "training": false,
+  "density_fit": false,
+  "visual_review": [
+    "drone final frame",
+    "scenario000536 final frame",
+    "11-scene contact sheet"
+  ],
+  "archive": "scene_images.zip"
+}

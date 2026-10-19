@@ -901,3 +901,32 @@ Validation:14 state-density tests passed (19 dependency warnings),3.63s;
 intercepted fit calls confirm default five bins and opt-in four bins, both
 smoothed; all47 preserved baseline artifact SHA256 checks pass; CLI help and
 git diff --check pass. Height100 report remains archived as comparison evidence.
+
+## Presentation demo export — 2026-10-19
+
+Yi-Chung requested individual full-scene images and cleaner demo visualization:
+use “Anomaly score”, omit token intervals and unexplained implementation text.
+Implemented an opt-in presentation style and saved-score-only exporter:
+`scripts/catk.sh -m scripts.export_anomaly_demo`. It uses the restored five-height
+smoothed baseline, existing trajectories and cached map tiles, with no density
+fit, neural/model execution, training, score changes or added packages.
+
+Outputs are separate under outputs/anomaly_demo/: scenes/ holds11 individual
+1200×900 PNGs matching each replay's final/contact-sheet frame; gifs/ holds11
+matching animations and contact_sheet.png. scene_images.zip packages all11
+PNGs. Header uses SYGARD / AIRSPACE MONITOR with friendly scene names/date;
+labels use scene-local Aircraft/Drone numbers, Anomaly score and alert/tracking
+status. Removed raw scenario/object IDs, combined formula, NLL, interval and
+N/A from the presentation. Retained relative-score explanation, recorded-path
+replay context and OpenStreetMap attribution. Source IDs and timing remain in
+the manifest/README for reproducibility. Existing scientific visuals remain
+unchanged; presentation=False is the renderer's backwards-compatible default.
+
+Validation:20 tests passed,19 dependency warnings,6.51s (state-density and
+renderer tests, including presentation mode's red-pixel timing/expiry checks).
+Decoded all11GIFs, checked dimensions/frame counts and exact PNG equality to
+the last decoded GIF frame. Threshold remains1.3842295463291823; all47 prior
+baseline artifacts verified byte-identical. ZIP integrity verified. Visual
+self-review of drone snapshot, scenario000536 aircraft snapshot and contact
+sheet completed; headers/labels readable with no interval/formula. Numerical
+receipt archived at docs/anomaly_demo_acceptance.json. git diff --check passed.

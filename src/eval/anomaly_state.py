@@ -333,7 +333,7 @@ def write_report(summary,reference,fit,output):
     (output/'summary.md').write_text('\n'.join(lines))
 
 
-def write_combined_gifs(root,rows,summary,output):
+def write_combined_gifs(root,rows,summary,output,presentation=False):
     """Reuse the GT renderer; threshold is the specified evaluation p95."""
     from PIL import Image
     from src.eval.anomaly_gif import render_scene
@@ -355,17 +355,22 @@ def write_combined_gifs(root,rows,summary,output):
     for path in visual.select_windows(root):
         data=load_rollout(path);data['source']='aircraft';scenes.append(data)
     records,thumbs=[],[]
-    for data in scenes:
-        frames,record=render_scene(data,tracks,root/'data/basemap_cache',threshold,score_label='combined')
+    for scene_index,data in enumerate(scenes):
+        data['demo_title']='Drone detection' if data['source']=='drone' else f'Airport traffic / Scene {scene_index:02d}'
+        frames,record=render_scene(data,tracks,root/'data/basemap_cache',threshold,score_label='combined',presentation=presentation)
         name='drone01_full' if data['source']=='drone' else f'{data["scenario"]}_f{int(data["start_frame"]):04d}'
         path=destination/f'{name}.gif'
+        if presentation:
+            snapshots=output/'scenes';snapshots.mkdir(parents=True,exist_ok=True)
+            frames[-1].convert('RGB').save(snapshots/f'{name}.png')
         visual.save_gif(frames,path,1);skip=1
         if path.stat().st_size>8_000_000:
             frames=frames[::2];skip=2;visual.save_gif(frames,path,skip)
         assert path.stat().st_size<=8_000_000
         with Image.open(path) as decoded:
             decoded.seek(decoded.n_frames-1);thumb=decoded.convert('RGB');thumb.thumbnail((480,360));thumbs.append(thumb)
-        record.update(output=path.name,bytes=path.stat().st_size,encoded_frames=len(frames),skip=skip)
+        record.update(output=path.name,bytes=path.stat().st_size,encoded_frames=len(frames),skip=skip,
+            snapshot=f'scenes/{name}.png' if presentation else None,snapshot_frame=int(data['start_frame'])+len(data['valid_mask'][0])-1)
         records.append(record);print(json.dumps(dict(combined_gif=path.name,bytes=record['bytes'])),flush=True)
     sheet=Image.new('RGB',(1920,1080),visual.THEMES['dark']['background'])
     for i,thumb in enumerate(thumbs):

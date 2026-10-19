@@ -85,7 +85,7 @@ def high_segments(xy, valid, frame_offset, rows, threshold):
     return np.asarray(segments).reshape(-1,2,2), np.asarray(completions)
 
 
-def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
+def render_scene(data, tracks, cache, threshold=7., score_label='NLL', presentation=False):
     source, scenario = str(data['source']), str(data['scenario'])
     marker = DRONE if source=='drone' else visual.PLANE
     offset = int(data['start_frame'])
@@ -102,14 +102,24 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
     ax.imshow(image, extent=(pb[0,0],pb[1,0],pb[1,1],pb[0,1]))
     ax.set(xlim=(pb[0,0],pb[1,0]), ylim=(pb[1,1],pb[0,1]), aspect='equal')
     ax.axis('off')
-    fig.text(.035,.958,f'{data["date"]} · {scenario}',fontsize=16,color=style['text'])
+    if presentation:
+        fig.text(.035,.965,'SYGARD  /  AIRSPACE MONITOR',fontsize=18,fontweight='bold',color=style['text'])
+        title=data.get('demo_title','Drone detection' if source=='drone' else 'Airport traffic')
+        fig.text(.035,.932,f'{title}  ·  {data["date"]}  ·  O’Hare International Airport',fontsize=10,color=style['muted'])
+        fig.text(.035,.045,'TRAJECTORY REPLAY',fontsize=10,fontweight='bold',color='#58d4ed')
+        fig.text(.22,.045,'Recorded paths  ·  Red highlights elevated anomaly scores',fontsize=10,color=style['text'])
+        fig.text(.035,.021,'Anomaly scores are relative values; higher indicates more unusual behaviour.',fontsize=9,color=style['muted'])
+    else:
+        fig.text(.035,.958,f'{data["date"]} · {scenario}',fontsize=16,color=style['text'])
     clock = fig.text(.965,.958,'',ha='right',fontsize=15,fontfamily='monospace',color=style['text'],animated=True)
     description = 'offline NLL (single-agent, teacher-forced)' if score_label=='NLL' else 'combined = max(z_transition, z_state)'
     cutoff_text=f'{threshold:g}' if score_label=='NLL' else f'{threshold:.5f}'
-    fig.text(.035,.032,f'GT replay · {description} · red outline: {score_label} > {cutoff_text}',fontsize=10,color=style['text'])
-    fig.text(.035,.012,'Latest completed 2 s GT token. Intervals use scenario time; N/A = no valid score.',fontsize=8,color=style['muted'])
+    if not presentation:
+        fig.text(.035,.032,f'GT replay · {description} · red outline: {score_label} > {cutoff_text}',fontsize=10,color=style['text'])
+        fig.text(.035,.012,'Latest completed 2 s GT token. Intervals use scenario time; N/A = no valid score.',fontsize=8,color=style['muted'])
     fig.text(.975,.015,'© OpenStreetMap contributors',ha='right',fontsize=8,color=style['muted'])
     colours = {agent:TRACK_COLOURS[i%len(TRACK_COLOURS)] for i,agent in enumerate(sorted(map(str,data['agent_id'])))}
+    names={agent:f'{"Drone" if source=="drone" else "Aircraft"} {i+1:02d}' for i,agent in enumerate(sorted(map(str,data['agent_id'])))}
     objects, artists, warnings = [], [clock], []
     for a, agent in enumerate(data['agent_id']):
         if not valid[a].any():
@@ -137,7 +147,7 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
     for local in range(gt.shape[1]):
         absolute = offset+local
         fig.canvas.restore_region(background)
-        clock.set_text(f't = {absolute/3:6.1f} s')
+        clock.set_text(f'{absolute/3:6.1f} s' if presentation else f't = {absolute/3:6.1f} s')
         for a,agent,rows,history,halo,core,box,icon,label,segments,ends in objects:
             history.set_data(*pixels[a,:local+1].T)
             shown = segments[ends<=absolute]
@@ -163,9 +173,12 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
                 label.set_ha(ha); label.set_va(va)
                 if row:
                     value_text=f'{row["nll"]:.5f}' if score_label=='combined' and abs(row['nll']-threshold)<.01 else f'{row["nll"]:.2f}'
-                    label.set_text(f'{agent}  {score_label} {value_text}\n[{row["start"]/3:g}–{row["end"]/3:g} s]')
+                    if presentation:
+                        label.set_text(f'{names[agent]}  ·  {"ALERT" if high else "TRACKING"}\nAnomaly score  {value_text}')
+                    else:
+                        label.set_text(f'{agent}  {score_label} {value_text}\n[{row["start"]/3:g}–{row["end"]/3:g} s]')
                 else:
-                    label.set_text(f'{agent}  {score_label} N/A')
+                    label.set_text(f'{names[agent]}\nAwaiting score' if presentation else f'{agent}  {score_label} N/A')
                 label.get_bbox_patch().set_edgecolor(ALERT if high else colours[agent])
                 label.get_bbox_patch().set_linewidth(2 if high else 1)
         for artist in artists:
@@ -175,7 +188,7 @@ def render_scene(data, tracks, cache, threshold=7., score_label='NLL'):
     plt.close(fig)
     return frames,dict(source=source,scenario=scenario,start_frame=offset,frames=len(frames),
         threshold=threshold,objects=len(objects),bounds_enu_m=bounds.tolist(),zoom=zoom,warnings=warnings,
-        icon='quadcopter' if source=='drone' else 'aircraft',score_label=score_label)
+        presentation=presentation,display_names=names if presentation else None,icon='quadcopter' if source=='drone' else 'aircraft',score_label=score_label)
 
 
 def main():
