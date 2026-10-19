@@ -104,8 +104,10 @@ alerts honestly with frozen and recalibrated cutoff comparisons.
 
 Yi-Chung also authorized a separate height100 variant: merge raw <15/15–100m
 counts into <100m before pooling/kernel/alpha, retaining100/300/600m edges.
-Default output is now outputs/anomaly_state_height100. --keep-height-15
-reproduces the preceding smoothed baseline; --legacy-bins reproduces the
+Yi-Chung reverted the default to the five-height smoothed baseline after
+reviewing the tradeoff: outputs/anomaly_state_smoothed. --keep-height-15
+remains a compatible alias for that default; --height100 explicitly opts into
+the preserved outputs/anomaly_state_height100 experiment. --legacy-bins reproduces the
 original five-bin unsmoothed baseline. Preserve both previous directories.
 Compare frozen and recalibrated scores, consecutive alert durations and drone
 retention; disclose10-04 as inspected development data. Do not add further

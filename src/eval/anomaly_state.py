@@ -525,9 +525,12 @@ def main():
     parser.add_argument('--output-dir',type=Path)
     parser.add_argument('--legacy-bins',action='store_true',help='Reproduce original spatial/alpha-only density without adjacent-bin smoothing')
     parser.add_argument('--keep-height-15',action='store_true',help='Retain five height bins for the previous smoothed baseline')
+    parser.add_argument('--height100',action='store_true',help='Opt in to the experimental merged <100m height variant')
     parser.add_argument('--gifs',action='store_true',help='Also render the11 existing GT examples with combined-score outlines')
     args=parser.parse_args();root=args.root.resolve()
-    height100=not (args.legacy_bins or args.keep_height_15)
+    if args.height100 and (args.legacy_bins or args.keep_height_15):
+        parser.error('--height100 cannot be combined with --legacy-bins or --keep-height-15')
+    height100=args.height100
     default='anomaly_state_height100' if height100 else ('anomaly_state' if args.legacy_bins else 'anomaly_state_smoothed')
     output=root/(args.output_dir or Path('outputs')/default)
     if height100 and output.resolve() in [(root/'outputs'/d).resolve() for d in ['anomaly_state','anomaly_state_smoothed']]:

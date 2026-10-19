@@ -887,3 +887,17 @@ state_density.npz,height_comparison.csv,alert_runs.csv,aircraft_cases.csv,
 drone_by_height.csv,traffic_density.png,drone_timeline_state.png,gifs/}.
 Reports and numerical acceptance archived under docs/anomaly_state_height100*.
 Stopped after this requested comparison; no additional detector changes.
+
+## Restore five-height smoothed default — 2026-10-18
+
+Yi-Chung requested reverting after the height100 tradeoff review. Restored the
+CLI default to original15/100/300/600m edges with the fixed course/speed
+smoothing and outputs/anomaly_state_smoothed. --keep-height-15 remains accepted;
+--height100 explicitly selects the retained experiment. Conflicting profile
+flags fail before any output writes. Existing tables/GIFs remain unchanged;
+no scoring, rendering, training, model execution or packages were needed.
+
+Validation:14 state-density tests passed (19 dependency warnings),3.63s;
+intercepted fit calls confirm default five bins and opt-in four bins, both
+smoothed; all47 preserved baseline artifact SHA256 checks pass; CLI help and
+git diff --check pass. Height100 report remains archived as comparison evidence.
