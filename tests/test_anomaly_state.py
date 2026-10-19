@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pytest
 
-from src.eval.anomaly_state import StateDensity,states_at,standardize,fit_density,smooth_bins
+from src.eval.anomaly_state import StateDensity,states_at,standardize,fit_density,smooth_bins,MERGED_HEIGHT_EDGES
 
 
 def fixture_data():
@@ -15,7 +15,8 @@ def fixture_data():
     return dict(pos=p,valid=valid)
 
 
-def test_counts_equal_eligible_train_states_and_only_train_files(tmp_path):
+@pytest.mark.parametrize('height_edges',[None,MERGED_HEIGHT_EDGES])
+def test_counts_equal_eligible_train_states_and_only_train_files(tmp_path,height_edges):
     processed=tmp_path/'data/processed';split=tmp_path/'data/splits'
     processed.mkdir(parents=True);split.mkdir(parents=True)
     (split/'train_manifest.txt').write_text('train_scenario\n')
@@ -24,15 +25,16 @@ def test_counts_equal_eligible_train_states_and_only_train_files(tmp_path):
     np.savez(processed/'train_scenario.npz',**d)
     # Deliberately broken held-out/drone files must never be read during fit.
     (processed/'held_out.npz').write_text('do not read this')
-    model,receipt=fit_density(tmp_path)
+    model,receipt=fit_density(tmp_path,height_edges=height_edges)
     expected=sum(bool(d['valid'][a,t] and d['valid'][a,t-6]) for a in range(2) for t in range(6,20))
     assert model.joint.sum()==model.speed.sum()==model.course.sum()==expected==receipt['raw_eligible_states']
     assert receipt['dates']=={'2026-09-28':1}
 
 
-def test_all_joint_conditional_distributions_normalize_after_pooling():
+@pytest.mark.parametrize('height_edges',[None,MERGED_HEIGHT_EDGES])
+def test_all_joint_conditional_distributions_normalize_after_pooling(height_edges):
     data=fixture_data();a,t=np.nonzero(data['valid'][:,6:] & data['valid'][:,:-6])
-    model=StateDensity([[0,0],[1750,1750]])
+    model=StateDensity([[0,0],[1750,1750]],height_edges=height_edges)
     model.add(states_at(data,a,t+6));model.finish()
     np.testing.assert_array_equal(model.pooled_speed.sum(-1),model.pooled_joint)
     np.testing.assert_array_equal(model.pooled_course.sum(-1),model.pooled_joint)
@@ -46,8 +48,9 @@ def test_all_joint_conditional_distributions_normalize_after_pooling():
     np.testing.assert_allclose(model.p_course[-1],1/12)
 
 
-def test_empty_far_corner_scores_higher_than_busy_cell():
-    model=StateDensity([[0,0],[1750,1750]])
+@pytest.mark.parametrize('height_edges',[None,MERGED_HEIGHT_EDGES])
+def test_empty_far_corner_scores_higher_than_busy_cell(height_edges):
+    model=StateDensity([[0,0],[1750,1750]],height_edges=height_edges)
     train=dict(position=np.tile([800.,800.,150.],(1000,1)),speed=np.full(1000,24.),course=np.zeros(1000))
     model.add(train);model.finish()
     probe=dict(position=np.array([[800.,800.,150.],[20.,20.,150.]]),speed=np.array([24.,24.]),course=np.zeros(2))
@@ -138,3 +141,32 @@ def test_near_identical_westward_courses_borrow_across_seam():
         scores=model.score(probes)['course_nll']
         differences.append(abs(scores[1]-scores[0]))
     assert differences[1]<differences[0] and differences[1]<np.log(2.)
+
+
+def test_height100_merges_raw_counts_before_alpha_and_preserves_mass():
+    from src.eval.anomaly_state import MERGED_HEIGHT_EDGES
+    probe=dict(position=np.array([[100,100,z] for z in [0,14.9,15,32,99.9,100,299,300,600]]),
+        speed=np.arange(9)*10.,course=np.linspace(-np.pi,np.pi,9))
+    old=StateDensity([[0,0],[750,750]]);new=StateDensity([[0,0],[750,750]],height_edges=MERGED_HEIGHT_EDGES)
+    for model in [old,new]: model.add(probe);model.finish()
+    assert new.n_height==4
+    assert list(new.bins(probe)[1])==[0,0,0,0,0,1,1,2,3]
+    for field in ['joint','speed','course','pooled_joint','pooled_speed','pooled_course']:
+        before=getattr(old,field);after=getattr(new,field)
+        np.testing.assert_array_equal(after[:,0],before[:,:2].sum(axis=1))
+        np.testing.assert_array_equal(after[:,1:],before[:,2:])
+        assert after.sum()==before.sum()
+    assert np.isclose(new.p_joint.sum(),1)
+    np.testing.assert_allclose(new.p_speed.sum(-1),1)
+    np.testing.assert_allclose(new.p_course.sum(-1),1)
+    assert np.isclose(new.p_joint[0,0],(new.pooled_joint[0,0]+.5)/(new.pooled_joint.sum()+.5*new.n_cells*4))
+
+
+def test_alert_runs_break_at_missing_unflagged_and_track_boundaries():
+    from src.eval.anomaly_state import alert_runs
+    rows=[dict(scenario='s',agent_id='a',token_start_frame=f) for f in [0,6,12,18,30,36,42]]
+    rows.append(dict(scenario='s',agent_id='b',token_start_frame=48))
+    result=alert_runs(rows,[True,True,True,False,True,True,False,True])
+    assert result['max_run_s']==6 and result['median_run_s']==4
+    assert result['run_count']==3 and result['tracks_with_run_ge6s']==1
+    assert result['fraction_tracks_run_ge6s']==.5

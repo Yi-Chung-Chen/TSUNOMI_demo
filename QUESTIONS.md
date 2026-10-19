@@ -76,3 +76,26 @@ parameters and10-04 p95; compare with frozen old calibration/cutoffs as well.
 Implementation proceeds under the user's authorization and binding provisional
 advisor rule. No work is blocked; plan documentation remains pending Yi-Chung.
 Full consolidated Q/A is in parent SYGARD_QA_LOG.md.
+
+## M8b height100 revision — user override and provisional run definition
+
+Yi-Chung requested merging <15 and15–100m into a single <100m layer to
+investigate normal landing/taxi false positives, then explicitly authorized
+implementation (“處理一下吧”). Please update plan §4.1/M8b: raw-count height
+edges are now100/300/600m for this separate variant. The speed/course kernel
+recorded above remains unchanged. Preserve both prior result directories.
+
+Advisor DECISION (provisional): merge raw train counts before spatial pooling,
+fixed speed/course smoothing and alpha; joint denominator now has four height
+categories. Fit on train only, recalibrate on10-03, compare frozen baseline
+calibration/cutoffs as well as recalibrated outputs. Report drone count/median
+state NLL in each physical height group. Stationary course remains zero.
+
+New reporting convention: group alert runs by(scenario,agent), consecutive
+flagged starts must differ by6 frames; missing/unflagged tokens break runs.
+Duration=2seconds×token count. Report max/median duration and fraction of
+scenario-agent tracks with any run≥6seconds, separately by aircraft phase.
+The advisor referred to aabc11/aa0300 as10-04 examples, but the actual
+scenario000667/000536 records and GIF labels are10-03.10-04 aggregate
+results have also informed revision and are inspected development evidence,
+not a pristine holdout. No blocker; full Q/A in ../SYGARD_QA_LOG.md.

@@ -1,0 +1,5 @@
+height_bin,token_count,old_median_state_nll,new_median_state_nll,new_combined_flagged
+<100,32,18.399162033022108,13.547735640055379,24
+100–300,114,23.04183003160509,23.041763773640447,114
+300–600,0,,,0
+>=600,0,,,0

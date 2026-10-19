@@ -838,3 +838,52 @@ AUROC independently by pairwise comparison. All1,991 updated GIF frames decode
 with correct counts/timing/size/loop. All22 original output hashes and protected
 checkpoint/dictionary/train artifacts are unchanged. CPU only; no NN/model
 execution, training, installs or M9 work. Commit locally and stop for review.
+
+## M8b height100 comparison — 2026-10-18
+
+Yi-Chung authorized merging <15/15–100m after reviewing normal taxi alerts.
+Implemented by Codex; the advisor provided one consolidated read-only provisional
+review (logged in parent SYGARD_QA_LOG.md and QUESTIONS.md). No neural training,
+model execution, packages or GPU. Density still fits1,007,315 train states from
+618scenarios; score joins are the same28,413 rows. New raw height boundaries
+100/300/600m,1191×4 joint cells; fixed spatial pooling, course/speed kernel,
+alpha and max combination retained. Class defaults retain legacy compatibility;
+CLI defaults to separate outputs/anomaly_state_height100. Prior smoothed CLI
+is available via --keep-height-15, original via --legacy-bins.
+
+Results versus speed/course-smoothed five-height baseline:
+- Selected10-03 aabc11/scenario000667 token starts238–274s:8/19 flags →0/19,
+ 16s continuous alert →0s; aa0300/scenario000536 starts24–60s:5/19 →0/19.
+ The advisor mistakenly called these10-04 cases; actual row/GIF dates are10-03.
+- Frozen baseline calibration/cutoff:10-04 all-aircraft540/11838 →467/11838;
+ airborne459/9200 →388/9200, ground81/2638 →79/2638. Recalibrated:
+ airborne460/9200 (5% by construction), ground112/2638=4.2456%, all572/11838.
+ Ground maximum run18s →60s; tracks with≥6s ground alert6/149 →7/149.
+- Drone retention146/146 →138/146, both frozen and recalibrated. All8misses
+ below100m:32tokens, median state NLL18.3992 →13.5477,24flagged.100–300m:
+ 114tokens, median23.04183 →23.04176,114flagged. Combined AUROC.999751 →.992693.
+- Therefore the selected normal examples improve, but recalibrated ground
+ false alerts and low-drone misses worsen. This is a comparison variant,
+ not an overall validated improvement. No additional tuning/score applied.
+ Both10-03 examples and10-04 aggregates informed development; neither an
+ inspected example nor inspected10-04 evaluation is a pristine holdout.
+
+Acceptance output:
+- `scripts/catk.sh -m src.eval.anomaly_state --gifs`: successful CPU run,
+ 11GIFs decoded at1200×900; all under8MB; four-height density and drone plot.
+- Full `scripts/test.sh -q`:59passed,19dependency warnings,45.83s.
+- `scripts/test.sh -q tests/test_anomaly_state.py`:14passed,19dependency
+ warnings,3.62s. Tests cover train-only fit,4/5-bin normalization and busy/empty
+ cells, exact raw merge before alpha, causality and gap/track-aware alert runs.
+- Actual fitted raw/pooled/kernel counts exactly equal baseline first-two sums;
+ all higher layers unchanged; joint shape(1191,4). All47 original and smoothed
+ artifact hashes unchanged. Protected source scores/checkpoint/dictionary and
+ train inputs unchanged (acceptance receipt).
+- Visual self-review: decoded aabc11 at260s has no red box/track; other aircraft
+ can still alert. Four-panel height density plot has correct labels/drone path.
+
+Artifacts: outputs/anomaly_state_height100/{summary.md,token_scores.csv,
+state_density.npz,height_comparison.csv,alert_runs.csv,aircraft_cases.csv,
+drone_by_height.csv,traffic_density.png,drone_timeline_state.png,gifs/}.
+Reports and numerical acceptance archived under docs/anomaly_state_height100*.
+Stopped after this requested comparison; no additional detector changes.
