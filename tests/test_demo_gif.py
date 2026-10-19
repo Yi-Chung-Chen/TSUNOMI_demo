@@ -49,6 +49,12 @@ def test_synthetic_render_and_encoded_animation(tmp_path,monkeypatch):
     frames,record=gif.render_window(synthetic(),tmp_path)
     assert len(frames)==record['frames']==109
     assert len(gif.frame_indices(2))==55
+    still,still_record=gif.render_window(synthetic(),tmp_path,snapshot=True)
+    assert len(still)==1 and still_record['final_time_s']==30
+    # Direct snapshot equals the animation's final composition after the same palette.
+    palette=frames[-1].copy()
+    quantized=still[0].quantize(palette=palette,dither=Image.Dither.NONE)
+    np.testing.assert_array_equal(np.asarray(quantized.convert('RGB')),np.asarray(frames[-1].convert('RGB')))
     path=tmp_path/'tiny.gif'; gif.save_gif(frames,path,1)
     with Image.open(path) as image:
         assert image.n_frames==109 and image.size==(1200,900)

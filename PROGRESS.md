@@ -954,3 +954,28 @@ after fixing collapsed straight-track axes and header spacing. No packages,
 GPU, density fitting or model execution. Receipt: docs/quarterly_rollout_acceptance.json.
 Caption documents validation reuse and sampled trajectories rather than
 calibrated confidence intervals. Original rollout/data artifacts unchanged.
+
+## Quarterly rollout stills — corrected visual direction, 2026-10-19
+
+Yi-Chung clarified that the requested quarterly Demo is the existing dark-map
+simulation GIF style at the completed rollout frame, rather than scientific
+axes/overview figures. Exported all10 existing v2 scenes as individual2400×1800
+PNGs at t=+30s (frame108), including scenario000197/f0180. Colourful recorded
+solid paths/filled aircraft, simulated dashed paths/outline aircraft, clean
+SYGARD / MOTION SIMULATION title, friendly aircraft labels and an explanatory
+legend. No plot-grid overview. OSM attribution retained. Source v2 GIFs and
+rollout arrays unchanged. Export: scripts/catk.sh -m scripts.export_rollout_snapshots;
+outputs/rollout_demo_stills/{individual PNGs,rollout_demo_stills.zip,CAPTION.md,manifest.json}.
+
+Renderer has opt-in direct final-frame/presentation/high-resolution parameters;
+default animation behavior is retained. No model execution/training or new
+packages. Uses exactly the existing GIF's joint rollout index (best scene-wide
+3D error of32); this selection uses recorded future and is disclosed in the
+caption/manifest, rather than presenting it as an unbiased sample.
+
+Validation:4 renderer tests passed,18 dependency warnings,3.72s, including exact
+comparison of direct last-frame output against the original animation's final
+composition after identical palette quantization. All10 scenes have matching
+original indices and SHA256 input hashes, dimensions2400×1800 and final time30s.
+12-entry ZIP integrity verified. Visual self-review of the user's requested
+scenario000197 final image passed. Receipt: docs/rollout_demo_stills_acceptance.json.

@@ -1,0 +1,15 @@
+{
+  "scenes": 10,
+  "dimensions": [
+    2400,
+    1800
+  ],
+  "time_s": 30,
+  "frame_index": 108,
+  "same_joint_rollout_as_original_gif": true,
+  "input_hashes_unchanged": true,
+  "model_execution": false,
+  "zip_integrity": true,
+  "tests": "4 passed,18 dependency warnings,3.72s",
+  "visual_review": "scenario000197 completed dark-map simulation: solid recorded, dashed simulated, filled/outline aircraft endpoints"
+}

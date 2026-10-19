@@ -154,7 +154,7 @@ def select_windows(root):
     return selected
 
 
-def render_window(data, cache, skip=1, theme='dark'):
+def render_window(data, cache, skip=1, theme='dark', snapshot=False, presentation=False, dpi=100):
     rollout, scores = choose_rollout(data)
     gt = data['gt_position'][..., :2].astype(float).copy()
     valid = data['valid_mask']
@@ -169,15 +169,28 @@ def render_window(data, cache, skip=1, theme='dark'):
     palette = fixed_palette(image, theme)
     style = THEMES[theme]
     gtpx, predpx = enu_to_pixel(gt, zoom), enu_to_pixel(pred, zoom)
-    fig = plt.figure(figsize=(12, 9), dpi=100, facecolor=style['background'])
+    fig = plt.figure(figsize=(12, 9), dpi=dpi, facecolor=style['background'])
     ax = fig.add_axes(MAP_RECT)
     ax.imshow(image, extent=(pb[0,0], pb[1,0], pb[1,1], pb[0,1]))
     ax.set(xlim=(pb[0,0], pb[1,0]), ylim=(pb[1,1], pb[0,1]), aspect='equal')
     ax.axis('off')
-    fig.text(.035, .955, f'{data["date"]} · {data["scenario"]}', fontsize=18, color=style['text'], weight='medium')
-    fig.text(.035, .025, '━━  ground truth      ┄┄  prediction', fontsize=10, color=style['muted'])
+    if presentation:
+        from matplotlib.lines import Line2D
+        fig.text(.035,.965,'SYGARD  /  MOTION SIMULATION',fontsize=18,weight='bold',color=style['text'])
+        fig.text(.035,.932,f'Aircraft trajectory rollout  ·  O’Hare International Airport  ·  {data["date"]}',
+            fontsize=10,color=style['muted'])
+        handles=[Line2D([],[],color=style['text'],lw=2.5,label='Recorded trajectory'),
+            Line2D([],[],color=style['text'],lw=2,ls=(0,(6,4)),label='Simulated trajectory')]
+        fig.legend(handles=handles,loc='lower left',bbox_to_anchor=(.026,.027),ncol=2,
+            frameon=False,fontsize=10,labelcolor=style['text'],handlelength=3)
+        fig.text(.035,.014,'6 s observed history  /  30 s forecast  /  Filled aircraft: recorded · Outline: simulated',
+            fontsize=8.5,color=style['muted'])
+    else:
+        fig.text(.035, .955, f'{data["date"]} · {data["scenario"]}', fontsize=18, color=style['text'], weight='medium')
+        fig.text(.035, .025, '━━  ground truth      ┄┄  prediction', fontsize=10, color=style['muted'])
     fig.text(.975, .025, '© OpenStreetMap contributors', ha='right', fontsize=9, color=style['muted'])
-    clock = fig.text(.965, .955, '', ha='right', fontsize=16, fontfamily='monospace', color=style['text'], animated=True)
+    clock = fig.text(.965, .955, '', ha='right', fontsize=14 if presentation else 16,
+        fontfamily='monospace', color=style['text'], animated=True)
     artists = [clock]
     tracks = []
     colour_index = {str(agent): i % len(PALETTE) for i, agent in enumerate(sorted(map(str,data['agent_id'])))}
@@ -191,16 +204,16 @@ def render_window(data, cache, skip=1, theme='dark'):
         future, = ax.plot([], [], color=tint, lw=2.6, ls=(0,(6,4)), animated=True)
         icon, = ax.plot([], [], marker=PLANE, ms=26, mfc=color, mec=style['background'], mew=1.2, ls='', animated=True)
         ghost, = ax.plot([], [], marker=PLANE, ms=22, mfc=style['background'], mec=tint, mew=2, ls='', animated=True)
-        label = ax.text(0, 0, str(agent), fontsize=11, color=style['text'], animated=True,
+        label = ax.text(0, 0, f'Aircraft {colour_index[str(agent)]+1:02d}' if presentation else str(agent), fontsize=11, color=style['text'], animated=True,
                         bbox=dict(facecolor=style['background'], edgecolor=color, linewidth=1, pad=2))
         tracks.append((a, truth, future, icon, ghost, label))
         artists.extend([truth, future, ghost, icon, label])
     fig.canvas.draw()
     background = fig.canvas.copy_from_bbox(fig.bbox)
     frames = []
-    for t in frame_indices(skip):
+    for t in ([108] if snapshot else frame_indices(skip)):
         fig.canvas.restore_region(background)
-        clock.set_text(f't = {(t-18)/3:+.1f} s')
+        clock.set_text('FORECAST  +30 s' if presentation and snapshot else f't = {(t-18)/3:+.1f} s')
         for a, truth, future, icon, ghost, label in tracks:
             truth.set_data(*gtpx[a, :t+1].T)
             k = max(0, t-18)
@@ -211,7 +224,13 @@ def render_window(data, cache, skip=1, theme='dark'):
                 icon.set_data([gtpx[a,t,0]], [gtpx[a,t,1]])
                 icon.set_marker(PLANE.transformed(Affine2D().rotate(float(data['gt_heading'][a,t]))))
                 # Convert a 16-display-pixel offset to map coordinates.
-                label.set_position(ax.transData.inverted().transform(ax.transData.transform(gtpx[a,t])+[16,16]))
+                screen=ax.transData.transform(gtpx[a,t])
+                scale=dpi/100
+                dx=16*scale if not presentation or ax.bbox.xmax-screen[0]>150*scale else -16*scale
+                dy=16*scale if not presentation or ax.bbox.ymax-screen[1]>45*scale else -16*scale
+                label.set_position(ax.transData.inverted().transform(screen+[dx,dy]))
+                label.set_ha('left' if dx>0 else 'right')
+                label.set_va('baseline' if dy>0 else 'top')
             show_pred = k > 0 and pred_valid[a,k-1]
             ghost.set_visible(bool(show_pred))
             if show_pred:
@@ -220,10 +239,11 @@ def render_window(data, cache, skip=1, theme='dark'):
         for artist in artists:
             (artist.axes.draw_artist if artist.axes else fig.draw_artist)(artist)
         frame = Image.fromarray(np.asarray(fig.canvas.buffer_rgba())[...,:3].copy())
-        frames.append(frame.quantize(palette=palette, dither=Image.Dither.NONE))
+        frames.append(frame if snapshot else frame.quantize(palette=palette, dither=Image.Dither.NONE))
     plt.close(fig)
     return frames, dict(rollout_index=rollout, scene_ADE_3d_m=float(scores[rollout]), zoom=zoom,
                         bounds_enu_m=bounds.tolist(), frames=len(frames), skip=skip, theme=theme,
+                        snapshot=snapshot,presentation=presentation,final_time_s=30 if snapshot else None,
                         aircraft_colours={str(a):PALETTE[colour_index[str(a)]] for a in data['agent_id']})
 
 

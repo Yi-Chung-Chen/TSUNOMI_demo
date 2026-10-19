@@ -148,3 +148,16 @@ scripts/catk.sh -m scripts.export_rollout_report
 figures, a six-case overview (300dpi PNG + vector PDF), `CAPTION.md` and a ZIP
 package. All32 saved rollout samples are drawn alongside6s history and30s
 recorded future. No model execution, training or error-ranked selection.
+
+For presentation-style completed simulations matching the dark-map v2 GIFs:
+
+```bash
+scripts/catk.sh -m scripts.export_rollout_snapshots
+```
+
+`outputs/rollout_demo_stills/` contains10 individual2400×1800 PNGs at+30s and
+`rollout_demo_stills.zip`. Solid/filled aircraft show recorded movement;
+dashed/outline aircraft show simulated movement. The same joint rollout as
+the original GIF is used (illustrative best scene-average3D error of32,
+selected with recorded future); provenance is disclosed in CAPTION.md and
+manifest.json. No model execution or training.
