@@ -979,3 +979,70 @@ composition after identical palette quantization. All10 scenes have matching
 original indices and SHA256 input hashes, dimensions2400×1800 and final time30s.
 12-entry ZIP integrity verified. Visual self-review of the user's requested
 scenario000197 final image passed. Receipt: docs/rollout_demo_stills_acceptance.json.
+
+## Camera-derived input rollout Demo — 2026-10-27
+
+Yi-Chung authorized a camera-input version with camera/prediction/GT views,
+arbitrary prediction sample (no minADE). Implemented by Codex; one consolidated
+read-only advisor consultation provided provisional causal adapter rules
+recorded in QUESTIONS.md. No architecture/checkpoint/dictionary changes,
+training or package installs. Ran on CPU; nvidia-smi driver unavailable in this
+environment. CUDA_VISIBLE_DEVICES remains1,3 via scripts/catk.sh.
+
+Added src/data/camera_trajectory.py: native multi-camera rows grouped by
+tracker_id/time, posterior at largest event_index retained, any actual measured
+event at that time tracked separately. Each3Hz sample takes the most recent
+posterior and advances with its own Kalman velocity×age (≤1s). No interpolation
+from future camera rows. Skip uninitialized zero-velocity states before second
+measurement. Require all19history frames,≥3 distinct measured timestamps in6s,
+last measurement≤1s at current frame. First eligible origin per independent
+tracker; raw heading from camera velocity with retained fallback, existing
+causal-chord tokenizer unchanged. Camera-only ground proxy: height z+2250−166,
+enter<10m, exit>20m; all types UNK. Exactly19historical camera samples are passed
+to the frozen checkpoint, one single-agent scene per track. Sample0 of1,
+topk5/temp1/seed817,30s forecast. No forecast-error selection.
+
+GT references are loaded separately for timestamp-aligned overlays only;
+interpolation requires valid brackets≤1s, with no extrapolation. Segmentation
+mapping is used only to select offline-paired examples/identity labels; no GT
+features or GT-based ID stitching. Camera data are existing RGB detection plus
+simulator-depth/camera-pose tracker estimates, including Kalman predicted
+states. This is camera-input trajectory prediction, not camera anomaly scoring.
+
+Results:43native tracker IDs audited,10eligible paired cases (8aircraft,
+2drone),33excluded as unmapped or lacking sufficient fresh camera history.
+Camera future coverage7.0–24.33s, GT coverage5.0–30.0s; predictions remain full30s.
+One ground-flag transition across the10input histories, reported in manifest.
+No claim of general prediction accuracy or anomaly-detection performance.
+
+Visuals: src/eval/camera_rollout.py draws cyan solid camera, yellow dashed
+prediction, green dotted GT on dark OSM maps with plane/quadcopter icons.
+Endpoint labels preserve last-observed time after camera/GT stops. Sample0
+is explicit. All10individual completed-rollout PNGs2400×1800, matching109-frame
+GIFs1200×900 (<8MB each), saved NPZs, auditCSV, manifest/acceptance and PNG ZIP
+are under outputs/camera_demo. No overview substituted for the requested demo.
+Visual review: aircraft track05 and drone track25, source colors and shorter
+camera coverage distinguishable. OSM attribution retained.
+
+Validation:
+- Full scripts/test.sh -q:70passed,19dependency warnings,47.17s.
+- Camera-focused tests:9passed,19warnings,3.90s. Covers sequential updates,
+ causal CV resampling, measurement freshness, initialization, gap masks,
+ future-input independence, UNK type, ground hysteresis, GT interpolation and
+ all three renderer source colors without changing input arrays.
+- All10saved NPZ shapes, PNG/GIF dimensions/frame counts/durations and ZIP
+ integrity verified. All6raw input SHA256 hashes and5protected artifacts
+ unchanged. Exact first forecast reproduced after deleting every post-origin
+ camera row. GT is not an argument to the inference adapter/call.
+- Initial smoke exposed missing map tiles under sandbox DNS; reviewed network
+ access downloaded public OSM tiles. A saved single-agent output-axis indexing
+ error in the new renderer was fixed before the complete run; all10final cases
+ and focused renderer checks pass. No unresolved execution blocker remains.
+
+Commands:
+ scripts/catk.sh -m scripts.run_camera_demo --gifs
+ scripts/catk.sh -m scripts.run_camera_demo --render-only --gifs
+
+Acceptance, complete manifest and43-track audit archived under docs/camera_demo*.
+Stop after this authorized input-transfer demo; no retraining or detector
+modifications added.

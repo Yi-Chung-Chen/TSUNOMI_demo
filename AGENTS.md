@@ -112,3 +112,10 @@ original five-bin unsmoothed baseline. Preserve both previous directories.
 Compare frozen and recalibrated scores, consecutive alert durations and drone
 retention; disclose10-04 as inspected development data. Do not add further
 score changes or train a neural model under this revision.
+
+Yi-Chung authorized a camera-conditioned rollout Demo on2026-10-27: frozen
+checkpoint, camera-only6s history,30s forecast, single-agent tracker scenes,
+first eligible origin, sample0 of1 (no minADE). GT is overlay/association only;
+no GT subtype/heading/ground input or track stitching. Adapter provisional
+rules and execution issues are recorded in QUESTIONS.md. Save separate
+outputs/camera_demo; no training, new packages or anomaly-model changes.

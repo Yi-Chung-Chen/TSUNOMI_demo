@@ -1,0 +1,44 @@
+kind,tracker_id,matched_source_object_id,native_start_s,native_end_s,distinct_timestamps,measured_timestamps,first_eligible_frame,selection
+aircraft,1,ac4e85,9.33,16.32,20,3,,insufficient fresh measured camera history
+aircraft,2,ac4e85,13.04,27.92,46,27,58,eligible
+aircraft,3,ab5a1d,53.08,59.89,22,7,,insufficient fresh measured camera history
+aircraft,4,,61.07,65.91,16,1,,unmapped for GT overlay
+aircraft,5,ab5a1d,62.56,88.86,80,43,208,eligible
+aircraft,6,accaf4,116.65,121.9,16,2,,insufficient fresh measured camera history
+aircraft,7,,118.7,123.23,14,1,,unmapped for GT overlay
+aircraft,8,accaf4,125.36,152.03,81,59,395,eligible
+aircraft,9,ad83f3,170.42,176.61,20,6,,insufficient fresh measured camera history
+aircraft,10,ad83f3,179.09,203.53,75,52,557,eligible
+aircraft,11,a2479f,233.7,240.54,22,7,,insufficient fresh measured camera history
+aircraft,12,a2479f,244.57,251.03,20,4,,insufficient fresh measured camera history
+aircraft,13,a2479f,252.44,266.27,43,22,777,eligible
+aircraft,14,a61d00,275.37,295.94,63,34,845,eligible
+aircraft,15,a6898d,279.04,300.08,64,38,866,eligible
+aircraft,16,aaa593,280.04,294.96,46,19,860,eligible
+drone,1,,1.89,299.96,893,882,28,unmapped for GT overlay
+drone,2,,1.89,299.96,893,885,30,unmapped for GT overlay
+drone,3,,3.26,261.23,773,551,30,unmapped for GT overlay
+drone,4,,8.89,45.26,110,30,55,unmapped for GT overlay
+drone,5,,9.42,14.34,16,1,,unmapped for GT overlay
+drone,6,,21.1,26.06,16,1,,unmapped for GT overlay
+drone,7,,45.73,69.35,71,21,164,unmapped for GT overlay
+drone,8,,55.03,60.0,16,1,,unmapped for GT overlay
+drone,9,,64.44,69.35,15,1,,unmapped for GT overlay
+drone,10,,70.08,78.26,26,7,,unmapped for GT overlay
+drone,11,,82.76,166.89,253,76,274,unmapped for GT overlay
+drone,12,,96.72,106.57,31,2,,unmapped for GT overlay
+drone,13,,110.23,116.24,19,2,,unmapped for GT overlay
+drone,14,,126.94,131.65,15,1,,unmapped for GT overlay
+drone,15,,134.41,142.22,25,3,,unmapped for GT overlay
+drone,16,,145.65,154.99,28,2,,unmapped for GT overlay
+drone,17,,157.41,162.24,16,1,,unmapped for GT overlay
+drone,18,drone01,166.89,181.22,44,24,521,eligible
+drone,19,,170.97,184.29,41,12,534,unmapped for GT overlay
+drone,20,,185.96,208.65,69,23,578,unmapped for GT overlay
+drone,21,,185.96,190.56,15,1,,unmapped for GT overlay
+drone,22,,211.74,216.71,16,1,,unmapped for GT overlay
+drone,23,drone01,231.09,240.56,30,16,,insufficient fresh measured camera history
+drone,24,,233.6,238.38,15,1,,unmapped for GT overlay
+drone,25,drone01,249.36,281.56,98,63,771,eligible
+drone,26,,261.98,271.22,29,2,,unmapped for GT overlay
+drone,27,,262.23,299.96,114,25,811,unmapped for GT overlay

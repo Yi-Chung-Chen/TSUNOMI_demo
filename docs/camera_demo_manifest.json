@@ -1,0 +1,489 @@
+{
+  "checkpoint_epoch": 16,
+  "checkpoint_sha256": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+  "model_execution": true,
+  "training": false,
+  "device": "cpu",
+  "seed": 817,
+  "n_rollouts": 1,
+  "num_k": 5,
+  "temperature": 1.0,
+  "prediction_selection": "sample0; no error-based selection",
+  "gt_usage": "offline identity association and overlay only",
+  "sampling": "last event at/before query plus its own velocity * age; age<=1s",
+  "eligibility": "19 valid history states,>=3 measured timestamps, last measurement<=1s, skip zero-velocity uninitialized states",
+  "ground_proxy": "camera height above166m reference: enter<10m exit>20m; unvalidated fixed hysteresis",
+  "single_agent_scenes": true,
+  "protected_unchanged": true,
+  "input_sha256": {
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/camera_tracks_native.jsonl": "de8d1534c7f8711be89d11b97fa02ac2891128c7014db9c5604cdccab4eaffb0",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "ef847cfe34fcaf99f137208227a068f73e229c37a339587a5ba8a3d8aa447a7f",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/metadata.json": "f4ea9a1a1f24851094286bd711aea7e0e0db56689a4a9b77ea41b0f08ed768a9",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/camera_tracks_native.jsonl": "5623d95ac9147ecf6b8558b0e24a26494af00ec94fec5b69f8aac3117bb45004",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/metadata.json": "5dd0c43f0c374bbb61ff789247a1536eebb061fd8c990a3144ba4c572c1eb677"
+  },
+  "protected_sha256": {
+    "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+    "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+    "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a"
+  },
+  "elapsed_s": 30.43197916005738,
+  "track_count": 43,
+  "case_count": 10,
+  "cases": [
+    {
+      "kind": "aircraft",
+      "tracker_id": 2,
+      "current_frame": 58,
+      "current_time_s": 19.333333333333332,
+      "history_start_s": 13.333333333333334,
+      "gt_object_id": "ac4e85",
+      "camera_future_coverage_s": 8.333333333333334,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.44666666666666544,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        1466.8581730906167,
+        404.96114846835536,
+        225.4358139514923
+      ],
+      "output_png": "scenes/aircraft_track_02_t0058.png",
+      "output_npz": "rollouts/aircraft_track_02_t0058.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            661.4650467216893,
+            -724.3941448769544
+          ],
+          [
+            4229.8881220782605,
+            1698.3773115493489
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 8.333333333333334
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 5,
+      "current_frame": 208,
+      "current_time_s": 69.33333333333333,
+      "history_start_s": 63.333333333333336,
+      "gt_object_id": "ab5a1d",
+      "camera_future_coverage_s": 19.333333333333332,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.4300000000000068,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        644.4584587605788,
+        420.85876084777215,
+        106.17164307276397
+      ],
+      "output_png": "scenes/aircraft_track_05_t0208.png",
+      "output_npz": "rollouts/aircraft_track_05_t0208.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -146.45078059269076,
+            -850.2185350879935
+          ],
+          [
+            3322.081981905344,
+            1504.7326562922512
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 19.333333333333332
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 8,
+      "current_frame": 395,
+      "current_time_s": 131.66666666666666,
+      "history_start_s": 125.66666666666667,
+      "gt_object_id": "accaf4",
+      "camera_future_coverage_s": 20.333333333333332,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.46333333333332405,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        506.7972583007798,
+        420.88861689249677,
+        123.29366048177067
+      ],
+      "output_png": "scenes/aircraft_track_08_t0395.png",
+      "output_npz": "rollouts/aircraft_track_08_t0395.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -239.46339366276015,
+            -753.7347988356491
+          ],
+          [
+            3183.9023570695385,
+            1570.5503687668065
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 20.333333333333332
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 10,
+      "current_frame": 557,
+      "current_time_s": 185.66666666666666,
+      "history_start_s": 179.66666666666666,
+      "gt_object_id": "ad83f3",
+      "camera_future_coverage_s": 17.666666666666668,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.46666666666666856,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        550.4852988688147,
+        411.6787597878774,
+        165.5964505195617
+      ],
+      "output_png": "scenes/aircraft_track_10_t0557.png",
+      "output_npz": "rollouts/aircraft_track_10_t0557.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -228.33922536855243,
+            -294.446266175323
+          ],
+          [
+            3326.459027882196,
+            2119.074653137028
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 17.666666666666668
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 13,
+      "current_frame": 777,
+      "current_time_s": 259.0,
+      "history_start_s": 253.0,
+      "gt_object_id": "a2479f",
+      "camera_future_coverage_s": 7.0,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.4399999999999977,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        1339.1840808105467,
+        421.31216866146775,
+        161.76605321884153
+      ],
+      "output_png": "scenes/aircraft_track_13_t0777.png",
+      "output_npz": "rollouts/aircraft_track_13_t0777.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            543.7094726231414,
+            -266.00823607359075
+          ],
+          [
+            4132.533252622496,
+            2170.6142250838657
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 7.0
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 14,
+      "current_frame": 845,
+      "current_time_s": 281.6666666666667,
+      "history_start_s": 275.6666666666667,
+      "gt_object_id": "a61d00",
+      "camera_future_coverage_s": 14.0,
+      "gt_future_coverage_s": 9.333333333333334,
+      "ground_history_flips": 0,
+      "ground_at_origin": true,
+      "history_max_age_s": 0.44333333333332803,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        -465.2575791275501,
+        315.3089350905021,
+        1.21226983692497
+      ],
+      "output_png": "scenes/aircraft_track_14_t0845.png",
+      "output_npz": "rollouts/aircraft_track_14_t0845.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -504.3043662200324,
+            259.926352135108
+          ],
+          [
+            -163.23500206515453,
+            491.49449937710403
+          ]
+        ],
+        "zoom": 18,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 14.0
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 15,
+      "current_frame": 866,
+      "current_time_s": 288.6666666666667,
+      "history_start_s": 282.6666666666667,
+      "gt_object_id": "a6898d",
+      "camera_future_coverage_s": 11.333333333333334,
+      "gt_future_coverage_s": 11.333333333333334,
+      "ground_history_flips": 1,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.45333333333331893,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        101.23993021647107,
+        417.47414654890696,
+        50.77662506103512
+      ],
+      "output_png": "scenes/aircraft_track_15_t0866.png",
+      "output_npz": "rollouts/aircraft_track_15_t0866.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -642.1135377197783,
+            -689.7663685993731
+          ],
+          [
+            2643.971424683195,
+            1541.3123690321195
+          ]
+        ],
+        "zoom": 15,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 11.333333333333334
+      }
+    },
+    {
+      "kind": "aircraft",
+      "tracker_id": 16,
+      "current_frame": 860,
+      "current_time_s": 286.6666666666667,
+      "history_start_s": 280.6666666666667,
+      "gt_object_id": "aaa593",
+      "camera_future_coverage_s": 8.0,
+      "gt_future_coverage_s": 5.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": true,
+      "history_max_age_s": 0.4366666666666674,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        -339.9874428606033,
+        278.51674928029394,
+        3.438079636891678
+      ],
+      "output_png": "scenes/aircraft_track_16_t0860.png",
+      "output_npz": "rollouts/aircraft_track_16_t0860.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -483.6081855952712,
+            233.622434220323
+          ],
+          [
+            -177.26118702585148,
+            441.6159227227185
+          ]
+        ],
+        "zoom": 18,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 8.0
+      }
+    },
+    {
+      "kind": "drone",
+      "tracker_id": 18,
+      "current_frame": 521,
+      "current_time_s": 173.66666666666666,
+      "history_start_s": 167.66666666666666,
+      "gt_object_id": "drone01",
+      "camera_future_coverage_s": 7.333333333333333,
+      "gt_future_coverage_s": 30.0,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.44999999999998863,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        1112.0819568634033,
+        271.55323993762335,
+        150.6421303053697
+      ],
+      "output_png": "scenes/drone_track_18_t0521.png",
+      "output_npz": "rollouts/drone_track_18_t0521.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            441.7798398155036,
+            -27.682428931801496
+          ],
+          [
+            1335.3784131176358,
+            579.0239708364884
+          ]
+        ],
+        "zoom": 17,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 7.333333333333333
+      }
+    },
+    {
+      "kind": "drone",
+      "tracker_id": 25,
+      "current_frame": 771,
+      "current_time_s": 257.0,
+      "history_start_s": 251.0,
+      "gt_object_id": "drone01",
+      "camera_future_coverage_s": 24.333333333333332,
+      "gt_future_coverage_s": 28.666666666666668,
+      "ground_history_flips": 0,
+      "ground_at_origin": false,
+      "history_max_age_s": 0.44333333333335645,
+      "type": "UNK",
+      "seed": 817,
+      "sample_index": 0,
+      "current_camera_position_m": [
+        -531.2265869140621,
+        604.2560035705563,
+        99.49555683732032
+      ],
+      "output_png": "scenes/drone_track_25_t0771.png",
+      "output_npz": "rollouts/drone_track_25_t0771.npz",
+      "view": {
+        "frames": 1,
+        "size": [
+          2400,
+          1800
+        ],
+        "bounds_enu_m": [
+          [
+            -1195.3300465410316,
+            211.3526838006726
+          ],
+          [
+            37.54891819784916,
+            1048.4126124918075
+          ]
+        ],
+        "zoom": 16,
+        "prediction_sample_index": 0,
+        "history_s": 6,
+        "forecast_s": 30,
+        "camera_future_coverage_s": 24.333333333333332
+      }
+    }
+  ],
+  "presentation": "cyan solid camera, yellow dashed prediction, green dotted GT"
+}

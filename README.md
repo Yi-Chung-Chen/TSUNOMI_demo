@@ -161,3 +161,29 @@ dashed/outline aircraft show simulated movement. The same joint rollout as
 the original GIF is used (illustrative best scene-average3D error of32,
 selected with recorded future); provenance is disclosed in CAPTION.md and
 manifest.json. No model execution or training.
+
+Camera-conditioned trajectory Demo (frozen checkpoint, no training):
+
+```bash
+scripts/catk.sh -m scripts.run_camera_demo --gifs
+# Re-render saved predictions without running a model:
+scripts/catk.sh -m scripts.run_camera_demo --render-only --gifs
+```
+
+`outputs/camera_demo/` contains10three-way cases:8aircraft and2drone. Cyan solid
+is camera tracker, yellow dashed is sample0 of one model rollout, green dotted
+is GT. Each takes6s camera history and predicts30s. Camera/GT lines stop at
+unsupported observations and endpoint labels show their last available time.
+`scenes/`: individual2400×1800 PNGs; `gifs/`: matching animations; `rollouts/`:
+saved arrays; `camera_demo_images.zip`: PNG bundle. Track audit includes all43
+native tracker IDs, including excluded/unmapped cases.
+
+Inputs use the last camera posterior plus its own velocity×age≤1s, never a
+future camera interpolation. Types are UNK and ground status is a fixed
+camera-height proxy (enter<10m, exit>20m), not GT. Camera includes the existing
+tracker's Kalman predictions and uses its RGB+simulator-depth reconstruction.
+Each tracker ID is inferred alone; offline segmentation identities only pair
+GT overlays, with no GT type/heading/ground features or ID stitching. Origins
+are first eligible camera histories, not selected by prediction error; sample0
+of1 uses seed817/topk5/temp1. This qualitative transfer demo does not establish
+camera anomaly-detection performance. See docs/camera_demo_acceptance.json.

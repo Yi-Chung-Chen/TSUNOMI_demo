@@ -99,3 +99,34 @@ The advisor referred to aabc11/aa0300 as10-04 examples, but the actual
 scenario000667/000536 records and GIF labels are10-03.10-04 aggregate
 results have also informed revision and are inspected development evidence,
 not a pristine holdout. No blocker; full Q/A in ../SYGARD_QA_LOG.md.
+
+## Camera-derived trajectory rollout Demo — 2026-10-27
+
+Yi-Chung explicitly authorized connecting camera trajectories to the frozen
+trajectory model and making camera/prediction/GT rollouts, with an arbitrary
+sample rather than minADE. This overrides the prior camera-out-of-scope text
+for this demo only; no training or detector changes. Plan documentation of the
+adapter is pending. Full advisor Q/A is in ../SYGARD_QA_LOG.md.
+
+Advisor DECISION (provisional, binding pending review): same timestamp takes
+largest event_index; resample causally from last known camera posterior plus
+that posterior's velocity×age, age≤1s. No future camera interpolation. Require
+19 valid6s history states,≥3 distinct measured timestamps, latest measurement
+≤1s at forecast origin, and skip uninitialized zero-velocity rows before the
+second measurement. Raw heading uses camera Kalman velocity, preserving last
+usable value below1m/s; existing causal chord tokenizer unchanged. Ground is
+camera-only height z+2250−166: enter<10m, exit>20m, initialize<10m; report flips.
+All types UNK. First eligible origin per offline-mapped independent tracker;
+single-agent scenes avoid duplicate tracker IDs interacting with themselves.
+GT associations only pair overlays, never infer inputs/stitch IDs/select best
+prediction. Sample0 of1, topk5/temp1/seed817; full30s forecast despite shorter
+camera visibility. Audit unmapped/insufficient tracks; disclose upstream
+Kalman predictions and segmentation-based offline identities. New output:
+outputs/camera_demo. Thresholds are unvalidated demo proxies, not tuned to GT.
+
+Execution notes: initial advisor call was rejected by automatic approval
+review for external sharing of potentially private paths/details. Yi-Chung
+explicitly replied “允許傳給顧問”; retry succeeded. nvidia-smi reports driver
+unavailable in this environment; inference proceeds on CPU. Initial smoke
+inference completed but map rendering hit sandbox DNS restriction for missing
+OSM tile; rerun requests normal reviewed network access for public map tiles.

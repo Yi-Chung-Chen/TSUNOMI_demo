@@ -1,0 +1,65 @@
+{
+  "case_count": 10,
+  "aircraft_cases": 8,
+  "drone_cases": 2,
+  "audited_tracker_ids": 43,
+  "excluded_tracker_ids": 33,
+  "checkpoint_epoch": 16,
+  "checkpoint_sha256": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+  "device": "cpu",
+  "neural_training": false,
+  "model_input": "camera-derived6s history only; all type UNK, camera-estimated heading/ground",
+  "prediction": "sample0 of1;topk5,temp1,seed817; no error-based selection",
+  "history_s": 6,
+  "forecast_s": 30,
+  "png_dimensions": [
+    2400,
+    1800
+  ],
+  "gif_dimensions": [
+    1200,
+    900
+  ],
+  "gif_frames": 109,
+  "input_hashes_unchanged": true,
+  "protected_hashes_unchanged": true,
+  "reproduced_forecast_bitwise_equal_after_removing_future_camera_rows": true,
+  "ground_history_flips": 1,
+  "camera_future_coverage_range_s": [
+    7.0,
+    24.333333333333332
+  ],
+  "gt_future_coverage_range_s": [
+    5.0,
+    30.0
+  ],
+  "tests": {
+    "passed": 70,
+    "warnings": 19,
+    "elapsed_s": 47.17
+  },
+  "focused_tests": {
+    "passed": 9,
+    "elapsed_s": 3.9
+  },
+  "visual_review": [
+    "aircraft track05 three-way completed forecast",
+    "drone track25 turn and shorter camera coverage"
+  ],
+  "advisor": "Provisional camera adapter rules approved via existing advisor session; source permission explicitly confirmed by Yi-Chung",
+  "input_sha256": {
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/camera_tracks_native.jsonl": "de8d1534c7f8711be89d11b97fa02ac2891128c7014db9c5604cdccab4eaffb0",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "ef847cfe34fcaf99f137208227a068f73e229c37a339587a5ba8a3d8aa447a7f",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_aircraft_2026-09-28_1800z_3hz/metadata.json": "f4ea9a1a1f24851094286bd711aea7e0e0db56689a4a9b77ea41b0f08ed768a9",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/camera_tracks_native.jsonl": "5623d95ac9147ecf6b8558b0e24a26494af00ec94fec5b69f8aac3117bb45004",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c",
+    "/local/scratch/a/chen5262/PythonProject/SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/metadata.json": "5dd0c43f0c374bbb61ff789247a1536eebb061fd8c990a3144ba4c572c1eb677"
+  },
+  "protected_sha256": {
+    "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+    "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+    "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a"
+  }
+}
