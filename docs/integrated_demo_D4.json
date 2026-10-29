@@ -1,0 +1,44 @@
+{
+  "stage": "D4",
+  "passed": true,
+  "attempt": 1,
+  "retuned": false,
+  "elapsed_s": 93.58052751701325,
+  "A": {
+    "reference_entry_s": null,
+    "first_current_anomaly_s": 2.0,
+    "first_future_anomaly_warning_s": 6.0,
+    "first_high_s": null,
+    "first_model_based_preentry_high_s": null,
+    "model_warning_lead_s": null,
+    "anomalous_low_frames": 298,
+    "background_normal_frames": 244,
+    "max_drone_threat_score": 0,
+    "level_counts": {
+      "Normal traffic": 0,
+      "Low": 298,
+      "Medium": 0,
+      "High": 0,
+      "Insufficient data": 18
+    }
+  },
+  "B": {
+    "reference_entry_s": 80.66666666666667,
+    "first_current_anomaly_s": 2.0,
+    "first_future_anomaly_warning_s": 6.0,
+    "first_high_s": 56.0,
+    "first_model_based_preentry_high_s": 56.0,
+    "model_warning_lead_s": 24.66666666666667,
+    "anomalous_low_frames": 188,
+    "background_normal_frames": 237,
+    "max_drone_threat_score": 100,
+    "level_counts": {
+      "Normal traffic": 0,
+      "Low": 188,
+      "Medium": 12,
+      "High": 98,
+      "Insufficient data": 18
+    }
+  },
+  "decision": "continue to D5"
+}

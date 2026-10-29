@@ -1150,3 +1150,37 @@ observed approaching acceleration adds10. Far anomalous hobbyist and night
 alone remain0/Low; stale latch expires just beyond10s; missing data unknown;
 explanation terms/reasons trace to real inputs. docs/integrated_demo_D3.json
 passed; all11lock hashes checked. No story B inference yet. D3 gate passed.
+
+## Integrated v1 D4 — FIRST-PASS narrative gate PASSED
+
+Executed the D0-fixed config once, CPU, with no post-outcome changes to routes,
+zone,noise,seeds,thresholds or representative selection.100joint forecasts
+(50per105s scene), each[32,2,90,3], and numeric-only CV[2,90,3] saved. D4 attempt
+marker now passed and rejects automatic repeated evaluation. Model forecast
+updates2s; current latch and threat recomputed at3Hz, using only the remaining
+portion of the latest forecast. Stored scores/evidence/observations/forecasts,
+manifest and timing CSV under outputs/integrated_demo/{A_daytime_hobbyist,
+B_nighttime_approach}. No interactive/rendering code or story optimization was
+used to obtain this gate.
+
+A: current anomaly at2s;298frames anomalous+Low after6s history, max threat0,
+no reference entry/no high. Background Normal traffic244frames (not forcibly
+excluded from detection; actual false alerts remain possible).
+B: first MODEL-BASED pre-entry High at56.0s,12/32forecast entries, zone60+scripted
+night10=70; reference entry80.6667s, warning lead24.6667s.316timeline
+frames total; level counts Low188,Medium12,High98,Insufficient18. Background
+Normal traffic237frames. CV first predicts entry at52s; model first ANY sampled
+entry at42s, but8/32high criterion is reached at56s. This is not evidence of
+model superiority to CV; numeric reference is retained, never shown/substituted.
+
+Both stories are current-anomalous from2s and future-anomaly warning from6s,
+so future anomaly is NOT earlier than current anomaly here. The demonstrated
+forecast benefit is pre-entry threat warning. Gate explicitly requires the
+forecast-entry base60 before reference entry, not the already-inside base80.
+
+Acceptance:1new event/gate test passed (19dependency warnings,6.58s). Verified
+all1264object/time latch decisions against trailing10s current scores, Normal
+traffic null threat scores,100saved forecast shapes and all11frozen hashes.
+First pass duration93.58s; docs/integrated_demo_D4.json passed,attempt1,
+retuned=false. D4 gate permits D5. Reference entry is evaluation-only; no GT
+used in origin/sampling/medoid/scoring/threat logic.
