@@ -1046,3 +1046,20 @@ Commands:
 Acceptance, complete manifest and43-track audit archived under docs/camera_demo*.
 Stop after this authorized input-transfer demo; no retraining or detector
 modifications added.
+
+## Integrated MVP planning draft — 2026-10-29
+
+Yi-Chung requested a reviewable Markdown plan after sharing David's feedback,
+and asked to settle outstanding commits first. Read-only audit found clean
+working trees in both sygard-motion (HEAD2822d3a) and the Overleaf bi-weekly
+report (its report edits were already committed separately). No uncommitted
+implementation needed reconciliation; generated outputs remain ignored.
+
+Added INTEGRATED_DEMO_PLAN.md as a review draft only: noisy reference inputs,
+frozen forecasting, current/future state anomaly, forecast-based intent,
+protected-zone/day-night threat heuristics, explanations, and two scripted
+stories. Includes proposed parameter defaults, data provenance, causal checks,
+no GT-based sample selection, milestone Done-when gates and review checklist.
+No new inference, training, synthetic data generation or runtime code changes.
+Validation: documentation diff/whitespace check; existing module/artifact paths
+confirmed. User review precedes implementation of this new phase.
