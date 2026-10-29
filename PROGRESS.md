@@ -1067,7 +1067,7 @@ confirmed. User review precedes implementation of this new phase.
 ## Integrated v1 D0 — approved scope and fixed config, 2026-10-29
 
 Read parent §4.1.11 and approved plan; clean baseline HEAD522afb9. No advisor
-call this run. Fixed configs/integrated_demo/v1.json, SHA256 lock for12config/
+call this run. Fixed configs/integrated_demo/v1.json, SHA256 lock for11config/
 input/model/density files, scenario/zone sources and rules before model runs.
 A: daytime circle [2200,-2000,80],radius100m,speed8m/s; B: nighttime circle
 [1800,300,110],radius60m, then westward acceleration at20–32s to38m/s. Zone
@@ -1090,6 +1090,25 @@ frozen cutoff during last10s, per object; future scores cannot activate it.
 Unflagged objects including background: Normal traffic, null threat score;
 no anomaly+5. Unknown input/forecast is explicit, not an implicit low threat.
 D4 first-pass gate will stop the run if B has no pre-entry high warning.
-D0 acceptance: config parses,12checksums saved, both scenarios described with
+D0 acceptance: config parses,11checksums saved, both scenarios described with
 sources; docs/integrated_demo_D0.json passed. Documentation/config only,
 no inference/training. Updated plan/AGENTS; parent §4.1.11 already records scope.
+
+## Integrated v1 D1 — noisy observations and frozen forecast
+
+Implemented keyed per-source/object seeded Gaussian observation streams,
+causal noisy-position velocity/heading/ground features, UNK types,19-state
+history graphs,32joint sampled forecasts, joint3D medoid and numeric-only CV.
+Background source segment verified fully observed; synthetic route generation
+is configured but story B has not been inferred or adjusted at this stage.
+Features can carry prior estimator state (like a tracker); future rows are
+never read. No clean heading/ground/type enters the graph.
+
+Acceptance:4new data/forecast tests passed (19dependency warnings,25.90s),
+covering sigma0/prefix overlap, future perturbation invariance, actual-sample
+medoid selection and exact linear CV. CPU smoke on existing aircraft and native
+drone produced[32,1,90,3]. For BOTH inputs, sigma0 forecasts repeat exactly;
+removing all future observations leaves noisy forecasts bitwise identical.
+All11locked artifacts/config hashes unchanged. D1 passed; saved arrays under
+outputs/integrated_demo/D1, receipt docs/integrated_demo_D1.json. Corrected D0
+prose checksum count from12 to actual11; lock/acceptance already recorded11.

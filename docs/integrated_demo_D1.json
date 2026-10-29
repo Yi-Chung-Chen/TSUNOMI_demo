@@ -1,0 +1,31 @@
+{
+  "stage": "D1",
+  "passed": true,
+  "cases": [
+    {
+      "name": "aircraft",
+      "prediction_shape": [
+        32,
+        1,
+        90,
+        3
+      ],
+      "future_deletion_exact": true,
+      "sigma_zero_forecast_reproducible": true
+    },
+    {
+      "name": "drone",
+      "prediction_shape": [
+        32,
+        1,
+        90,
+        3
+      ],
+      "future_deletion_exact": true,
+      "sigma_zero_forecast_reproducible": true
+    }
+  ],
+  "sigma_zero_exact": true,
+  "prefix_noise_fixed": true,
+  "protected_unchanged": true
+}
