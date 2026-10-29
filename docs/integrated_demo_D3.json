@@ -1,0 +1,29 @@
+{
+  "stage": "D3",
+  "passed": true,
+  "normal_inside_at_night": {
+    "level": "Normal traffic",
+    "score": null,
+    "reasons": [
+      "No current anomaly in the last10s"
+    ],
+    "rule_points": {}
+  },
+  "anomalous_inside": {
+    "level": "High",
+    "score": 80,
+    "reasons": [
+      "Currently inside demo protected volume"
+    ],
+    "rule_points": {
+      "zone": 80
+    },
+    "distance_to_zone_m": 0.0,
+    "closing_mps": 0.0,
+    "speed_increase_mps": 0.0
+  },
+  "ten_second_latch": true,
+  "no_anomaly_modifier": true,
+  "unknown_explicit": true,
+  "explanation_templates": true
+}

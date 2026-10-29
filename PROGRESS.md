@@ -1132,3 +1132,21 @@ height/boundary inclusion, volume distance and entry time. Aircraft/drone D1
 forecast score/intent outputs saved under outputs/integrated_demo/D2;
 docs/integrated_demo_D2.json passed. All11locked hashes unchanged; no refit,
 training, calibration updates or story B inference.
+
+## Integrated v1 D3 — anomaly-gated rules and traceable explanations
+
+Implemented per-track timestamp latch (strict current cutoff;10s inclusive
+window), Normal traffic/null score for non-anomalous objects, and explicit
+Insufficient data. Future predictions never enter latch. Zone bases are
+mutually exclusive, night/observed acceleration only modify positive zone
+bases, and anomaly+5 is absent. Descriptive component explanations preserve
+actual terms and compare against a supplied frozen reference rather than
+asserting causal reasons. Threat evidence is separate from anomaly score.
+
+Acceptance:7hand-verifiable rule tests passed in.30s. Normal inside zone at
+night with32forecast entries still has null threat; anomalous inside daylight
+scores exactly80, not80+60+5.8predicted entries=60,7=30, night modifier gives70;
+observed approaching acceleration adds10. Far anomalous hobbyist and night
+alone remain0/Low; stale latch expires just beyond10s; missing data unknown;
+explanation terms/reasons trace to real inputs. docs/integrated_demo_D3.json
+passed; all11lock hashes checked. No story B inference yet. D3 gate passed.
