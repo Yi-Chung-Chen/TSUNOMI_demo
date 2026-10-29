@@ -130,3 +130,27 @@ explicitly replied “允許傳給顧問”; retry succeeded. nvidia-smi reports
 unavailable in this environment; inference proceeds on CPU. Initial smoke
 inference completed but map rendering hit sandbox DNS restriction for missing
 OSM tile; rerun requests normal reviewed network access for public map tiles.
+
+## Integrated v1 notes — 2026-10-29 (no advisor call)
+
+No blocking design question required a user decision. Optional choices were
+made in D0 and recorded in PROGRESS.md. Time-conditioned density was deferred;
+caption explicitly says time-of-day/weather are not anomaly-detector inputs.
+
+D5 network approval review rejected a command that might fetch OSM tiles due
+to possible location disclosure. Resolved with a strictly offline mosaic
+loader using existing cached zoom14tiles; cache misses raise without HTTP.
+No retry to transmit scene coordinates, no new network authorization needed.
+
+Review points after v1 (not implemented beyond approved rules):
+- Future anomaly starts later than current anomaly in both stories; predictive
+benefit demonstrated here is protected-zone entry warning, not earlier initial
+anomaly detection. CV entry at52s precedes model>=8/32high at56s; do not claim
+model superiority based on this illustration.
+- After B leaves the demo volume and no longer approaches/predicts entry, the
+approved instantaneous zone rules can return threat toLow despite earlier
+entry. A persistence/incident-state rule would require a later scope decision;
+no unrequested threat latch was added.
+- No graphical browser executable is available for automation. Offline viewer
+JS syntax and DOM/canvas-stub interaction tests pass; visual review uses the
+matching rendered GIFs/PNGs. Browser-specific layout remains a user-review item.

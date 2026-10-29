@@ -1,0 +1,59 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SYGARD · Integrated MVP</title>
+<style>
+:root{color-scheme:dark;font-family:Arial,sans-serif;color:#e8eef5;background:#0b1622}body{margin:24px}h1{font-size:28px;letter-spacing:1px;margin:0 0 10px}header p{color:#8fa3b8;margin:0 0 18px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px}canvas{width:100%;height:70vh;display:block;border-radius:12px;background:#0b1622}.card{background:#132434;border:1px solid #294052;border-radius:12px;padding:15px;margin-bottom:12px}.title{font-size:11px;color:#8fa3b8;letter-spacing:1.5px;margin-bottom:10px}.large{font-size:27px;font-weight:700}.body{font-size:15px;line-height:1.55;white-space:pre-line}.muted{color:#8fa3b8;font-size:12px;line-height:1.5}.controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}button{background:#294052;color:#e8eef5;border:1px solid #4cc9f0;border-radius:7px;padding:8px 16px;cursor:pointer}input[type=range]{flex:1;min-width:200px;accent-color:#4cc9f0}label{font-size:13px}#clock{font:17px monospace}.legend{font-size:14px;display:flex;gap:22px;margin-top:14px}.legend span:nth-child(1){color:#4cc9f0}.legend span:nth-child(2){color:#ffd166}.legend span:nth-child(3){color:#c77dff}footer{font-size:12px;color:#8fa3b8;margin-top:12px;line-height:1.7}@media(max-width:900px){body{margin:12px}.layout{grid-template-columns:1fr}canvas{height:60vh}.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{margin:0}}
+</style>
+<header><h1>SYGARD / INTENT &amp; THREAT</h1><p id="subtitle"></p></header>
+<div class="layout"><main><canvas id="map"></canvas>
+<div class="legend"><span>━━ Observed tracker</span><span>┄┄ Model forecast · medoid</span><span>▧ Demo protected zone</span></div>
+<div class="controls"><button id="play">Play</button><input id="time" type="range" min="0" max="315" value="0"><span id="clock"></span></div>
+<div class="controls"><label><input id="samples" type="checkbox"> Show all 32 model rollouts</label><label><input id="gt" type="checkbox"> Reference future (offline comparison)</label></div>
+<footer>Reference + scripted Gaussian noise acts as simulated tracker input. Context and threat rules are illustrative.<br>Anomaly detector uses location/height, speed and direction; no time-of-day or weather-conditioned density.<br>Sample frequencies are not calibrated risk probabilities. © OpenStreetMap contributors</footer></main>
+<aside class="cards"><div class="card"><div class="title">CURRENT STATE</div><div class="large" id="score"></div><div class="body" id="anomaly"></div></div>
+<div class="card"><div class="title">THREAT LEVEL</div><div class="large" id="threat"></div></div>
+<div class="card"><div class="title">FORECAST / INTENT</div><div class="body" id="intent"></div><div class="muted" id="future"></div></div>
+<div class="card"><div class="title">WHY THIS STATUS</div><div class="body" id="reasons"></div></div>
+<div class="card"><div class="title">BACKGROUND AIRCRAFT</div><div class="body" id="background"></div></div></aside></div>
+<script id="demo-data" type="application/json">__DEMO_DATA__</script>
+<script>
+'use strict';
+const D=JSON.parse(document.getElementById('demo-data').textContent),$=id=>document.getElementById(id);
+const canvas=$('map'),ctx=canvas.getContext('2d'),image=new Image();let frame=0,playing=false,lastTick=0;
+const colours=['#4cc9f0','#80ed99'],levels={'Normal traffic':'#4cc9f0',Low:'#80ed99',Medium:'#ffd166',High:'#ff626b','Insufficient data':'#8fa3b8'};
+$('time').max=D.timeline.length-1;
+$('subtitle').textContent=(D.manifest.scene.context==='daytime'?'DAYTIME HOBBYIST':'NIGHTTIME APPROACH')+' · SCRIPTED MVP DEMO · Simulated tracker σ='+D.manifest.scene.scripted_noise_sigma_m_per_axis+' m / axis';
+function draw(){
+ const rect=canvas.getBoundingClientRect(),ratio=window.devicePixelRatio||1;
+ canvas.width=Math.round(rect.width*ratio);canvas.height=Math.round(rect.height*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);
+ const W=rect.width,H=rect.height,pb=D.pb,sx=pb[1][0]-pb[0][0],sy=pb[1][1]-pb[0][1],scale=Math.min(W/sx,H/sy),ox=(W-sx*scale)/2,oy=(H-sy*scale)/2;
+ const xy=p=>[ox+(p[0]-pb[0][0])*scale,oy+(p[1]-pb[0][1])*scale];
+ ctx.fillStyle='#0b1622';ctx.fillRect(0,0,W,H);if(image.complete)ctx.drawImage(image,ox,oy,sx*scale,sy*scale);
+ function path(points,colour,dash=[],alpha=1,width=2){ctx.beginPath();let start=true;for(const p of points){if(!p||p.some(x=>!Number.isFinite(x))){start=true;continue}const q=xy(p);if(start){ctx.moveTo(...q);start=false}else ctx.lineTo(...q)}ctx.strokeStyle=colour;ctx.lineWidth=width;ctx.globalAlpha=alpha;ctx.setLineDash(dash);ctx.stroke();ctx.globalAlpha=1;ctx.setLineDash([])}
+ ctx.beginPath();D.zone.forEach((p,i)=>{const q=xy(p);i?ctx.lineTo(...q):ctx.moveTo(...q)});ctx.closePath();ctx.fillStyle='#c77dff33';ctx.fill();ctx.strokeStyle='#c77dff';ctx.lineWidth=2;ctx.stroke();
+ const center=xy(D.zone.reduce((a,p)=>[a[0]+p[0]/D.zone.length,a[1]+p[1]/D.zone.length],[0,0]));ctx.fillStyle='#e4c7ff';ctx.font='bold 11px Arial';ctx.textAlign='center';ctx.fillText('DEMO PROTECTED ZONE',...center);
+ const row=D.timeline[frame],o=row.objects[0],origin=o.forecast_origin_frame,F=D.forecasts[origin],age=origin===null?0:frame-origin;
+ for(let a=0;a<D.observed.length;a++){
+  if(F&&$('samples').checked)for(const sample of F.xy)path(sample[a].slice(age),a===0?'#ffd166':colours[a],[],.1,1);
+  path(D.observed[a].slice(0,frame+1),colours[a],[],1,a===0?3:2);
+  if(F){const remaining=F.xy[F.medoid][a].slice(age);path([D.observed[a][frame],...remaining],a===0?'#ffd166':colours[a],[8,6],a===0?1:.7,2.5);const end=xy(remaining[remaining.length-1]);ctx.fillStyle=a===0?'#ffd166':colours[a];ctx.beginPath();ctx.moveTo(end[0],end[1]-5);ctx.lineTo(end[0]+5,end[1]);ctx.lineTo(end[0],end[1]+5);ctx.lineTo(end[0]-5,end[1]);ctx.closePath();ctx.fill()}
+  if($('gt').checked)path(D.reference[a].slice(frame,Math.min(frame+91,D.reference[a].length)),'#b5e8c7',[2,5],.9,2);
+  const p=xy(D.observed[a][frame]),prior=xy(D.observed[a][Math.max(0,frame-6)]),angle=Math.atan2(p[1]-prior[1],p[0]-prior[0]);
+  ctx.save();ctx.translate(...p);ctx.rotate(angle);ctx.fillStyle=colours[a];ctx.strokeStyle=colours[a];ctx.lineWidth=2;
+  if(a===0){ctx.beginPath();ctx.moveTo(-7,-7);ctx.lineTo(7,7);ctx.moveTo(-7,7);ctx.lineTo(7,-7);ctx.stroke();for(const x of [-7,7])for(const y of [-7,7]){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.stroke()}}
+  else{ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-8,-3);ctx.lineTo(-5,-11);ctx.lineTo(-1,-2);ctx.lineTo(-10,3);ctx.lineTo(-5,3);ctx.lineTo(-5,9);ctx.lineTo(1,2);ctx.closePath();ctx.fill()}ctx.restore();
+  ctx.textAlign='left';ctx.fillStyle='#e8eef5';ctx.font='12px Arial';ctx.fillText(a===0?'Drone 01':'Aircraft 01',Math.min(p[0]+17,W-90),Math.max(p[1]-15,15));
+ }
+ $('clock').textContent='t = '+row.time_s.toFixed(1)+' s';$('time').value=frame;
+ $('score').textContent='Anomaly score '+(o.current_state_nll===null?'—':o.current_state_nll.toFixed(2));
+ $('anomaly').textContent=o.anomalous?'Recent anomaly · 10 s window':'No recent anomaly';
+ $('threat').textContent=o.threat.level+(o.threat.score===null?'':' / '+o.threat.score);$('threat').style.color=levels[o.threat.level];
+ $('intent').textContent=o.entry?(o.entry.entry_samples?o.entry.entry_samples+'/32 sampled futures enter zone\nEarliest sampled entry: +'+o.entry.earliest_entry_s.toFixed(1)+' s':'Forecast remains outside demo zone'):'Collecting 6 s history';
+ $('future').textContent=o.entry===null?'Awaiting forecast':(o.future_anomaly_horizon_s===null?'No sampled anomaly warning':'Future anomaly warning: +'+o.future_anomaly_horizon_s.toFixed(1)+' s');
+ let reasons=o.threat.reasons.slice(0,2);if(o.explanation.length)reasons.push('Anomaly driver: '+o.explanation[0].factor.toLowerCase());$('reasons').textContent=reasons.map(x=>'• '+x).join('\n');
+ const b=row.objects[1].threat;$('background').textContent=b.level+(b.score===null?' · no threat score':' / '+b.score);
+}
+$('time').addEventListener('input',()=>{frame=Number($('time').value);draw()});for(const id of ['samples','gt'])$(id).addEventListener('change',draw);
+$('play').addEventListener('click',()=>{playing=!playing;if(frame===D.timeline.length-1&&playing)frame=0;$('play').textContent=playing?'Pause':'Play'});
+window.addEventListener('resize',draw);image.onload=draw;image.src=D.map;
+function animate(now){if(playing&&now-lastTick>=111){frame=Math.min(frame+1,D.timeline.length-1);lastTick=now;draw();if(frame===D.timeline.length-1){playing=false;$('play').textContent='Play'}}requestAnimationFrame(animate)}requestAnimationFrame(animate);
+</script></html>

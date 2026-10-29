@@ -187,3 +187,32 @@ GT overlays, with no GT type/heading/ground features or ID stitching. Origins
 are first eligible camera histories, not selected by prediction error; sample0
 of1 uses seed817/topk5/temp1. This qualitative transfer demo does not establish
 camera anomaly-detection performance. See docs/camera_demo_acceptance.json.
+
+Integrated MVP v1 (approved D0–D5, 2026-10-29):
+
+- Plan: `INTEGRATED_DEMO_PLAN.md`; immutable parameters: `configs/integrated_demo/v1.json` and its SHA256 lock.
+- Artifacts: `outputs/integrated_demo/D5/index.html`, two offline interactive
+  viewers, MP4/GIF and four3200×1800 PNGs per scene. Download/extract
+  `outputs/integrated_demo/integrated_demo_v1.zip` and open index.html locally.
+- Frozen model:6s simulated noisy-tracker history →32joint30s futures, updated
+  every2s. Main display is the GT-free joint3D medoid. Numeric-only CV is saved
+  alongside forecasts but never displayed or substituted.
+- Threat requires an observed current anomaly in the preceding10s. Other
+  objects show Normal traffic with no threat score; no anomaly+5 modifier.
+- Day/night,noise and zone are explicitly scripted. Anomaly density remains
+  frozen location/height,speed,direction only, without weather/time-of-day bins.
+- First fixed run: daytime drone anomalous/Low; nighttime approach model-based
+  High at56s before reference entry80.67s (24.67s lead). Future anomaly is not
+  earlier than current anomaly here; CV does not establish a model advantage.
+
+D4 first-pass evaluation is deliberately protected against an automatic repeat
+or outcome-driven tuning. To re-render accepted arrays only:
+
+```bash
+scripts/catk.sh -m scripts.integrated_d5
+```
+
+This rendering path is offline, uses only locally cached maps and does not run
+the model. Complete observations, per-sample forecasts, scores, CV arrays,
+rules and timeline remain in the two scene directories under
+`outputs/integrated_demo/`; acceptance receipts are in `docs/integrated_demo_D*.json`.

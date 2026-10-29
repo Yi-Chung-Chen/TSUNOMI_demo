@@ -1184,3 +1184,46 @@ traffic null threat scores,100saved forecast shapes and all11frozen hashes.
 First pass duration93.58s; docs/integrated_demo_D4.json passed,attempt1,
 retuned=false. D4 gate permits D5. Reference entry is evaluation-only; no GT
 used in origin/sampling/medoid/scoring/threat logic.
+
+## Integrated v1 D5 — presentation and acceptance COMPLETE
+
+Delivered read-only rendering of accepted D4: two1600×900316-frame GIFs,
+twoH.264MP4s (~36.11s playback at3× recorded time), eight3200×1800 PNGs and two
+self-contained offline HTML viewers with playback,slider,32-sample overlay and
+explicit offline-reference-future toggle. D5/index.html links the two cases;
+outputs/integrated_demo/integrated_demo_v1.zip packages media/viewers/caption/
+README/acceptance. Raw per-state/per-rollout numeric evidence remains in the
+D4scene directories. CV arrays are deliberately not even loaded by the
+presentation. The medoid is a coherent joint sample, not a GT-selected sample.
+
+Visuals retain dark OSM, quadcopter/aircraft icons, protected footprint,
+observation/forecast paths,endpoints,anomaly/threat/intent/explanation cards and
+background status. Normal traffic has no displayed score. No reference future
+is shown by default. Captions explicitly identify scripted daytime/nighttime,
+sigma1/3m,simulated tracker input,fictional protected volume and heuristic rules;
+no claim of time/weather inside the anomaly detector or calibrated risk odds.
+
+Network-review rejection was resolved WITHOUT new external requests: a strict
+cached-map-only mosaic loader found existing zoom14coverage for both scenes.
+A miss raises FileNotFoundError rather than fetching. No advisor script called.
+No model rerun in D5, no D4data changes, no configuration/seed/zone retuning.
+
+Acceptance:
+- Entire suite89passed,19dependency warnings,74.53s; includes all70prior tests
+and19new integrated tests. D5focused3passed,6.77s, including no-reference-future
+visual leakage, normal/no-score labels and no-network cache miss.
+- Decoded all316frames of BOTH GIFs, checked dimensions/content/durations;
+MP4codec/dimensions/duration checked with ffprobe;8PNG dimensions checked.
+- Visually reviewed8chronological decoded frames per story (6,20,42,56,70,
+80.67,90,105s) plus full-resolution Low and first-High images. A remainsLow;
+BshowsLow→Medium→High before entry and returnsLow after leaving under the
+approved instantaneous zone rules; no unrequested incident/threat latch added.
+- Both actual embedded viewer JavaScripts pass node syntax and DOM/canvas-stub
+execution: slider/play/pause,32-sample/reference toggles,unchanged forecasts,
+B56sHigh70/12-of32entry and backgroundNormal/null-score cards. No graphical
+browser installed; browser-specific layout is a user-review limitation.
+- All11frozen hashes unchanged, D4file hashes unchanged; finalZIP integrity and
+entry count checked. Receipt docs/integrated_demo_D5.json passed.
+
+AllD0–D5Done-when gates satisfied on the original fixed story attempt. No
+training,package installs,remotes/pushes or advisor calls. Stop for user review.

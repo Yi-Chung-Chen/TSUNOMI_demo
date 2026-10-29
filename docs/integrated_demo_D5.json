@@ -1,0 +1,133 @@
+{
+  "stage": "D5",
+  "passed": true,
+  "prior_D4_first_attempt_passed": true,
+  "neural_training": false,
+  "rendering_model_execution": false,
+  "network_requests": false,
+  "cached_map_zoom": 14,
+  "tests": {
+    "passed": 89,
+    "warnings": 19,
+    "elapsed_s": 74.53
+  },
+  "presentation_tests": {
+    "passed": 3,
+    "elapsed_s": 6.77
+  },
+  "full_gif_decode_frames_per_scene": 316,
+  "gif_dimensions": [
+    1600,
+    900
+  ],
+  "png_dimensions": [
+    3200,
+    1800
+  ],
+  "mp4_codec": "h264",
+  "mp4_dimensions": [
+    1600,
+    900
+  ],
+  "mp4_duration_s": 36.111111,
+  "viewer_checks": [
+    "JS syntax",
+    "slider/play/pause",
+    "32-rollout toggle",
+    "offline reference toggle",
+    "unchanged forecast arrays",
+    "B56s exact High70 and12/32 evidence"
+  ],
+  "browser_automation": "DOM/canvas-stub execution; no graphical browser installed",
+  "visual_review": "Both full GIFs decoded;8chronological frames per scene visually reviewed, plus full-resolution Low and first-High frames",
+  "d4_files_unchanged": true,
+  "protected_artifacts_unchanged": true,
+  "zip_entries": 19,
+  "zip_integrity": true,
+  "media": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "gif": "D5/A_daytime_hobbyist/A_daytime_hobbyist.gif",
+      "gif_bytes": 1737381,
+      "mp4": "D5/A_daytime_hobbyist/A_daytime_hobbyist.mp4",
+      "pngs": [
+        "D5/A_daytime_hobbyist/initial.png",
+        "D5/A_daytime_hobbyist/hobbyist_activity.png",
+        "D5/A_daytime_hobbyist/low_threat.png",
+        "D5/A_daytime_hobbyist/end.png"
+      ],
+      "viewer": "D5/A_daytime_hobbyist/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "hobbyist_activity": 96,
+        "low_threat": 180,
+        "end": 315
+      },
+      "map_zoom": 14
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "gif": "D5/B_nighttime_approach/B_nighttime_approach.gif",
+      "gif_bytes": 1955946,
+      "mp4": "D5/B_nighttime_approach/B_nighttime_approach.mp4",
+      "pngs": [
+        "D5/B_nighttime_approach/initial.png",
+        "D5/B_nighttime_approach/motion_change.png",
+        "D5/B_nighttime_approach/first_high.png",
+        "D5/B_nighttime_approach/end.png"
+      ],
+      "viewer": "D5/B_nighttime_approach/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "motion_change": 60,
+        "first_high": 168,
+        "end": 315
+      },
+      "map_zoom": 14
+    }
+  ],
+  "gate": {
+    "stage": "D4",
+    "passed": true,
+    "attempt": 1,
+    "retuned": false,
+    "elapsed_s": 93.58052751701325,
+    "A": {
+      "reference_entry_s": null,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": null,
+      "first_model_based_preentry_high_s": null,
+      "model_warning_lead_s": null,
+      "anomalous_low_frames": 298,
+      "background_normal_frames": 244,
+      "max_drone_threat_score": 0,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 298,
+        "Medium": 0,
+        "High": 0,
+        "Insufficient data": 18
+      }
+    },
+    "B": {
+      "reference_entry_s": 80.66666666666667,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": 56.0,
+      "first_model_based_preentry_high_s": 56.0,
+      "model_warning_lead_s": 24.66666666666667,
+      "anomalous_low_frames": 188,
+      "background_normal_frames": 237,
+      "max_drone_threat_score": 100,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 188,
+        "Medium": 12,
+        "High": 98,
+        "Insufficient data": 18
+      }
+    },
+    "decision": "continue to D5"
+  }
+}
