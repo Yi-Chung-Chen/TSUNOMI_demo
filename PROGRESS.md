@@ -1112,3 +1112,23 @@ removing all future observations leaves noisy forecasts bitwise identical.
 All11locked artifacts/config hashes unchanged. D1 passed; saved arrays under
 outputs/integrated_demo/D1, receipt docs/integrated_demo_D1.json. Corrected D0
 prose checksum count from12 to actual11; lock/acceptance already recorded11.
+
+## Integrated v1 D2 — frozen current/future anomaly and intent evidence
+
+Read the existing five-height probability arrays without calling fit/finish.
+Raw state cutoff=11.387990034013754 nats; equivalent z cutoff=.9641637639319811
+using the frozen10-03 state median/IQR. Never use the combined cutoff.
+Current trace scores use2s observed displacements; forecasts score each sample
+at+2..+30s from its own positions and the observed current anchor. Future alerts
+require>=8/32strict exceedances per horizon and cannot set the current latch.
+Added configured polygon+height volume geometry, distance and3Hz sampled entry
+counts/time summaries as forecast-derived intent, no GT. Endpoint outputs are
+saved without selecting against a reference.
+
+Acceptance:4scoring/geometry tests passed,19dependency warnings,6.26s. Reproduced
+all28,413original token rows with exactly0error in all4state/components. Tests
+cover own-sample speed/course, strict cutoff/sample count, missing endpoints,
+height/boundary inclusion, volume distance and entry time. Aircraft/drone D1
+forecast score/intent outputs saved under outputs/integrated_demo/D2;
+docs/integrated_demo_D2.json passed. All11locked hashes unchanged; no refit,
+training, calibration updates or story B inference.
