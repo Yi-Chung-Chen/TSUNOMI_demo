@@ -1063,3 +1063,33 @@ no GT-based sample selection, milestone Done-when gates and review checklist.
 No new inference, training, synthetic data generation or runtime code changes.
 Validation: documentation diff/whitespace check; existing module/artifact paths
 confirmed. User review precedes implementation of this new phase.
+
+## Integrated v1 D0 — approved scope and fixed config, 2026-10-29
+
+Read parent §4.1.11 and approved plan; clean baseline HEAD522afb9. No advisor
+call this run. Fixed configs/integrated_demo/v1.json, SHA256 lock for12config/
+input/model/density files, scenario/zone sources and rules before model runs.
+A: daytime circle [2200,-2000,80],radius100m,speed8m/s; B: nighttime circle
+[1800,300,110],radius60m, then westward acceleration at20–32s to38m/s. Zone
+fictional x[-600,-300],y[150,550],height[0,180]. Both105s, background aa4e47
+reference frame500 onward, unmodified and explicitly time-shifted composition.
+
+Four optional decisions:
+1. NO time-conditioned histograms: retain frozen detector/calibration and avoid
+new fit/calibration scope. Day/night is scripted threat context only; no
+weather/time-of-day-inside-detector claims.
+2. YES joint3D medoid over32rollouts (mean Euclidean distance over agents and90
+future frames, no GT), more representative while keeping joint sample coherence.
+3. YES numeric-only CV forecast from the same noisy past2s displacement; useful
+for attribution/comparison, never displayed/substituted for model prediction.
+4. YES scripted night sigma3m/axis versus daytime1m, labelled as scripted
+Gaussian noise rather than measured nighttime tracking quality.
+
+Required correction: anomalous latch is any current score strictly above
+frozen cutoff during last10s, per object; future scores cannot activate it.
+Unflagged objects including background: Normal traffic, null threat score;
+no anomaly+5. Unknown input/forecast is explicit, not an implicit low threat.
+D4 first-pass gate will stop the run if B has no pre-entry high warning.
+D0 acceptance: config parses,12checksums saved, both scenarios described with
+sources; docs/integrated_demo_D0.json passed. Documentation/config only,
+no inference/training. Updated plan/AGENTS; parent §4.1.11 already records scope.

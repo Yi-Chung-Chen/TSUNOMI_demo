@@ -119,3 +119,10 @@ first eligible origin, sample0 of1 (no minADE). GT is overlay/association only;
 no GT subtype/heading/ground input or track stitching. Adapter provisional
 rules and execution issues are recorded in QUESTIONS.md. Save separate
 outputs/camera_demo; no training, new packages or anomaly-model changes.
+
+Active2026-10-29 scope is INTEGRATED_DEMO_PLAN.md D0–D5 per parent plan §4.1.11.
+Do not call the advisor script this run. Each stage requires its Done-when and local
+commit. Threat is only computed for tracks with any current state score above
+cutoff during the preceding10s; otherwise Normal traffic and null threat score.
+No anomaly+5 modifier. D4 B must have high warning before reference zone entry;
+if it fails, save results, commit stage outcome and stop without tuning to pass.

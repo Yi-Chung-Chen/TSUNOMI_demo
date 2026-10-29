@@ -1,0 +1,13 @@
+{
+  "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+  "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+  "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+  "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+  "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+  "outputs/anomaly_state_smoothed/state_density.npz": "d22584fe04418c64a64c73cb0b7d70e9317fa88a8e5787e99f1e13153458ecf2",
+  "outputs/anomaly_state_smoothed/standardization.json": "392f16b90d878683ef4c2431518fdbb66ac68eedc1a5e4143bb07d8d35440cb9",
+  "outputs/anomaly_state_smoothed/summary.csv": "8d8471bc1a28d0445ceb5e47583dd253232bfd679ae6da6bcb6a4ba9bb1cbec1",
+  "data/processed/scenario_000497_aircraft.npz": "e9fc57c881f1946a75570203284a64bf73a838233242eb70543ebdddfc18b921",
+  "../SYGARD-Dataset/ord_drone_2026-09-28_1800z_3hz/simulation_poses_native.jsonl": "3054b2995c2bf941cd790fc7f761cf57005594c779c6b21d82521c859e449b0c",
+  "configs/integrated_demo/v1.json": "f2e94a349964e744dc14e12cc40af7b6849bec7306c9afb7bab2d9317bfd003a"
+}

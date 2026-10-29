@@ -1,0 +1,12 @@
+{
+  "stage": "D0",
+  "passed": true,
+  "config": "configs/integrated_demo/v1.json",
+  "locked_files": 11,
+  "scenario_ids": [
+    "A_daytime_hobbyist",
+    "B_nighttime_approach"
+  ],
+  "no_training": true,
+  "no_advisor": true
+}

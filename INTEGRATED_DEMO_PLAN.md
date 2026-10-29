@@ -1,7 +1,7 @@
-# Integrated MVP Demo — Review Draft
+# Integrated MVP Demo — Approved v1
 
 - 日期：2026-10-29
-- 狀態：**待 Yi-Chung 審閱；本文件不啟動實作、訓練或資料生成。**
+- 狀態：**2026-10-29 已審閱通過；依原計畫 §4.1.11 與最新指示執行 D0–D5。這輪禁止呼叫 advisor 腳本。**
 - 基準：`2822d3a`，目前 `sygard-motion` 工作目錄乾淨。
 - 依據：Yi-Chung 提供的 David 回覆，以及本對話確認的整合方向。
 
@@ -54,7 +54,7 @@
 
 - 以 3 Hz observation stream，**建議每 2 s 更新一次 forecast**。
 - 每次使用 6 s history，產生 **32 條 30 s rollout**，沿用 top-k 5、temperature 1、固定 seed 規則。
-- 主畫面固定顯示 sample 0；可選擇淡化顯示其餘 rollout。**不使用 minADE、未來 GT 或事後挑選來決定展示哪條。**
+- 主畫面顯示 32 條 joint rollout 的 3D medoid（與其他條平均距離最小）；可選擇淡化顯示其餘 rollout。**不使用 minADE、未來 GT 或事後挑選來決定展示哪條。**
 - Intent 顯示為模型輸出的解讀，例如 `Remaining outside demo zone`、`Approaching demo zone`、`Forecast enters demo zone`，並畫出 predicted endpoint。
 - 不宣稱識別操作者的真實意圖，也不新增 endpoint pseudo-label training。獨立 intent head 留待後續。
 - 有 32 條時，zone relation／warning 用全部樣本統計，不讓畫面上的單一 sample 代表所有預測。
@@ -83,7 +83,9 @@
 
 ### 3.5 Rule-based threat level（建議草案）
 
-保留每條 rule 的貢獻與 reason；分數不是風險機率。建議：
+先用每個物件最近 10 s 的 current state scores 判定：任一有效時刻嚴格超過凍結 cutoff，就 latch 為 anomalous。只有 anomalous 物件計算下表；其餘顯示 `Normal traffic`，threat score=null（背景飛機同樣適用）。Future score 不可開啟 current anomaly latch。
+
+保留每條 rule 的貢獻與 reason；分數不是風險機率。
 
 | Evidence | Base points |
 |---|---:|
@@ -97,7 +99,7 @@
 
 Context modifiers：
 
-- Current anomaly：+5。
+- 不加 current anomaly 分數；anomaly 是進入 threat 計算的必要條件。
 - Nighttime：+10，**只在已有 zone evidence 時加分**。
 - 明顯加速、且朝 zone 接近：+10，只在已有 zone evidence 時加分。v1 建議由最近兩個 2 s 速度窗增加 >5 m/s 定義，不用未來真值。
 - Clamp 到 0–100；`Low <30`、`Medium 30–59`、`High ≥60`。
@@ -148,7 +150,7 @@ Context modifiers：
 
 主畫面包含：
 
-- Observation path、固定 sample 0 的 forecast、predicted endpoint、demo zone footprint。
+- Observation path、不使用 GT 的 medoid forecast、predicted endpoint、demo zone footprint。
 - Object info card：`Anomaly score`、`Threat level`、`Predicted intent`、entry evidence／time。
 - 簡短 explanation，最多列 2–3 個主要原因；原始數值保存在旁邊的 CSV／JSON。
 - Demo context（日／夜）、當下時間、資料來源標籤。
@@ -210,12 +212,12 @@ Context modifiers：
 
 ## 7. 審閱時優先確認
 
-- [ ] 主 demo 用 reference＋`sigma=1 m`／axis noise，現有 camera case 當補充。
-- [ ] v1 不重訓；每 2 s 用 32 rollout 更新 evidence，畫面固定顯示 sample 0。
-- [ ] Intent 先用 forecast／endpoint／zone relation，不新增獨立 head。
-- [ ] Protected zone 為明確標示的示意 polygon＋height range；day/night 可使用 scripted context。
-- [ ] 接受 §3.5 的 rule／threshold 草案作 demo 起點，後續調整明確記錄。
-- [ ] 先完成兩個故事的 GIF＋PNG；interactive viewer 視交付成本再加。
+- [x] 主 demo 用 reference＋`sigma=1 m`／axis noise，現有 camera case 當補充。
+- [x] v1 不重訓；每 2 s 用 32 rollout 更新 evidence，畫面顯示不看 GT 的 joint medoid。
+- [x] Intent 先用 forecast／endpoint／zone relation，不新增獨立 head。
+- [x] Protected zone 為明確標示的示意 polygon＋height range；day/night 可使用 scripted context。
+- [x] 接受 §3.5 的 rule／threshold 草案作 demo 起點，後續調整明確記錄。
+- [x] 先完成兩個故事的 GIF＋PNG；interactive viewer 視交付成本再加。
 
 ---
 
@@ -227,3 +229,12 @@ Context modifiers：
 - `src/eval/camera_rollout.py`、`src/eval/demo_gif.py`：既有深色地圖視覺。
 - `outputs/anomaly_state_smoothed/`：應重用的 density、standardization、scores；需固定其既有 state cutoff 來源。
 - `docs/camera_demo_acceptance.json`：目前 camera demo 的 70-test 驗收基準。
+
+## D0 固定的四項取捨
+
+1. 不做 time-conditioned density；沿用 frozen baseline。時段只在 scripted threat context，caption 不宣稱 detector 有時段／天氣特徵。
+2. 採 joint 3D medoid；不看 GT。
+3. 記錄 CV 數值對照；不畫、不替換 model forecast。
+4. Day sigma=1m，night sigma=3m，各 axis；明確標示腳本設定。
+
+參數與 synthetic routes／zone 在 configs/integrated_demo/v1.json 固定，D4 第一次驗收後不得自行修改以求通過。
