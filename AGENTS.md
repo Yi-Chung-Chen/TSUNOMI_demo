@@ -151,3 +151,10 @@ entry by a currently anomalous object. Store first intrusion time/trackID; keep
 High after exit, clearing anomaly or missing observations, reset per scenario.
 Normal traffic and forecast-only entry do not latch. Orange boxes/rollout groups
 remain current-only. Export D9/v5 from saved D4; preserve earlier versions.
+
+D10 visual-cleanup review is presentation-only from accepted D4, with exact D9
+scores/rules/groups/raw shares and unchanged map extents. Orange icon edges replace
+rectangles; names only on map; largest-remainder integer shares; no duplicate
+card text; protected-zone label outside polygon and never obscured. Export D10
+separately with D8/D10 comparisons at B56/B63.33/A62.33s, self-check and stop for
+Yi-Chung. No model execution, fitting, network, packages or advisor calls.

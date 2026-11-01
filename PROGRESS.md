@@ -1404,3 +1404,49 @@ Acceptance:
 - BothGIF316frames decoded, H264MP4 checked,11PNG3200x1800,27-entryZIP integrity.
   Self-reviewed the post-exitB105s frame for correct persistent state/reason.
   Receipt docs/integrated_demo_D9.json. No remote/push.
+
+## D10 — Visual cleanup review draft (2026-11-01)
+
+Implemented the user's six presentation-only requirements in a separate
+CleanupRenderer/exporter, retaining earlier versions and the existing interactive
+D9 viewer. Active review media: outputs/integrated_demo/D10. No model execution,
+score/cutoff/rule/zone/viewport changes, fitting, packages, network or advisor.
+
+- Removed legacy anomaly Rectangle artists. Original rotated marker paths retain
+  their face colours; anomaly markeredgecolor=ORANGE,width1.6 (normal BG,width1).
+  Optional glow omitted to preserve small drone rotor details.
+- Map labels are names only, orange when anomalous; no label boxes or anomaly
+  explanations on the map. WHY retains scenario-level reasons, OBJECT STATUS
+  has one physical line per object with status and original zone-entry share.
+- Every group endpoint gets an integer%. Deterministic largest remainder applied
+  only to display values; shares/counts/members/representatives remain unchanged.
+  Per-object displayed group values sum exactly100, no display threshold.
+- DEMO PROTECTED ZONE sits outside the polygon, with reserved label space and
+  opaque backing. It is drawn last above all paths,endpoints and labels. Names
+  and percentage labels are laid out using measured text sizes, avoiding each
+  other/icons/zone text, without reframing the map.
+- Exported both316-frame GIF/MP4s, three3200x1800 review PNGs, three6400x1870
+  side-by-side D8/D10 comparisons, display-percent/layout receipts and README.
+  Command: scripts/catk.sh -m scripts.integrated_d10. D10 is a static/video
+  review draft; no partial or inconsistent new interactive viewer is shipped.
+
+Acceptance:
+- Full suite110passed,19existing dependency warnings,51.92s. Four new tests cover
+  largest remainder/ties/0% without mutation, icon/name/group-label styling,
+  one-line nonduplicate object cards and dense-label collision avoidance.
+- Exact D9 timeline equality (all scores,cutoffs,current anomaly,scenario incident
+  rules/states) and exact group-data equality asserted. Pixel map bounds equal
+  original embedded D9 viewer data; zoom14 and axis extents unchanged.
+- All632actual rendered label layouts, including opaque label backings, checked
+  pairwise nonoverlapping. Zone label outside polygon, reserved and last-drawn.
+  Every original group displayed; all per-object integer values sum100.
+- Self-reviewed requested B56s(frame168), B63.33s(190), A62.33s(187), plus all
+  three D8/D10 side-by-side comparison PNGs. Names/percentages do not overlap;
+  zone text fully readable. All requested frames also checked at200dpi.
+- Decoded632GIFframes at1600x900, checked bothH264MP4s,3review PNG3200x1800 and
+ 3comparison PNG6400x1870. Receipt docs/integrated_demo_D10.json passed.
+- Frozen11hashes unchanged. D4 file hashes unchanged; all existingD8/D9 file
+  hashes unchanged before/after export. Only newD10 outputs were written.
+
+D10 review draft complete. STOP here for Yi-Chung; no further visual revisions,
+model changes or next-stage work until feedback.

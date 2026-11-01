@@ -317,3 +317,24 @@ Acceptance: entry/exit/missing data, forecast-only/normal-traffic exclusion,
 causal prefix and scenario reset tests; B persists High through final frame;
 A unaffected, all original anomaly/forecast evidence unchanged; media/ZIP review,
 PROGRESS.md/QUESTIONS.md and local commit. No advisor/inference/training/network.
+
+## D10 — Visual cleanup review (2026-11-01)
+
+User-authorized presentation only. Read accepted D4 and assert exact D9 timeline,
+groups/raw shares and map pixel bounds. No model, score/cutoff/rule/zone/extent
+changes. Remove orange anomaly Rectangles; rotate the original icon with a
+thicker orange marker edge (normal edge unchanged). Map object labels are names
+only, orange when anomalous. All group percentages use deterministic
+largest-remainder integer rounding and every group is shown, including0% if it
+occurs; raw weights/grouping stay intact. WHY retains scenario reasons;
+OBJECT STATUS is one physical line per object with state and raw zone-entry%.
+Move DEMO PROTECTED ZONE outside the polygon, reserve it in label layout, give
+an opaque backing and draw it last. Use measured label bounds for collision
+checks, with no map reframing. Output separately to outputs/integrated_demo/D10;
+retain prior versions. Replay scripts/catk.sh -m scripts.integrated_d10.
+Review draft exports MP4/GIF/PNG and numeric layout/render receipts; existing
+interactive D9 is untouched. Required review frames: B56s(frame168), B63.33s(190),
+A62.33s(187). Compare against existing D8 PNGs at exactly those frames and save
+three side-by-side comparison PNGs. Check all frames for label/zone clarity,
+frozen hashes and prior-media equality; commit and STOP for Yi-Chung's review.
+No advisor, inference, fitting, training, packages, network or further revision.

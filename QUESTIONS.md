@@ -197,3 +197,14 @@ The explanation explicitly records historical entry and current exit state.
 No blocking questions or advisor calls. Normal aircraft entry and forecast-only
 entry cannot trigger the incident latch. Active output D9/v5; prior versions
 preserved. Real-browser validation limitation unchanged.
+
+## D10 visual cleanup review — 2026-11-01
+
+No blocking questions or advisor calls. D10 applies presentation-only changes;
+D9 scores/rules/groups and map extents are asserted identical. Optional marker
+halo was omitted to preserve the fine drone shape; orange marker edges still
+follow rotation. Group integers use largest remainder while zone-entry values
+retain their original precision, so rounded entering-group totals may differ
+slightly from the raw entry share. Static/video review draft only; previous D9
+interactive viewer and all prior media remain intact. Three requested D8/D10
+comparison PNGs provided. Stop for Yi-Chung's review.

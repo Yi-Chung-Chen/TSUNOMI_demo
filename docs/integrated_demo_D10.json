@@ -1,0 +1,75 @@
+{
+  "stage": "D10",
+  "model_execution": false,
+  "network_requests": false,
+  "scenes": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "frames": 316,
+      "all_labels_nonoverlapping": true,
+      "zone_label_outside_and_drawn_last": true,
+      "d9_timeline_equal": true,
+      "d9_groups_equal": true,
+      "map_pixel_bounds": [
+        [
+          1072607.1642856784,
+          1557181.1700178576
+        ],
+        [
+          1073556.2313764128,
+          1557785.57130387
+        ]
+      ],
+      "map_zoom": 14,
+      "map_extents_unchanged": true,
+      "gif": "A_daytime_hobbyist/A_daytime_hobbyist.gif",
+      "mp4": "A_daytime_hobbyist/A_daytime_hobbyist.mp4",
+      "review_frames": [
+        187
+      ]
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "frames": 316,
+      "all_labels_nonoverlapping": true,
+      "zone_label_outside_and_drawn_last": true,
+      "d9_timeline_equal": true,
+      "d9_groups_equal": true,
+      "map_pixel_bounds": [
+        [
+          1072456.8238511905,
+          1557094.8280433663
+        ],
+        [
+          1073566.6021169052,
+          1557801.601086257
+        ]
+      ],
+      "map_zoom": 14,
+      "map_extents_unchanged": true,
+      "gif": "B_nighttime_approach/B_nighttime_approach.gif",
+      "mp4": "B_nighttime_approach/B_nighttime_approach.mp4",
+      "review_frames": [
+        168,
+        190
+      ]
+    }
+  ],
+  "comparisons": [
+    "comparison_A_daytime_hobbyist_f0187.png",
+    "comparison_B_nighttime_approach_f0168.png",
+    "comparison_B_nighttime_approach_f0190.png"
+  ],
+  "protected_hashes_unchanged": true,
+  "d4_files_unchanged": true,
+  "d8_d9_files_unchanged": true,
+  "passed": true,
+  "tests": "110 passed,19 dependency warnings,51.92s",
+  "all_groups_displayed": true,
+  "all_per_object_integer_shares_sum100": true,
+  "all632_actual_label_layouts_nonoverlapping": true,
+  "requested_three_snapshots_self_reviewed": true,
+  "d8_comparison_panels_self_reviewed": true,
+  "static_review_only": true,
+  "stopped_for_yi_chung_review": true
+}
