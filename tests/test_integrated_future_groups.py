@@ -42,3 +42,16 @@ def test_replay_groups_discard_crossings_that_are_now_in_the_past():
     groups=replay_groups(rows,{0:dict(position=paths)},ZONE)
     assert all(g['enters_zone'] for g in groups[0])
     assert not any(g['enters_zone'] for g in groups[1])
+
+
+def test_each_anomalous_object_gets_its_own_normalized_groups():
+    from src.integrated.future_groups import replay_object_groups
+    paths=np.full((32,2,3,3),[20,20,10.]);paths[:12,0]=[5,5,10]
+    paths[:24,1]=[5,5,10]
+    rows=[dict(objects=[dict(anomalous=True,forecast_origin_frame=0),dict(anomalous=True,forecast_origin_frame=0)]),
+          dict(objects=[dict(anomalous=True,forecast_origin_frame=0),dict(anomalous=False,forecast_origin_frame=0)])]
+    groups=replay_object_groups(rows,{0:dict(position=paths)},ZONE)
+    assert set(groups[0])=={0,1} and set(groups[1])=={0}
+    for agent,count in [(0,12),(1,24)]:
+        assert sum(g['share'] for g in groups[0][agent])==1
+        assert sum(g['count'] for g in groups[0][agent] if g['enters_zone'])==count

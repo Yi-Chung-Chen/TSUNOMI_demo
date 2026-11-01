@@ -175,3 +175,14 @@ members; the displayed group medoid alone does not determine the scene alert.
 At a forecast refresh, grouping and labels can change; no persistent intent
 identity or temporal smoothing is implied. Existing background false anomalies
 remain visible. Real-browser review limitation fromD6 remains unchanged.
+
+## D8 endpoint/multi-object revision — 2026-11-01
+
+No blocking question/advisor call. Raw curvature audit shows near-straight
+predictions, not renderer-created chords; A drone's scripted circle is not
+reliably extrapolated. Keep the limitation explicit; model improvement would
+require separately scoped evaluation/training rather than cosmetic bending.
+Weights normalize independently per object and are sample shares, not calibrated
+intrusion probabilities. Current-only aircraft false alerts still produce brief
+multi-rollout appearances; user has not authorized smoothing. Browser review
+limitation unchanged. Outputs D8/v4 preserve all prior versions.

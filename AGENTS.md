@@ -139,3 +139,9 @@ by group membership among all32samples. Full remaining3D zone entry stratifies
 red/amber groups; mean3D trajectory medoids select actual sampled paths. Not
 likelihood softmax or calibrated probabilities. Existing scenario rules remain
 unchanged. Read existing D4 only, export D7/v3; preserve D6/v2. No advisor calls.
+
+D8 user review removes A–D/entry-outside legend; percentages go beside endpoints.
+Group up to4 futures independently for every currently anomalous object, including
+aircraft. Keep original model paths, current anomaly/scene rules and per-object
+normalization. Export D8/v4 without inference; preserve earlier outputs. Audit
+raw saved curvature, never bend forecasts for appearance. No advisor calls.

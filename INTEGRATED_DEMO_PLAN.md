@@ -281,3 +281,22 @@ scripts/catk.sh -m scripts.integrated_d7.
 Acceptance: exact memberships/weights, medoid/sample identity, full-path and
 height-aware entry, all32entry consistency, noGTfuture leakage, visual review,
 unchanged frozen/D4 files and prior media, tests and local commit.
+
+## D8 — Endpoint shares for every anomalous object (2026-11-01)
+
+User feedback removes A–D badges and the entry/outside legend. Put group sample
+percentages directly beside their endpoints, with short leaders and collision
+avoidance. Apply the same up-to4 grouping independently to EVERY currently
+anomalous object, including aircraft; weights sum1 per object, not per scene.
+Normal objects retain a single medoid. Keep per-object zone-entry shares in the
+object status card; remove the foreground-only entry summary from scenario card.
+No current anomaly/entry/scenario rule changes. No artificial path bending,
+forecast replacement, inference, fitting, new packages, network or advisor calls.
+Audit saved raw model curvature to explain straight-looking futures. Draw all
+remaining forecast vertices, not an endpoint chord. Preserve all prior versions;
+export D8/v4 with an additional aircraft-anomaly snapshot per scene. Command:
+scripts/catk.sh -m scripts.integrated_d8.
+Acceptance: both objects' memberships/weights and entry shares verified against
+original32samples; percentage-only labels and aircraft path geometry tests;
+noGTfuture leakage; visual review/media/ZIP checks; frozen/D4 files unchanged;
+local commit, report model limitations rather than cosmetic trajectory changes.

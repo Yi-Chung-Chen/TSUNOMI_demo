@@ -72,3 +72,17 @@ def replay_groups(timeline,forecasts,zone):
             paths=forecasts[origin]['position'][:,0,frame-origin:]
             result[frame]=group_futures(paths,zone)
     return result
+
+
+def replay_object_groups(timeline,forecasts,zone):
+    """Independent 32-sample grouping for every currently anomalous object."""
+    result={}
+    for frame,row in enumerate(timeline):
+        per_object={}
+        for agent,obj in enumerate(row['objects']):
+            origin=obj['forecast_origin_frame']
+            if obj['anomalous'] and origin is not None:
+                paths=forecasts[origin]['position'][:,agent,frame-origin:]
+                per_object[agent]=group_futures(paths,zone)
+        if per_object:result[frame]=per_object
+    return result

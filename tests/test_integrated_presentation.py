@@ -64,3 +64,25 @@ def test_grouped_frame_has_sample_shares_without_gt_future_leakage():
     changed['stream']['observed'][:,19:]=1e9
     renderer=DemoRenderer(changed);after=np.asarray(renderer.frame(18));renderer.close()
     np.testing.assert_array_equal(before,after)
+
+
+def test_all_anomalous_objects_show_raw_paths_and_endpoint_percentages():
+    from src.integrated.future_groups import group_futures
+    d=fixture();d['grouped']=True;d['all_anomalies']=True
+    d['manifest']['zone']['height_range_m']=[0,180]
+    for o in d['timeline'][18]['objects']:
+        o.update(anomalous=True,anomaly_reason='Unusual speed for this location')
+    d['object_groups']={18:{a:group_futures(d['forecasts'][18]['position'][:,a],d['manifest']['zone']) for a in range(2)}}
+    renderer=DemoRenderer(d);before=np.asarray(renderer.frame(18))
+    assert renderer.group_legend==[] and renderer.entry_text.get_text()==''
+    assert [a[3].get_text() for a in renderer.group_artists if a[3].get_visible()]==['100%','100%']
+    for a in range(2):
+        drawn=renderer.group_artists[a][0]
+        assert len(drawn.get_xdata())==91 # full forecast, never endpoint-only chord
+        expected=visual.enu_to_pixel(d['forecasts'][18]['position'][0,a,:,:2],d['zoom'])
+        np.testing.assert_allclose(np.c_[drawn.get_xdata(),drawn.get_ydata()][1:],expected)
+        assert len(renderer.tracks[a][1].get_xdata())==0 # no duplicate medoid
+    renderer.close()
+    changed=deepcopy(d);changed['stream']['reference'][:]=1e9;changed['stream']['observed'][:,19:]=1e9
+    renderer=DemoRenderer(changed);after=np.asarray(renderer.frame(18));renderer.close()
+    np.testing.assert_array_equal(before,after)

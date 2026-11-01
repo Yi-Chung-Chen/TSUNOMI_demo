@@ -19,7 +19,7 @@ from PIL import Image,ImageOps,ImageEnhance
 from src.eval import demo_gif as visual
 from src.eval.anomaly_gif import DRONE
 from src.integrated.scenario_status import current_only_timeline
-from src.integrated.future_groups import replay_groups
+from src.integrated.future_groups import replay_groups,replay_object_groups
 
 BG='#0b1622';TEXT='#e8eef5';MUTED='#8fa3b8';CYAN='#4cc9f0';AMBER='#ffd166';GREEN='#80ed99';PURPLE='#c77dff'
 ORANGE='#ff9f43'
@@ -48,7 +48,7 @@ def cached_basemap(bounds,cache):
     raise FileNotFoundError('No complete locally cached map zoom; no network requests made')
 
 
-def load_presentation(root,scene_id,grouped=False):
+def load_presentation(root,scene_id,grouped=False,all_anomalies=False):
     directory=Path(root)/'outputs/integrated_demo'/scene_id
     manifest=json.loads((directory/'manifest.json').read_text())
     timeline=json.loads((directory/'timeline.json').read_text())
@@ -59,19 +59,23 @@ def load_presentation(root,scene_id,grouped=False):
             forecasts[r['frame']]=dict(position=a['position'].copy(),heading=a['heading'].copy(),medoid=int(a['medoid']))
     with np.load(directory/'observations.npz') as a:stream={key:a[key].copy() for key in a.files}
     timeline=current_only_timeline(timeline,stream['observed'],manifest)
+    object_groups=replay_object_groups(timeline,forecasts,manifest['zone']) if all_anomalies else {}
     groups=replay_groups(timeline,forecasts,manifest['zone']) if grouped else {}
     points=[stream['observed'][...,:2].reshape(-1,2),np.array(manifest['zone']['polygon_enu_m'])]
     points += [p['position'][p['medoid'],...,:2].reshape(-1,2) for p in forecasts.values()]
     if grouped:
         points += [forecasts[timeline[f]['objects'][0]['forecast_origin_frame']]['position'][g['representative_index'],0,:,:2]
                    for f,frame_groups in groups.items() for g in frame_groups]
+    if all_anomalies:
+        points += [forecasts[timeline[f]['objects'][agent]['forecast_origin_frame']]['position'][g['representative_index'],agent,:,:2]
+                   for f,per_object in object_groups.items() for agent,frame_groups in per_object.items() for g in frame_groups]
     bounds=visual.view_bounds(np.concatenate(points),aspect=(16*.68)/(9*.77))
     image,zoom,pb=cached_basemap(bounds,Path(root)/'data/basemap_cache')
     return dict(manifest=manifest,timeline=timeline,forecasts=forecasts,stream=stream,
-        map_image=image,zoom=zoom,pb=pb,bounds=bounds,groups=groups,grouped=grouped)
+        map_image=image,zoom=zoom,pb=pb,bounds=bounds,groups=groups,grouped=grouped,object_groups=object_groups,all_anomalies=all_anomalies)
 
 
-def display_texts(row,manifest):
+def display_texts(row,manifest,all_anomalies=False):
     scenario=row['scenario']
     reasons='\n\n'.join(textwrap.fill(r,width=34) for r in scenario['reasons'])
     objects=[]
@@ -81,6 +85,8 @@ def display_texts(row,manifest):
         status='Unusual behavior' if o['anomalous'] else ('Normal traffic' if valid else 'Collecting observations')
         message=f'{name} · {status}'
         if o['anomalous']:message+='\n'+textwrap.fill(o['anomaly_reason'],width=34)
+        if all_anomalies and o['anomalous'] and o['entry'] is not None:
+            message+='\n'+f"Predicted zone entry: {100*o['entry']['entry_samples']/32:g}%"
         objects.append(message)
     return dict(scenario=textwrap.fill(scenario['status'],width=19),explanation=reasons,objects='\n\n'.join(objects))
 
@@ -102,7 +108,7 @@ class DemoRenderer:
         self.ax.add_patch(Polygon(zone,closed=True,facecolor=PURPLE,edgecolor=PURPLE,alpha=.22,lw=2))
         center=zone.mean(0);self.ax.text(*center,'DEMO\nPROTECTED ZONE',ha='center',va='center',color='#e4c7ff',fontsize=9,fontweight='bold')
         self.fig.text(.03,.085,'━━ Observed tracker     ┄┄ Model forecast     □ Current anomaly',fontsize=11,color=TEXT)
-        detail=('Up to 4 representative futures · labels = share of 32 samples · red = enters zone' if data.get('grouped') else '32 joint sampled futures · GT-free medoid shown · updates every 2 s · 30 s forecast')
+        detail=('Up to 4 futures per anomalous object · endpoint % = sample share · red = enters zone' if data.get('all_anomalies') else 'Up to 4 representative futures · labels = share of 32 samples · red = enters zone' if data.get('grouped') else '32 joint sampled futures · GT-free medoid shown · updates every 2 s · 30 s forecast')
         self.fig.text(.03,.054,detail,fontsize=10,color=MUTED)
         self.fig.text(.03,.028,'Orange: current object anomaly. Scenario alert: anomalous object inside or forecast to enter the protected zone.',fontsize=9,color=MUTED)
         self.fig.text(.70,.012,'© OpenStreetMap contributors',fontsize=8,color=MUTED,ha='right')
@@ -120,19 +126,20 @@ class DemoRenderer:
         self.artists.append(self.entry_text)
         self.group_artists=[];self.group_legend=[]
         if data.get('grouped'):
-            for _ in range(4):
+            for _ in range(4*(len(data['timeline'][0]['objects']) if data.get('all_anomalies') else 1)):
                 line,=self.ax.plot([],[],ls=(0,(5,4)),animated=True)
                 endpoint,=self.ax.plot([],[],marker='D',ls='',mec=BG,animated=True)
                 leader,=self.ax.plot([],[],lw=.8,alpha=.65,animated=True)
                 label=self.ax.text(0,0,'',fontsize=10,fontweight='bold',animated=True,
                     bbox=dict(fc=BG,ec='#294052',pad=2))
                 self.group_artists.append((line,endpoint,leader,label));self.artists.extend([line,endpoint,leader])
-            self.ax.text(.025,.965,'FUTURE PATHS · SAMPLE SHARE',transform=self.ax.transAxes,fontsize=9,color=MUTED,
-                va='top',bbox=dict(fc=BG,ec='none',pad=4))
-            for i in range(4):
-                legend=self.ax.text(.025,.925-i*.045,'',transform=self.ax.transAxes,fontsize=10,
-                    fontweight='bold',va='top',animated=True,bbox=dict(fc=BG,ec='none',pad=3))
-                self.group_legend.append(legend)
+            if not data.get('all_anomalies'):
+                self.ax.text(.025,.965,'FUTURE PATHS · SAMPLE SHARE',transform=self.ax.transAxes,fontsize=9,color=MUTED,
+                    va='top',bbox=dict(fc=BG,ec='none',pad=4))
+                for i in range(4):
+                    legend=self.ax.text(.025,.925-i*.045,'',transform=self.ax.transAxes,fontsize=10,
+                        fontweight='bold',va='top',animated=True,bbox=dict(fc=BG,ec='none',pad=3))
+                    self.group_legend.append(legend)
         self.observed=visual.enu_to_pixel(data['stream']['observed'][...,:2],self.zoom)
         for agent,(colour,marker,label) in enumerate([(CYAN,DRONE,'Drone 01'),(GREEN,visual.PLANE,'Aircraft 01')]):
             history,=self.ax.plot([],[],color=colour,lw=3 if agent==0 else 2,animated=True,
@@ -150,13 +157,14 @@ class DemoRenderer:
         self.fig.canvas.draw();self.background=self.fig.canvas.copy_from_bbox(self.fig.bbox)
 
     def frame(self,frame):
-        data=self.data;row=data['timeline'][frame];texts=display_texts(row,data['manifest'])
+        data=self.data;row=data['timeline'][frame];texts=display_texts(row,data['manifest'],data.get('all_anomalies',False))
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
         for key,text in self.cards.items():text.set_text(texts[key])
         self.cards['scenario'].set_color(LEVEL_COLOURS[row['scenario']['status']])
         origin=row['objects'][0]['forecast_origin_frame'];forecast=data['forecasts'].get(origin)
         entry=row['objects'][0]['entry']
-        self.entry_text.set_text(('Drone 01 · zone entry: '+f"{100*entry['entry_samples']/32:g}% ({entry['entry_samples']}/32 samples)") if data.get('grouped') and entry is not None else '')
+        self.entry_text.set_text(('Drone 01 · zone entry: '+f"{100*entry['entry_samples']/32:g}% ({entry['entry_samples']}/32 samples)") if data.get('grouped') and not data.get('all_anomalies') and entry is not None else '')
+        active_groups=data.get('object_groups',{}).get(frame,{}) if data.get('all_anomalies') else ({0:data.get('groups',{}).get(frame,[])} if data.get('grouped') else {})
         for agent,(history,future,icon,endpoint,text,marker) in enumerate(self.tracks):
             points=self.observed[agent];point=points[frame];history.set_data(*points[:frame+1].T)
             icon.set_data([point[0]],[point[1]])
@@ -172,17 +180,18 @@ class DemoRenderer:
             dx=18*scale if self.ax.bbox.xmax-screen[0]>130*scale else -18*scale
             dy=18*scale if self.ax.bbox.ymax-screen[1]>35*scale else -28*scale
             text.set_position(self.ax.transData.inverted().transform(screen+[dx,dy]));text.set_ha('left' if dx>0 else 'right')
-            if forecast is not None and not (data.get('grouped') and agent==0):
+            if forecast is not None and agent not in active_groups:
                 remaining=forecast['position'][forecast['medoid'],agent,frame-origin:]
                 projected=visual.enu_to_pixel(remaining[:,:2],self.zoom)
                 path=np.vstack([point,projected]);future.set_data(*path.T)
                 endpoint.set_data([projected[-1,0]],[projected[-1,1]])
             else:future.set_data([],[]);endpoint.set_data([],[])
         if data.get('grouped'):
-            groups=data['groups'].get(frame,[])
+            groups=[dict(group,agent=agent) for agent,frame_groups in active_groups.items() for group in frame_groups]
             ends=[]
             for group in groups:
-                remaining=forecast['position'][group['representative_index'],0,frame-origin:]
+                agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame'];prediction=data['forecasts'][origin]
+                remaining=prediction['position'][group['representative_index'],agent,frame-origin:]
                 ends.append(self.ax.transData.transform(visual.enu_to_pixel(remaining[-1,:2],self.zoom)))
             occupied=[track[4].get_window_extent(self.fig.canvas.get_renderer()) for track in self.tracks]
             placed=[(r.x0,r.y0,r.x1,r.y1) for r in occupied]
@@ -191,28 +200,31 @@ class DemoRenderer:
             for i,artists in enumerate(self.group_artists):
                 line,endpoint,leader,label=artists
                 for artist in artists:artist.set_visible(i<len(groups))
-                self.group_legend[i].set_visible(i<len(groups))
+                if self.group_legend:self.group_legend[i].set_visible(i<len(groups))
                 if i>=len(groups):continue
                 group=groups[i];colour='#ff626b' if group['enters_zone'] else AMBER
-                remaining=forecast['position'][group['representative_index'],0,frame-origin:]
+                agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame'];prediction=data['forecasts'][origin]
+                remaining=prediction['position'][group['representative_index'],agent,frame-origin:]
                 projected=visual.enu_to_pixel(remaining[:,:2],self.zoom)
-                line.set_data(*np.vstack([self.observed[0,frame],projected]).T)
+                line.set_data(*np.vstack([self.observed[agent,frame],projected]).T)
                 line.set_color(colour);line.set_linewidth(1.3+2*group['share']);line.set_alpha(.5+.5*group['share'])
                 endpoint.set_data([projected[-1,0]],[projected[-1,1]]);endpoint.set_mfc(colour);endpoint.set_ms(6+4*group['share'])
                 ex,ey=ends[i];scale=self.dpi/100
+                label_width=(75 if data.get('all_anomalies') else 22)*scale
                 candidates=[]
-                for dx in [14,-26,40,-50]:
-                    lx=np.clip(ex+dx*scale,self.ax.bbox.xmin+8*scale,self.ax.bbox.xmax-25*scale)
+                for dx in [14,-80,40,-110]:
+                    lx=np.clip(ex+dx*scale,self.ax.bbox.xmin+8*scale,self.ax.bbox.xmax-(75 if data.get('all_anomalies') else 25)*scale)
                     for dy in [16,-16,40,-40,64,-64,88,-88]:
                         ly=np.clip(ey+dy*scale,self.ax.bbox.ymin+12*scale,self.ax.bbox.ymax-20*scale)
-                        overlaps=sum(lx<right and lx+22*scale>left and ly<top and ly+20*scale>bottom
+                        overlaps=sum(lx<right and lx+label_width>left and ly<top and ly+20*scale>bottom
                                      for left,bottom,right,top in placed)
                         candidates.append((overlaps,abs(dx)+abs(dy),lx,ly))
                 _,_,lx,ly=min(candidates)
-                placed.append((lx,ly,lx+22*scale,ly+20*scale));position=self.ax.transData.inverted().transform([lx,ly])
-                label.set_position(position);label.set_text(group['label']);label.set_color(colour)
-                legend=self.group_legend[i];legend.set_text(group['label']+'   '+group['percentage']+'   '+('Enters zone' if group['enters_zone'] else 'Outside'))
-                legend.set_color(colour)
+                placed.append((lx,ly,lx+label_width,ly+20*scale));position=self.ax.transData.inverted().transform([lx,ly])
+                label.set_position(position);label.set_text(group['percentage'] if data.get('all_anomalies') else group['label']);label.set_color(colour)
+                if self.group_legend:
+                    legend=self.group_legend[i];legend.set_text(group['label']+'   '+group['percentage']+'   '+('Enters zone' if group['enters_zone'] else 'Outside'))
+                    legend.set_color(colour)
                 leader.set_data([projected[-1,0],position[0]],[projected[-1,1],position[1]]);leader.set_color(colour)
         for artist in self.artists:(artist.axes.draw_artist if artist.axes else self.fig.draw_artist)(artist)
         return Image.fromarray(np.asarray(self.fig.canvas.buffer_rgba())[...,:3].copy())
@@ -224,7 +236,7 @@ def viewer_bundle(data):
     buffer=io.BytesIO();data['map_image'].save(buffer,format='PNG')
     result=dict(map='data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode(),
         pb=data['pb'].tolist(),zone=visual.enu_to_pixel(np.array(data['manifest']['zone']['polygon_enu_m']),data['zoom']).tolist(),
-        manifest=data['manifest'],timeline=data['timeline'],forecasts={},groups=data.get('groups',{}),grouped=data.get('grouped',False),
+        manifest=data['manifest'],timeline=data['timeline'],forecasts={},groups=data.get('groups',{}),grouped=data.get('grouped',False),object_groups=data.get('object_groups',{}),all_anomalies=data.get('all_anomalies',False),
         observed=visual.enu_to_pixel(data['stream']['observed'][...,:2],data['zoom']).round(3).tolist(),
         reference=visual.enu_to_pixel(data['stream']['reference'][...,:2],data['zoom']).round(3).tolist())
     for frame,forecast in data['forecasts'].items():

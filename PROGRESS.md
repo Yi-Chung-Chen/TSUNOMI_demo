@@ -1318,3 +1318,50 @@ Acceptance:
 - At B56s: A43.75%outside, B34.375%entering, C18.75%outside, D3.125%entering.
   Entering share37.5%=12/32; original first-warning56s and all scenario states
   remain unchanged. Receipt docs/integrated_demo_D7.json passed.
+
+## D8 — Endpoint percentages and all anomalous objects (2026-11-01)
+
+Applied user feedback: removed A–D badges and entry/outside map legend from the
+new active presentation. Percentages are directly beside each representative
+endpoint with short leaders and collision avoidance across both objects' labels.
+Every currently anomalous object gets up to4 grouped rollouts, including the
+background aircraft, independently normalized across that object's32samples.
+Normal objects retain a single medoid. The foreground-only entry summary is
+removed from the scenario card; entry shares appear per anomalous object in the
+object card. No change to state scores, cutoffs, anomaly or scenario decisions.
+
+Saved separately to outputs/integrated_demo/D8 and integrated_demo_v4.zip;
+prior versions preserved. MP4/GIF/viewer,10PNG (including one aircraft-anomaly
+snapshot for each scene), per-object groups/timeline/CSV,offline index/README.
+Command: scripts/catk.sh -m scripts.integrated_d8. No model rerun, training,
+package installs, network or advisor calls. Frozen11hashes and D4 files unchanged.
+
+Straight-forecast question: audited ALL6400saved model paths (50origins x32 x2
+objects x2stories), anchored at current observation, retaining90future vertices.
+Read-only audit command scripts/catk.sh -m scripts.integrated_trajectory_audit;
+receipt docs/integrated_demo_D8_trajectory_audit.json. Median maximumXY distance
+from the start/end chord: A drone9.48m, A aircraft7.57m, B drone25.38m,
+B aircraft8.88m. A/B drone fractions over25m:12.56%/50.44%. These are not
+literally all straight paths, but most are visually near-straight at airport scale.
+A circular script is not reliably continued as a circle: this is a model/demo
+limitation, not justification to bend paths in the renderer. B's post-ramp
+reference route is itself straight. Aircraft-dominant training as an explanation
+for OOD drone extrapolation is plausible, not established by this audit alone.
+No CV substitution, synthetic curves or rerun/cherry-picking was introduced.
+
+Acceptance:
+- Entire suite103passed,19existing dependency warnings,50.60s; targeted11passed
+in4.61s. New tests cover per-object normalization/current anomaly gating and
+actual aircraft path vertices, no duplicate medoid, no A–D/legend, percentage-only
+labels, and no rendered dependence on future reference/observation rows.
+- Verified all original1264current anomaly decisions/entry evidence unchanged.
+For each exported object grouping: exact32sample coverage, sumshare1, <=4groups,
+actual member medoid and entering count match original all32evidence. Aircraft
+gets grouped paths when anomalous; no groups when normal. docs/integrated_demo_D8.json passed.
+- Both actual embedded viewers pass Node DOM/canvas-stub slider/play/pause and
+sample/reference toggles. At an aircraft-anomaly frame, captured canvas text
+contains exactly both objects' endpoint percentages and no A–D/Outside/Enters
+zone legend; forecasts unchanged. No graphical browser available as before.
+- Decoded632GIFframes, checked2H264MP4/36.111s,10PNG3200x1800 and26-entryZIP.
+Reviewed8chronological frames/story plus full-size dual-anomaly A62.33s snapshot.
+Original warning remainsB56s before reference entry80.67s, no outcome tuning.

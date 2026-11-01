@@ -1,0 +1,90 @@
+{
+  "source": "All saved D4 model position samples, observed anchor +90future frames; no CV or GT future",
+  "interpretation": "Descriptive curvature audit; thresholds25m/30m are reporting definitions, not model or display tuning.",
+  "scenes": {
+    "A_daytime_hobbyist": [
+      {
+        "object": "Drone 01",
+        "sampled_paths": 1600,
+        "max_plan_view_deviation_m": {
+          "median": 9.481639869755169,
+          "p90": 28.814038399972617,
+          "max": 78.81185719615786
+        },
+        "fraction_deviation_over25m": 0.125625,
+        "moving_paths_chord_at_least30m": 1600,
+        "near_stationary_paths": 0,
+        "moving_path_length_over_chord": {
+          "median": 1.0121830982529245,
+          "p90": 1.063983932358993
+        },
+        "moving_heading_change_degrees": {
+          "median": 15.915455823126738,
+          "p90": 56.17109456968619
+        }
+      },
+      {
+        "object": "Aircraft 01",
+        "sampled_paths": 1600,
+        "max_plan_view_deviation_m": {
+          "median": 7.570843119234347,
+          "p90": 34.30396398610956,
+          "max": 237.90890172694327
+        },
+        "fraction_deviation_over25m": 0.150625,
+        "moving_paths_chord_at_least30m": 1600,
+        "near_stationary_paths": 0,
+        "moving_path_length_over_chord": {
+          "median": 1.0014967701342683,
+          "p90": 1.045870096928585
+        },
+        "moving_heading_change_degrees": {
+          "median": 3.515369688276968,
+          "p90": 53.78273433177247
+        }
+      }
+    ],
+    "B_nighttime_approach": [
+      {
+        "object": "Drone 01",
+        "sampled_paths": 1600,
+        "max_plan_view_deviation_m": {
+          "median": 25.377617027140232,
+          "p90": 61.39837742827773,
+          "max": 161.6370732337572
+        },
+        "fraction_deviation_over25m": 0.504375,
+        "moving_paths_chord_at_least30m": 1584,
+        "near_stationary_paths": 16,
+        "moving_path_length_over_chord": {
+          "median": 1.0090249302265022,
+          "p90": 1.0479194483153198
+        },
+        "moving_heading_change_degrees": {
+          "median": 18.785203908783487,
+          "p90": 47.267501797171434
+        }
+      },
+      {
+        "object": "Aircraft 01",
+        "sampled_paths": 1600,
+        "max_plan_view_deviation_m": {
+          "median": 8.875258308941692,
+          "p90": 40.07325061973775,
+          "max": 200.41517931228236
+        },
+        "fraction_deviation_over25m": 0.19875,
+        "moving_paths_chord_at_least30m": 1600,
+        "near_stationary_paths": 0,
+        "moving_path_length_over_chord": {
+          "median": 1.0014599465579568,
+          "p90": 1.0904565160130664
+        },
+        "moving_heading_change_degrees": {
+          "median": 4.265353416433333,
+          "p90": 66.05307436918511
+        }
+      }
+    ]
+  }
+}
