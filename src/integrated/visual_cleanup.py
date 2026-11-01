@@ -51,14 +51,19 @@ def place_label(anchor,size,bounds,occupied,scale=1.):
 def cleanup_texts(row):
     """Object lines give state/entry; explanatory reasons occur only in WHY."""
     lines=[]
+    reasons=list(row['scenario']['reasons'])
     for i,obj in enumerate(row['objects']):
         name='Drone 01' if i==0 else f'Aircraft {i:02d}'
         status='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
         entry=obj['entry'];share='—' if entry is None else f"{100*entry['entry_samples']/32:g}%"
         lines.append(f'{name} · {status} · zone entry {share}')
+        if obj['anomalous']:
+            reason=obj['anomaly_reason']
+            if not any(name in text and reason.lower() in text.lower() for text in reasons):
+                reasons.append(f'{name}: {reason}.')
     import textwrap
     return dict(scenario=textwrap.fill(row['scenario']['status'],width=19),
-        explanation='\n\n'.join(textwrap.fill(r,width=34) for r in row['scenario']['reasons']),
+        explanation='\n\n'.join(textwrap.fill(r,width=34) for r in reasons),
         objects='\n\n'.join(lines))
 
 
@@ -181,6 +186,8 @@ class CleanupRenderer(DemoRenderer):
             actual.append((name,tuple(b.extents)))
         for i,(name,box) in enumerate(actual):
             assert not any(intersects(box,other) for _,other in actual[i+1:]),f'Actual label collision: {frame} {name}'
+        why=self.cards['explanation'].get_window_extent(self.fig.canvas.get_renderer())
+        assert why.y0>=.37*self.fig.bbox.height+5*scale and why.x1<=.98*self.fig.bbox.width, 'WHY text overflow'
         card_boxes=[]
         for i,items in enumerate(self.object_rows):
             for j,item in enumerate(items):

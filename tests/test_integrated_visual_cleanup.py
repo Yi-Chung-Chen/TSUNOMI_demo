@@ -51,3 +51,23 @@ def test_dense_labels_avoid_reserved_zone_and_each_other():
         box=place_label((300,200),(50,16),bounds,occupied)
         assert all(not intersects(box,old) for old in occupied)
         occupied.append(box)
+
+
+def test_each_current_anomaly_has_a_reason_even_when_not_selected_for_scene_alert():
+    d=fixture();row=d['timeline'][18]
+    row['objects'][0].update(anomalous=True,anomaly_reason='Unusual direction for this location')
+    row['objects'][1].update(anomalous=True,anomaly_reason='Unusual speed for this location')
+    row['scenario']=dict(status='Potential intrusion',objects=[0],reasons=[
+        'Drone 01 shows unusual direction for this location and is forecast to enter the protected zone.'])
+    before=deepcopy(row);text=cleanup_texts(row)['explanation']
+    flattened=' '.join(text.split()).lower()
+    assert flattened.count('unusual direction for this location')==1
+    assert flattened.count('unusual speed for this location')==1
+    assert 'Aircraft 01:' in text
+    assert row==before
+    row['scenario']=dict(status='High threat',objects=[0],reasons=[
+        'Drone 01 entered the protected zone at 80.7 s. It has left; the high alert remains active.'])
+    text=cleanup_texts(row)['explanation'];flattened=' '.join(text.split()).lower()
+    assert '80.7 s' in flattened and 'has left' in flattened
+    assert 'unusual direction for this location' in flattened
+    assert 'unusual speed for this location' in flattened

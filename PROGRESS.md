@@ -1486,3 +1486,29 @@ Self-reviewed the A62.33s preview for legibility; media and three required revie
 snapshots/comparisons regenerated. Receipt docs/integrated_demo_D10_readable_status.json.
 No inference, training, scoring/rule changes, packages, network or advisor calls.
 Stop for Yi-Chung's review.
+
+### D10 bug fix — explain every current anomaly (2026-11-01)
+
+User noticed aircraft anomaly had no explanation in readable_status B video.
+Cause: WHY reused scenario-selected reasons (only the drone during potential
+intrusion), while the compact object table had removed factor reasons. Updated
+presentation formatting to preserve scenario explanations and append each
+currently anomalous object's stored reason if not already present for that
+object. Normal traffic gets no anomaly reason; repeated factors are not repeated
+for the same object. Historical intrusion explanations remain alongside current
+anomaly reasons. Detection/scoring, scene rules, data and map extents unchanged.
+
+Export: outputs/integrated_demo/D10/complete_reasons, preserving readable_status
+and all earlier outputs. Replay scripts/catk.sh -m scripts.integrated_d10
+--output-subdir complete_reasons. At B63.33s, WHY now includes Aircraft01:
+Unusual speed for this location, alongside the drone/zone-entry explanation.
+Self-reviewed that snapshot. All632frames assert WHY stays inside its card;
+all current anomaly reasons are present in the formatted explanation. Existing
+object-cell/map-label/zone and percentage checks remain active.
+
+Focused tests5passed,19dependency warnings,4.34s, including a regression for two
+anomalous objects when only the drone triggers the scene alert, deduplication,
+input immutability and retained historical intrusion time/reason. Rechecked both
+GIF/MP4s and three requested snapshots, exact D9timeline/groups/map bounds and
+protected/D4/D8/D9 hashes. Receipt docs/integrated_demo_D10_complete_reasons.json.
+No inference, training, packages, network or advisor calls. Stop for user review.

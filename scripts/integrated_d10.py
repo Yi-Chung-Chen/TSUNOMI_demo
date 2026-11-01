@@ -84,5 +84,5 @@ def main(output_subdir=None):
 
 if __name__=='__main__':
     import argparse
-    parser=argparse.ArgumentParser();parser.add_argument('--output-subdir',choices=['thin_outline','readable_status'])
+    parser=argparse.ArgumentParser();parser.add_argument('--output-subdir',choices=['thin_outline','readable_status','complete_reasons'])
     main(parser.parse_args().output_subdir)
