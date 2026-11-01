@@ -8,7 +8,7 @@
 <div class="legend"><span>━━ Observed tracker</span><span>┄┄ Model forecast · medoid</span><span>▧ Demo protected zone</span></div>
 <div class="controls"><button id="play">Play</button><input id="time" type="range" min="0" max="315" value="0"><span id="clock"></span></div>
 <div class="controls"><label><input id="samples" type="checkbox"> Show all 32 model rollouts</label><label><input id="gt" type="checkbox"> Reference future (offline comparison)</label></div>
-<footer>Reference + scripted Gaussian noise acts as simulated tracker input. Protected zones and scenario alert rules are illustrative.<br>Anomaly detector uses location/height, speed and direction; no time-of-day or weather-conditioned density.<br>Orange boxes show current object anomalies. Scenario alerts require an anomalous object inside the zone or at least 8/32 forecasts entering it. Endpoint percentages show group shares of all 32 samples for each object, not likelihood-softmax weights or calibrated probabilities. Red futures enter the zone; amber futures stay outside. Entry checks the entire remaining 3D path, not just the endpoint. © OpenStreetMap contributors</footer></main>
+<footer>Reference + scripted Gaussian noise acts as simulated tracker input. Protected zones and scenario alert rules are illustrative.<br>Anomaly detector uses location/height, speed and direction; no time-of-day or weather-conditioned density.<br>Orange boxes show current object anomalies. <span id="alert-policy">Scenario alerts require an anomalous object inside the zone or at least 8/32 forecasts entering it.</span> Endpoint percentages show group shares of all 32 samples for each object, not likelihood-softmax weights or calibrated probabilities. Red futures enter the zone; amber futures stay outside. Entry checks the entire remaining 3D path, not just the endpoint. © OpenStreetMap contributors</footer></main>
 <aside class="cards"><div class="card"><div class="title">SCENARIO STATUS</div><div class="large" id="scenario"></div><div class="body" id="entry-share"></div></div>
 <div class="card"><div class="title">WHY THIS STATUS</div><div class="body" id="reasons"></div></div>
 <div class="card"><div class="title">OBJECT STATUS</div><div class="body" id="objects"></div></div></aside></div>
@@ -17,8 +17,9 @@
 'use strict';
 const D=JSON.parse(document.getElementById('demo-data').textContent),$=id=>document.getElementById(id);
 const canvas=$('map'),ctx=canvas.getContext('2d'),image=new Image();let frame=0,playing=false,lastTick=0;
-const colours=['#4cc9f0','#80ed99'],levels={'Normal traffic':'#4cc9f0','Unusual activity':'#ff9f43','Potential intrusion':'#ff626b','Intrusion detected':'#ff626b','Collecting observations':'#8fa3b8'};
+const colours=['#4cc9f0','#80ed99'],levels={'Normal traffic':'#4cc9f0','Unusual activity':'#ff9f43','Potential intrusion':'#ff626b','High threat':'#ff626b','Intrusion detected':'#ff626b','Collecting observations':'#8fa3b8'};
 $('time').max=D.timeline.length-1;
+if(D.intrusion_memory)$('alert-policy').textContent='Confirmed intrusion keeps the scenario at High threat until scenario reset; orange boxes remain current-only.';
 if(D.grouped)document.querySelector('.legend span:nth-child(2)').textContent=D.all_anomalies?'┄┄ Model futures · endpoint % = sample share':'┄┄ Representative futures · sample share';
 $('subtitle').textContent=(D.manifest.scene.context==='daytime'?'DAYTIME HOBBYIST':'NIGHTTIME APPROACH')+' · SCRIPTED MVP DEMO · Simulated tracker σ='+D.manifest.scene.scripted_noise_sigma_m_per_axis+' m / axis';
 function draw(){

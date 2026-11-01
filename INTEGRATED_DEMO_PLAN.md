@@ -300,3 +300,20 @@ Acceptance: both objects' memberships/weights and entry shares verified against
 original32samples; percentage-only labels and aircraft path geometry tests;
 noGTfuture leakage; visual review/media/ZIP checks; frozen/D4 files unchanged;
 local commit, report model limitations rather than cosmetic trajectory changes.
+
+## D9 — Confirmed intrusion incident memory (2026-11-01)
+
+User requests persistent high threat once intrusion has occurred. Add scenario
+incident memory, separate from current-only object anomaly. Trigger only when a
+currently anomalous object's observed position is inside the protected3D volume;
+normal traffic or forecast-only entry cannot latch it. Capture object ID and
+first observed intrusion time. Scenario stays High threat through exit, current
+anomaly clearing or missing observations, until a new scenario/reset. Reasons
+state historical entry time and current inside/exited/unknown position. Orange
+boxes and multi-rollout eligibility remain strictly current-only. No numeric
+threat score or model/score/forecast/zone changes. Historical D6–D8 remain intact.
+Export D9/v5 from saved D4 only; command scripts/catk.sh -m scripts.integrated_d9.
+Acceptance: entry/exit/missing data, forecast-only/normal-traffic exclusion,
+causal prefix and scenario reset tests; B persists High through final frame;
+A unaffected, all original anomaly/forecast evidence unchanged; media/ZIP review,
+PROGRESS.md/QUESTIONS.md and local commit. No advisor/inference/training/network.

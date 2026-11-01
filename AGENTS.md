@@ -145,3 +145,9 @@ Group up to4 futures independently for every currently anomalous object, includi
 aircraft. Keep original model paths, current anomaly/scene rules and per-object
 normalization. Export D8/v4 without inference; preserve earlier outputs. Audit
 raw saved curvature, never bend forecasts for appearance. No advisor calls.
+
+D9 user review requests persistent scenario High threat after confirmed observed
+entry by a currently anomalous object. Store first intrusion time/trackID; keep
+High after exit, clearing anomaly or missing observations, reset per scenario.
+Normal traffic and forecast-only entry do not latch. Orange boxes/rollout groups
+remain current-only. Export D9/v5 from saved D4; preserve earlier versions.

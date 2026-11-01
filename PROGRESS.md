@@ -1365,3 +1365,42 @@ zone legend; forecasts unchanged. No graphical browser available as before.
 - Decoded632GIFframes, checked2H264MP4/36.111s,10PNG3200x1800 and26-entryZIP.
 Reviewed8chronological frames/story plus full-size dual-anomaly A62.33s snapshot.
 Original warning remainsB56s before reference entry80.67s, no outcome tuning.
+
+## D9 — Persistent High threat after confirmed intrusion (2026-11-01)
+
+User asked to retain High after intrusion, and confirmed progress reporting.
+Implemented scenario incident memory independently from the current-only object
+anomaly. A currently anomalous track's observed position inside the protected3D
+volume records itsID/first detection time. Scene status stays High threat after
+exit, normalisation of current anomaly, or unavailable observations, until a new
+scenario starts. Predicted entry alone and normal traffic inside cannot latch.
+Object orange boxes and multi-rollout eligibility remain strictly current-only.
+Reasons distinguish still-inside, has-left and position-unavailable, always
+showing historical intrusion time rather than claiming an ongoing intrusion.
+Footer/caption explicitly describe persistence. No numeric threat score added.
+
+Active export outputs/integrated_demo/D9, integrated_demo_v5.zip; all older
+versions preserved. scripts/catk.sh -m scripts.integrated_d9 reads accepted D4
+only, no inference, fitting, training, packages, network or advisor calls.
+Timeline/CSV export incident state and first detection times. Extra first
+intrusion PNG supplements the original snapshots;11PNGtotal across both scenes.
+
+Acceptance:
+- Full suite106passed,19existing dependency warnings,50.83s. New tests cover
+  confirmed entry->exit->normalisation->missing data, forecast-only and normal
+  entry exclusions, prefix causality, fresh-scenario reset and input immutability.
+- Final footer/viewer-policy refinement: targeted scenario/presentation14passed,
+  19existing dependency warnings,4.68s.
+- A has no latched incident and retains its prior scenario states.
+  B has first predicted warning56.0s, first observed intrusion80.6667s, and
+  continuous High for all74remaining frames through105s. Final explanation says
+  it has left and the high alert remains active. No route/threshold tuning.
+- All1264current anomaly decisions, all32entry evidence, per-object groups and
+  forecast origins unchanged. Frozen11hashes and D4 file hashes unchanged.
+- Verified both embedded viewers using Node DOM/canvas stubs, including seek to
+  B105s=High/has-left and rewind toB6s=Unusual activity (no future incident leak),
+  plus sample/reference toggles, exact endpoint percentages and unchanged model
+  paths. A real graphical browser remains unavailable as previously documented.
+- BothGIF316frames decoded, H264MP4 checked,11PNG3200x1800,27-entryZIP integrity.
+  Self-reviewed the post-exitB105s frame for correct persistent state/reason.
+  Receipt docs/integrated_demo_D9.json. No remote/push.

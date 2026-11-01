@@ -71,3 +71,37 @@ def current_only_timeline(timeline, observed, manifest, min_samples=8):
                 obj.pop(field, None)
         row['scenario'] = scenario_status(row['objects'], observed[:, frame], manifest['zone'], min_samples)
     return rows
+
+
+def latch_intrusions(timeline,observed,zone):
+    """Scenario incident memory; object anomalies remain strictly current-only.
+
+Trigger only on a currently anomalous object's observed position inside the3D
+zone. Forecast entry alone and normal traffic cannot latch an incident. Memory
+lasts until the end of this scenario, even after exit, normalisation or missing
+observations. A new call/scenario starts with no incidents; no future GT is read.
+"""
+    rows=deepcopy(timeline);incidents={};previous_time=-np.inf
+    for frame,row in enumerate(rows):
+        time_s=float(row['time_s'])
+        if not np.isfinite(time_s) or time_s<previous_time:
+            raise ValueError('Incident timeline must have finite monotonic times')
+        previous_time=time_s
+        for agent,obj in enumerate(row['objects']):
+            key=str(obj['id'])
+            if obj['anomalous'] and bool(inside_zone(observed[agent,frame],zone)) and key not in incidents:
+                incidents[key]=dict(object_id=key,object_index=agent,first_detected_s=time_s)
+        scenario=row['scenario'];scenario['incident_latched']=bool(incidents)
+        scenario['incidents']=deepcopy(list(incidents.values()))
+        if not incidents:continue
+        reasons=[]
+        for incident in incidents.values():
+            agent=incident['object_index'];name=OBJECT_NAMES[agent] if agent<len(OBJECT_NAMES) else incident['object_id']
+            point=observed[agent,frame]
+            if not np.isfinite(point).all():current='Current position is unavailable; the high alert remains active.'
+            elif bool(inside_zone(point,zone)):current='It is still inside; the high alert remains active.'
+            else:current='It has left; the high alert remains active.'
+            reasons.append(f"{name} entered the protected zone at {incident['first_detected_s']:.1f} s. {current}")
+        row['scenario']=dict(status='High threat',reasons=reasons,objects=[i['object_index'] for i in incidents.values()],
+            incident_latched=True,incidents=deepcopy(list(incidents.values())),current_status=scenario['status'])
+    return rows

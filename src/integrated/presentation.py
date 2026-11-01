@@ -18,13 +18,13 @@ from PIL import Image,ImageOps,ImageEnhance
 
 from src.eval import demo_gif as visual
 from src.eval.anomaly_gif import DRONE
-from src.integrated.scenario_status import current_only_timeline
+from src.integrated.scenario_status import current_only_timeline,latch_intrusions
 from src.integrated.future_groups import replay_groups,replay_object_groups
 
 BG='#0b1622';TEXT='#e8eef5';MUTED='#8fa3b8';CYAN='#4cc9f0';AMBER='#ffd166';GREEN='#80ed99';PURPLE='#c77dff'
 ORANGE='#ff9f43'
 LEVEL_COLOURS={'Normal traffic':CYAN,'Unusual activity':ORANGE,'Potential intrusion':'#ff626b',
-    'Intrusion detected':'#ff626b','Collecting observations':MUTED}
+    'High threat':'#ff626b','Intrusion detected':'#ff626b','Collecting observations':MUTED}
 
 
 def cached_basemap(bounds,cache):
@@ -48,7 +48,7 @@ def cached_basemap(bounds,cache):
     raise FileNotFoundError('No complete locally cached map zoom; no network requests made')
 
 
-def load_presentation(root,scene_id,grouped=False,all_anomalies=False):
+def load_presentation(root,scene_id,grouped=False,all_anomalies=False,intrusion_memory=False):
     directory=Path(root)/'outputs/integrated_demo'/scene_id
     manifest=json.loads((directory/'manifest.json').read_text())
     timeline=json.loads((directory/'timeline.json').read_text())
@@ -59,6 +59,7 @@ def load_presentation(root,scene_id,grouped=False,all_anomalies=False):
             forecasts[r['frame']]=dict(position=a['position'].copy(),heading=a['heading'].copy(),medoid=int(a['medoid']))
     with np.load(directory/'observations.npz') as a:stream={key:a[key].copy() for key in a.files}
     timeline=current_only_timeline(timeline,stream['observed'],manifest)
+    if intrusion_memory:timeline=latch_intrusions(timeline,stream['observed'],manifest['zone'])
     object_groups=replay_object_groups(timeline,forecasts,manifest['zone']) if all_anomalies else {}
     groups=replay_groups(timeline,forecasts,manifest['zone']) if grouped else {}
     points=[stream['observed'][...,:2].reshape(-1,2),np.array(manifest['zone']['polygon_enu_m'])]
@@ -72,7 +73,7 @@ def load_presentation(root,scene_id,grouped=False,all_anomalies=False):
     bounds=visual.view_bounds(np.concatenate(points),aspect=(16*.68)/(9*.77))
     image,zoom,pb=cached_basemap(bounds,Path(root)/'data/basemap_cache')
     return dict(manifest=manifest,timeline=timeline,forecasts=forecasts,stream=stream,
-        map_image=image,zoom=zoom,pb=pb,bounds=bounds,groups=groups,grouped=grouped,object_groups=object_groups,all_anomalies=all_anomalies)
+        map_image=image,zoom=zoom,pb=pb,bounds=bounds,groups=groups,grouped=grouped,object_groups=object_groups,all_anomalies=all_anomalies,intrusion_memory=intrusion_memory)
 
 
 def display_texts(row,manifest,all_anomalies=False):
@@ -110,7 +111,7 @@ class DemoRenderer:
         self.fig.text(.03,.085,'━━ Observed tracker     ┄┄ Model forecast     □ Current anomaly',fontsize=11,color=TEXT)
         detail=('Up to 4 futures per anomalous object · endpoint % = sample share · red = enters zone' if data.get('all_anomalies') else 'Up to 4 representative futures · labels = share of 32 samples · red = enters zone' if data.get('grouped') else '32 joint sampled futures · GT-free medoid shown · updates every 2 s · 30 s forecast')
         self.fig.text(.03,.054,detail,fontsize=10,color=MUTED)
-        self.fig.text(.03,.028,'Orange: current object anomaly. Scenario alert: anomalous object inside or forecast to enter the protected zone.',fontsize=9,color=MUTED)
+        self.fig.text(.03,.028,('Orange: current object anomaly. Confirmed intrusion keeps scenario High until the scenario resets.' if data.get('intrusion_memory') else 'Orange: current object anomaly. Scenario alert: anomalous object inside or forecast to enter the protected zone.'),fontsize=9,color=MUTED)
         self.fig.text(.70,.012,'© OpenStreetMap contributors',fontsize=8,color=MUTED,ha='right')
         self.cards={}
         for key,y,h,title in [('scenario',.69,.19,'SCENARIO STATUS'),
@@ -236,7 +237,7 @@ def viewer_bundle(data):
     buffer=io.BytesIO();data['map_image'].save(buffer,format='PNG')
     result=dict(map='data:image/png;base64,'+base64.b64encode(buffer.getvalue()).decode(),
         pb=data['pb'].tolist(),zone=visual.enu_to_pixel(np.array(data['manifest']['zone']['polygon_enu_m']),data['zoom']).tolist(),
-        manifest=data['manifest'],timeline=data['timeline'],forecasts={},groups=data.get('groups',{}),grouped=data.get('grouped',False),object_groups=data.get('object_groups',{}),all_anomalies=data.get('all_anomalies',False),
+        manifest=data['manifest'],timeline=data['timeline'],forecasts={},groups=data.get('groups',{}),grouped=data.get('grouped',False),object_groups=data.get('object_groups',{}),all_anomalies=data.get('all_anomalies',False),intrusion_memory=data.get('intrusion_memory',False),
         observed=visual.enu_to_pixel(data['stream']['observed'][...,:2],data['zoom']).round(3).tolist(),
         reference=visual.enu_to_pixel(data['stream']['reference'][...,:2],data['zoom']).round(3).tolist())
     for frame,forecast in data['forecasts'].items():

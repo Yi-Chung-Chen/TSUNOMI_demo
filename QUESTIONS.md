@@ -186,3 +186,14 @@ Weights normalize independently per object and are sample shares, not calibrated
 intrusion probabilities. Current-only aircraft false alerts still produce brief
 multi-rollout appearances; user has not authorized smoothing. Browser review
 limitation unchanged. Outputs D8/v4 preserve all prior versions.
+
+## D9 confirmed intrusion memory — 2026-11-01
+
+User resolved the prior post-exit threat persistence review point: confirmed
+observed anomalous intrusion now latches scene High until scenario reset.
+Current object anomalies and predicted-entry sample shares remain instantaneous;
+a0% future entry share after exit can coexist with a historically latched High.
+The explanation explicitly records historical entry and current exit state.
+No blocking questions or advisor calls. Normal aircraft entry and forecast-only
+entry cannot trigger the incident latch. Active output D9/v5; prior versions
+preserved. Real-browser validation limitation unchanged.

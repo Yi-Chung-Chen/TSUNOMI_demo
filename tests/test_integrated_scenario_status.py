@@ -48,3 +48,44 @@ def test_missing_forecast_and_subthreshold_evidence_are_explicit():
     assert 'cannot be assessed' in missing['reasons'][0]
     few=scenario_status([obj(11,7)],[[20,20,10]],ZONE)
     assert 'threshold is not met' in few['reasons'][0]
+
+
+def incident_fixture():
+    rows=[dict(time_s=float(i),objects=[obj(score)]) for i,score in enumerate([11,11,9,None])]
+    positions=np.array([[[20,20,10],[5,5,10],[20,20,10],[np.nan,np.nan,np.nan]]])
+    return current_only_timeline(rows,positions,dict(cutoff_raw=10,zone=ZONE)),positions
+
+
+def test_confirmed_intrusion_latches_scene_after_exit_normalisation_and_missing_data():
+    from src.integrated.scenario_status import latch_intrusions
+    rows,positions=incident_fixture();original=deepcopy(rows)
+    latched=latch_intrusions(rows,positions,ZONE)
+    assert [r['scenario']['incident_latched'] for r in latched]==[False,True,True,True]
+    assert all(r['scenario']['status']=='High threat' for r in latched[1:])
+    assert 'has left' in latched[2]['scenario']['reasons'][0]
+    assert 'unavailable' in latched[3]['scenario']['reasons'][0]
+    assert latched[2]['objects'][0]['anomalous'] is False
+    assert latched[3]['objects'][0]['anomalous'] is False
+    assert latched[-1]['scenario']['incidents'][0]['first_detected_s']==1
+    assert rows==original
+
+
+def test_forecast_only_and_normal_observed_entry_do_not_latch():
+    from src.integrated.scenario_status import latch_intrusions
+    positions=np.array([[[20,20,10],[5,5,10]]])
+    rows=[dict(time_s=0.,objects=[obj(11,32)]),dict(time_s=1.,objects=[obj(5,32)])]
+    rows=current_only_timeline(rows,positions,dict(cutoff_raw=10,zone=ZONE))
+    result=latch_intrusions(rows,positions,ZONE)
+    assert not any(r['scenario']['incident_latched'] for r in result)
+    assert result[0]['scenario']['status']=='Potential intrusion'
+    assert result[1]['scenario']['status']=='Normal traffic'
+
+
+def test_incident_memory_resets_per_scenario_and_prefix_is_causal():
+    from src.integrated.scenario_status import latch_intrusions
+    rows,positions=incident_fixture();full=latch_intrusions(rows,positions,ZONE)
+    prefix=latch_intrusions(rows[:1],positions[:,:1],ZONE)
+    assert prefix==full[:1] and prefix[0]['scenario']['incidents']==[]
+    reset=latch_intrusions(rows[2:3],positions[:,2:3],ZONE)
+    assert reset[0]['scenario']['status']=='Normal traffic'
+    assert not reset[0]['scenario']['incident_latched']
