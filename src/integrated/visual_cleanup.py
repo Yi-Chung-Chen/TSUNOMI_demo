@@ -131,7 +131,9 @@ class CleanupRenderer(DemoRenderer):
             history.set_data(*self.observed[agent,:frame+1].T);icon.set_data([point[0]],[point[1]])
             delta=data['stream']['observed'][agent,frame,:2]-data['stream']['observed'][agent,max(0,frame-6),:2]
             icon.set_marker(marker.transformed(Affine2D().rotate(float(np.arctan2(delta[1],delta[0])))))
-            icon.set_mec(ORANGE if obj['anomalous'] else BG);icon.set_mew(1.6 if obj['anomalous'] else 1)
+            icon.set_mec(ORANGE if obj['anomalous'] else BG)
+            # Rotor gaps are narrower than the aircraft body: use a finer drone edge.
+            icon.set_mew((.55 if agent==0 else .8) if obj['anomalous'] else 1)
             icon.set_path_effects([]) # Preserve the fine drone/aircraft details inside the orange edge.
             text.set_text('Drone 01' if agent==0 else f'Aircraft {agent:02d}');text.set_color(ORANGE if obj['anomalous'] else TEXT)
             box=self._label(text,self.ax.transData.transform(point),occupied);layout.append((f'object_{agent}',box))

@@ -1450,3 +1450,20 @@ Acceptance:
 
 D10 review draft complete. STOP here for Yi-Chung; no further visual revisions,
 model changes or next-stage work until feedback.
+
+### D10 review correction — thin icon edges (2026-11-01)
+
+User found the1.6pt orange outline obscured drone rotor details. Reduced only
+anomalous marker edge width: drone0.55pt, aircraft0.8pt; normal outlines remain
+BG/1pt. Original marker faces, geometry and rotation retained; no glow added.
+No other presentation, data, score, rule, grouping or extent changes.
+
+Re-exported both videos/GIFs and the three requested snapshots/comparisons into
+outputs/integrated_demo/D10/thin_outline, preserving the initialD10 output.
+Command: scripts/catk.sh -m scripts.integrated_d10 --output-subdir thin_outline.
+Self-reviewed A62.33/B56/B63.33s: rotor rings and body colour remain visible.
+Existing visual-cleanup tests4passed,19dependency warnings,4.13s. Rechecked all
+632actual label layouts, all integer-share totals, both media and unchanged
+D9timeline/groups/extents/frozen hashes. Receipt docs/integrated_demo_D10_thin_outline.json.
+Prior full-suite110pass remains recorded above; no unnecessary broad rerun for
+this edge-width-only fix. Stop for Yi-Chung's next review.

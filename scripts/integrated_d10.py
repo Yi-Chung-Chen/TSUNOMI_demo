@@ -25,10 +25,10 @@ def hash_old(output):
             for p in (output/name).rglob('*') if p.is_file()}
 
 
-def main():
-    root=Path(__file__).resolve().parents[1];output=root/'outputs/integrated_demo';out=output/'D10';out.mkdir(exist_ok=True)
+def main(output_subdir=None):
+    root=Path(__file__).resolve().parents[1];output=root/'outputs/integrated_demo';out=output/'D10';out=out/output_subdir if output_subdir else out;out.mkdir(parents=True,exist_ok=True)
     verify_lock(root);before=source_hashes(output);old=hash_old(output)
-    receipt=dict(stage='D10',model_execution=False,network_requests=False,scenes=[],comparisons=[])
+    receipt=dict(stage='D10',revision=output_subdir or 'initial',model_execution=False,network_requests=False,scenes=[],comparisons=[])
     font=ImageFont.truetype(findfont('DejaVu Sans'),32)
     for name in SCENES:
         data=load_presentation(root,name,grouped=True,all_anomalies=True,intrusion_memory=True)
@@ -82,4 +82,7 @@ def main():
         'No inference, fitting, packages or network. Replay: scripts/catk.sh -m scripts.integrated_d10.\n')
     print(json.dumps(dict(completed=True,output=str(out))),flush=True)
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    import argparse
+    parser=argparse.ArgumentParser();parser.add_argument('--output-subdir',choices=['thin_outline'])
+    main(parser.parse_args().output_subdir)
