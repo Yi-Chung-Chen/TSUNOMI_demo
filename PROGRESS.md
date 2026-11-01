@@ -1467,3 +1467,22 @@ Existing visual-cleanup tests4passed,19dependency warnings,4.13s. Rechecked all
 D9timeline/groups/extents/frozen hashes. Receipt docs/integrated_demo_D10_thin_outline.json.
 Prior full-suite110pass remains recorded above; no unnecessary broad rerun for
 this edge-width-only fix. Stop for Yi-Chung's next review.
+
+### D10 review correction — readable object-status rows (2026-11-01)
+
+User found OBJECT STATUS too small. Replaced the9pt inline sentences with
+three aligned columns (OBJECT / STATUS / ZONE ENTRY),13pt body text, one physical
+row per object. Anomalous/Normal/Pending states retain their meaning; original
+zone-entry shares are displayed in their own column. No reason duplication.
+Thin marker outlines and the rest of D10 presentation remain unchanged.
+
+Exported separately to outputs/integrated_demo/D10/readable_status; initialD10
+and thin_outline outputs preserved. Replay scripts/catk.sh -m scripts.integrated_d10
+--output-subdir readable_status. Existing cleanup tests4passed,19dependency
+warnings,6.10s. All632frames assert that object cells stay within the card and
+do not overlap, in addition to existing map label and zone checks. Retained
+exact D9timeline/groups/map bounds, protected hashes and allD4/D8/D9files.
+Self-reviewed the A62.33s preview for legibility; media and three required review
+snapshots/comparisons regenerated. Receipt docs/integrated_demo_D10_readable_status.json.
+No inference, training, scoring/rule changes, packages, network or advisor calls.
+Stop for Yi-Chung's review.

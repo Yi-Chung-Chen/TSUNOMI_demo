@@ -74,7 +74,17 @@ class CleanupRenderer(DemoRenderer):
             text=track[4];text.set_bbox(None);text.set_va('bottom');text.set_fontsize(10)
         for _,_,_,label in self.group_artists:
             label.set_va('bottom');label.set_bbox(dict(fc=BG,ec='none',pad=2))
-        self.cards['objects'].set_fontsize(9)
+        # Separate aligned columns keep one readable row per object.
+        self.cards['objects'].set_visible(False)
+        self.object_rows=[]
+        for x,title in [(.75,'OBJECT'),(.835,'STATUS'),(.925,'ZONE ENTRY')]:
+            self.fig.text(x,.267,title,fontsize=9,color=MUTED,va='top')
+        for i in range(len(data['timeline'][0]['objects'])):
+            row=[]
+            for x in [.75,.835,.925]:
+                item=self.fig.text(x,.224-i*.075,'',fontsize=13,color=TEXT,va='top',animated=True)
+                row.append(item);self.artists.append(item)
+            self.object_rows.append(row)
         # This label is outside the polygon and drawn last over an opaque backing.
         self.zone_label=self.ax.text(0,0,'DEMO PROTECTED ZONE',color='#e4c7ff',fontsize=9,
             fontweight='bold',va='bottom',animated=True,bbox=dict(fc=BG,ec='#785b9a',pad=4))
@@ -111,6 +121,11 @@ class CleanupRenderer(DemoRenderer):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
         for key,text in self.cards.items():text.set_text(cleanup_texts(row)[key])
+        for i,(name,status,entry) in enumerate(self.object_rows):
+            obj=row['objects'][i];name.set_text('Drone 01' if i==0 else f'Aircraft {i:02d}')
+            state='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
+            status.set_text(state);status.set_color(ORANGE if obj['anomalous'] else (GREEN if state=='Normal' else MUTED))
+            evidence=obj['entry'];entry.set_text('—' if evidence is None else f"{100*evidence['entry_samples']/32:g}%")
         self.cards['scenario'].set_color(LEVEL_COLOURS[row['scenario']['status']]);self.entry_text.set_text('')
         active=data['object_groups'].get(frame,{})
         groups=[]
@@ -166,6 +181,14 @@ class CleanupRenderer(DemoRenderer):
             actual.append((name,tuple(b.extents)))
         for i,(name,box) in enumerate(actual):
             assert not any(intersects(box,other) for _,other in actual[i+1:]),f'Actual label collision: {frame} {name}'
-        self.layout_receipt[frame]=dict(time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
+        card_boxes=[]
+        for i,items in enumerate(self.object_rows):
+            for j,item in enumerate(items):
+                bounds=item.get_window_extent(self.fig.canvas.get_renderer()).extents
+                assert bounds[0]>=.735*self.fig.bbox.width and bounds[2]<=.98*self.fig.bbox.width, 'Object row overflow'
+                assert bounds[1]>=.045*self.fig.bbox.height and bounds[3]<=.267*self.fig.bbox.height, 'Object row overflow'
+                card_boxes.append(tuple(bounds))
+        for i,box in enumerate(card_boxes):assert not any(intersects(box,other) for other in card_boxes[i+1:]), 'Object cells overlap'
+        self.layout_receipt[frame]=dict(object_card_readable=True,object_card_fontsize=13,time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
             zone_label_outside=True,labels_do_not_overlap=True)
         return Image.fromarray(np.asarray(self.fig.canvas.buffer_rgba())[...,:3].copy())
