@@ -3,23 +3,21 @@
 <style>
 :root{color-scheme:dark;font-family:Arial,sans-serif;color:#e8eef5;background:#0b1622}body{margin:24px}h1{font-size:28px;letter-spacing:1px;margin:0 0 10px}header p{color:#8fa3b8;margin:0 0 18px}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px}canvas{width:100%;height:70vh;display:block;border-radius:12px;background:#0b1622}.card{background:#132434;border:1px solid #294052;border-radius:12px;padding:15px;margin-bottom:12px}.title{font-size:11px;color:#8fa3b8;letter-spacing:1.5px;margin-bottom:10px}.large{font-size:27px;font-weight:700}.body{font-size:15px;line-height:1.55;white-space:pre-line}.muted{color:#8fa3b8;font-size:12px;line-height:1.5}.controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:14px 0}button{background:#294052;color:#e8eef5;border:1px solid #4cc9f0;border-radius:7px;padding:8px 16px;cursor:pointer}input[type=range]{flex:1;min-width:200px;accent-color:#4cc9f0}label{font-size:13px}#clock{font:17px monospace}.legend{font-size:14px;display:flex;gap:22px;margin-top:14px}.legend span:nth-child(1){color:#4cc9f0}.legend span:nth-child(2){color:#ffd166}.legend span:nth-child(3){color:#c77dff}footer{font-size:12px;color:#8fa3b8;margin-top:12px;line-height:1.7}@media(max-width:900px){body{margin:12px}.layout{grid-template-columns:1fr}canvas{height:60vh}.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}.card{margin:0}}
 </style>
-<header><h1>SYGARD / INTENT &amp; THREAT</h1><p id="subtitle"></p></header>
+<header><h1>SYGARD / AIRSPACE MONITOR</h1><p id="subtitle"></p></header>
 <div class="layout"><main><canvas id="map"></canvas>
 <div class="legend"><span>━━ Observed tracker</span><span>┄┄ Model forecast · medoid</span><span>▧ Demo protected zone</span></div>
 <div class="controls"><button id="play">Play</button><input id="time" type="range" min="0" max="315" value="0"><span id="clock"></span></div>
 <div class="controls"><label><input id="samples" type="checkbox"> Show all 32 model rollouts</label><label><input id="gt" type="checkbox"> Reference future (offline comparison)</label></div>
-<footer>Reference + scripted Gaussian noise acts as simulated tracker input. Context and threat rules are illustrative.<br>Anomaly detector uses location/height, speed and direction; no time-of-day or weather-conditioned density.<br>Sample frequencies are not calibrated risk probabilities. © OpenStreetMap contributors</footer></main>
-<aside class="cards"><div class="card"><div class="title">CURRENT STATE</div><div class="large" id="score"></div><div class="body" id="anomaly"></div></div>
-<div class="card"><div class="title">THREAT LEVEL</div><div class="large" id="threat"></div></div>
-<div class="card"><div class="title">FORECAST / INTENT</div><div class="body" id="intent"></div><div class="muted" id="future"></div></div>
+<footer>Reference + scripted Gaussian noise acts as simulated tracker input. Protected zones and scenario alert rules are illustrative.<br>Anomaly detector uses location/height, speed and direction; no time-of-day or weather-conditioned density.<br>Orange boxes show current object anomalies. Scenario alerts require an anomalous object inside the zone or at least 8/32 forecasts entering it. Sample frequencies are not calibrated probabilities. © OpenStreetMap contributors</footer></main>
+<aside class="cards"><div class="card"><div class="title">SCENARIO STATUS</div><div class="large" id="scenario"></div></div>
 <div class="card"><div class="title">WHY THIS STATUS</div><div class="body" id="reasons"></div></div>
-<div class="card"><div class="title">BACKGROUND AIRCRAFT</div><div class="body" id="background"></div></div></aside></div>
+<div class="card"><div class="title">OBJECT STATUS</div><div class="body" id="objects"></div></div></aside></div>
 <script id="demo-data" type="application/json">__DEMO_DATA__</script>
 <script>
 'use strict';
 const D=JSON.parse(document.getElementById('demo-data').textContent),$=id=>document.getElementById(id);
 const canvas=$('map'),ctx=canvas.getContext('2d'),image=new Image();let frame=0,playing=false,lastTick=0;
-const colours=['#4cc9f0','#80ed99'],levels={'Normal traffic':'#4cc9f0',Low:'#80ed99',Medium:'#ffd166',High:'#ff626b','Insufficient data':'#8fa3b8'};
+const colours=['#4cc9f0','#80ed99'],levels={'Normal traffic':'#4cc9f0','Unusual activity':'#ff9f43','Potential intrusion':'#ff626b','Intrusion detected':'#ff626b','Collecting observations':'#8fa3b8'};
 $('time').max=D.timeline.length-1;
 $('subtitle').textContent=(D.manifest.scene.context==='daytime'?'DAYTIME HOBBYIST':'NIGHTTIME APPROACH')+' · SCRIPTED MVP DEMO · Simulated tracker σ='+D.manifest.scene.scripted_noise_sigma_m_per_axis+' m / axis';
 function draw(){
@@ -41,16 +39,21 @@ function draw(){
   ctx.save();ctx.translate(...p);ctx.rotate(angle);ctx.fillStyle=colours[a];ctx.strokeStyle=colours[a];ctx.lineWidth=2;
   if(a===0){ctx.beginPath();ctx.moveTo(-7,-7);ctx.lineTo(7,7);ctx.moveTo(-7,7);ctx.lineTo(7,-7);ctx.stroke();for(const x of [-7,7])for(const y of [-7,7]){ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.stroke()}}
   else{ctx.beginPath();ctx.moveTo(14,0);ctx.lineTo(-8,-3);ctx.lineTo(-5,-11);ctx.lineTo(-1,-2);ctx.lineTo(-10,3);ctx.lineTo(-5,3);ctx.lineTo(-5,9);ctx.lineTo(1,2);ctx.closePath();ctx.fill()}ctx.restore();
-  ctx.textAlign='left';ctx.fillStyle='#e8eef5';ctx.font='12px Arial';ctx.fillText(a===0?'Drone 01':'Aircraft 01',Math.min(p[0]+17,W-90),Math.max(p[1]-15,15));
+  const obj=row.objects[a],unusual=obj.anomalous;
+  if(unusual){ctx.strokeStyle='#ff9f43';ctx.lineWidth=2.5;ctx.strokeRect(p[0]-20,p[1]-20,40,40)}
+  ctx.textAlign='left';ctx.fillStyle=unusual?'#ff9f43':'#e8eef5';ctx.font='12px Arial';
+  const label=(a===0?'Drone 01':'Aircraft 01')+(unusual?' · Unusual behavior':'');
+  const lx=Math.max(8,Math.min(p[0]+25,W-ctx.measureText(unusual?obj.anomaly_reason:label).width-12)),ly=Math.max(p[1]-25,18);
+  ctx.fillText(label,lx,ly);if(unusual)ctx.fillText(obj.anomaly_reason,lx,ly+16);
  }
  $('clock').textContent='t = '+row.time_s.toFixed(1)+' s';$('time').value=frame;
- $('score').textContent='Anomaly score '+(o.current_state_nll===null?'—':o.current_state_nll.toFixed(2));
- $('anomaly').textContent=o.anomalous?'Recent anomaly · 10 s window':'No recent anomaly';
- $('threat').textContent=o.threat.level+(o.threat.score===null?'':' / '+o.threat.score);$('threat').style.color=levels[o.threat.level];
- $('intent').textContent=o.entry?(o.entry.entry_samples?o.entry.entry_samples+'/32 sampled futures enter zone\nEarliest sampled entry: +'+o.entry.earliest_entry_s.toFixed(1)+' s':'Forecast remains outside demo zone'):'Collecting 6 s history';
- $('future').textContent=o.entry===null?'Awaiting forecast':(o.future_anomaly_horizon_s===null?'No sampled anomaly warning':'Future anomaly warning: +'+o.future_anomaly_horizon_s.toFixed(1)+' s');
- let reasons=o.threat.reasons.slice(0,2);if(o.explanation.length)reasons.push('Anomaly driver: '+o.explanation[0].factor.toLowerCase());$('reasons').textContent=reasons.map(x=>'• '+x).join('\n');
- const b=row.objects[1].threat;$('background').textContent=b.level+(b.score===null?' · no threat score':' / '+b.score);
+ $('scenario').textContent=row.scenario.status;$('scenario').style.color=levels[row.scenario.status];
+ $('reasons').textContent=row.scenario.reasons.join('\n\n');
+ $('objects').textContent=row.objects.map((obj,a)=>{
+  const name=a===0?'Drone 01':'Aircraft 01';
+  const state=obj.anomalous?'Unusual behavior':(obj.current_state_nll===null?'Collecting observations':'Normal traffic');
+  return name+' · '+state+(obj.anomalous?'\n'+obj.anomaly_reason:'');
+ }).join('\n\n');
 }
 $('time').addEventListener('input',()=>{frame=Number($('time').value);draw()});for(const id of ['samples','gt'])$(id).addEventListener('change',draw);
 $('play').addEventListener('click',()=>{playing=!playing;if(frame===D.timeline.length-1&&playing)frame=0;$('play').textContent=playing?'Pause':'Play'});

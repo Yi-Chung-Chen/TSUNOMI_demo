@@ -1227,3 +1227,47 @@ entry count checked. Receipt docs/integrated_demo_D5.json passed.
 
 AllD0–D5Done-when gates satisfied on the original fixed story attempt. No
 training,package installs,remotes/pushes or advisor calls. Stop for user review.
+
+## D6 — Object anomaly / scenario status revision (2026-11-01)
+
+Implemented the user's approved follow-up design without advisor calls, model
+execution, fitting, package installs or network. Read accepted D4 artifacts;
+preserve D4/D5 directories and the original v1 ZIP. Active output is D6 and
+integrated_demo_v2.zip; replay with scripts/catk.sh -m scripts.integrated_d6.
+The d5 CLI now delegates to the latest exporter instead of overwriting old D5.
+
+- Orange object outline/label and leading-factor explanation depend strictly on
+  current state score > frozen cutoff. No10s anomaly latch in the active replay.
+- Aggregate scenario status uses the SAME currently anomalous object's evidence:
+  Normal traffic; Unusual activity; Potential intrusion at>=8/32 forecast entries;
+  Intrusion detected for current observed position inside the3D protected volume.
+  Missing observations say Collecting observations; absent forecasts explicitly
+  say entry cannot be assessed. Normal objects entering cannot trigger alerts.
+- Removed numeric threat scores, independent Forecast/Intent and Future anomaly
+  warning cards. Retain32samples/GT-free medoid on map and optional viewer toggles.
+  Old night/acceleration point bonuses have no role in the new scenario states.
+- Export separate revised timelines/CSVs, two offline viewers, MP4/GIF,8PNG and ZIP.
+  New records omit legacy per-object threat/intent/future-warning fields; all
+  model predictions, state scores, cutoffs, entry evidence and seeds unchanged.
+
+Acceptance:
+- scripts/test.sh -q:95passed,19existing dependency warnings,52.36s; six new
+  scenario tests cover current-only transitions, strict cutoff, same-object
+  association,8sample threshold, current intrusion, background objects and unknowns.
+- Verified all1264object-time current-only decisions against original raw scores,
+  exact original score/entry/origin equality, protected11hashes and unchanged D4
+  file hashes. Receipt: docs/integrated_demo_D6.json (passed).
+- Both actual embedded viewer JS programs pass Node DOM/canvas-stub execution:
+  slider/play/pause, sample/reference toggles, unchanged forecasts and expected
+  scene state/reasons. No graphical browser is installed; browser layout remains
+  a review limitation, not a claimed browser screenshot test.
+- Decoded all632GIF frames, checked1600x900, bothH264MP4/duration36.111s (3x replay),
+  all8PNG3200x1800, ZIP integrity22entries. Reviewed8chronological frames per
+  scene (0,6,20,42,56,80.67,90,105s), plus full-size A60s and B56s snapshots.
+- A: Unusual activity310frames, initial unknown6; no intrusion warning.
+  B: first Potential intrusion56.0s, reference entry80.67s (24.67s lead);
+  Unusual activity212frames, Potential intrusion74, Intrusion detected24,
+  initial unknown6. No config/route/threshold tuning for these outcomes.
+- Background aircraft current false-anomaly frames remain visible:35/316 inA,
+  33/316 inB. No special background exemption or detector smoothing introduced.
+  As requested, no latch/smoothing added to suppress any visible flicker.

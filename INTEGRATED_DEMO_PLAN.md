@@ -238,3 +238,23 @@ Context modifiers：
 4. Day sigma=1m，night sigma=3m，各 axis；明確標示腳本設定。
 
 參數與 synthetic routes／zone 在 configs/integrated_demo/v1.json 固定，D4 第一次驗收後不得自行修改以求通過。
+
+## D6 — Approved presentation revision (2026-11-01)
+
+Latest user review overrides the v1 10s latch and numeric threat rules for the
+active demo; D0–D5 evidence remains preserved as historical acceptance.
+- Object anomaly uses only the current state score > frozen cutoff, with an
+  orange outline and a descriptive leading-factor reason. No temporal latch.
+- Scenario status aggregates same-object evidence: Normal traffic; Unusual
+  activity; Potential intrusion (currently anomalous + >=8/32 forecasts enter).
+  An anomalous object already inside is Intrusion detected. Unknown observations
+  and unavailable forecasts must be stated, never reported as reassuring evidence.
+- Remove standalone forecast/intent and future-anomaly cards and numeric threat
+  scores. Keep the actual model forecast, GT-free joint medoid and optional32
+  samples. Day/night no longer adds points; retain scripted provenance labels.
+- Read existing D4 observations/scores/forecasts only, no new inference/fitting.
+  Export separately to outputs/integrated_demo/D6 and integrated_demo_v2.zip.
+- Acceptance: current-only and same-object tests; no GT-future visual leakage;
+  review both new scene media; frozen hashes and D4 files unchanged; local commit.
+  Replay command: scripts/catk.sh -m scripts.integrated_d6 (d5 is a compatibility
+  alias for this latest exporter, preserving the existing D5 output directory).

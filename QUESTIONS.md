@@ -154,3 +154,14 @@ no unrequested threat latch was added.
 - No graphical browser executable is available for automation. Offline viewer
 JS syntax and DOM/canvas-stub interaction tests pass; visual review uses the
 matching rendered GIFs/PNGs. Browser-specific layout remains a user-review item.
+
+## D6 presentation revision — 2026-11-01
+
+No blocking questions and no advisor calls. User explicitly chose current-only
+anomaly; the new scenario aggregation also uses current-only anomaly, replacing
+v1's10s latch. Active rules and media are documented in INTEGRATED_DEMO_PLAN.md D6.
+Remaining review items: instantaneous orange boxes/factor reasons may flicker;
+background aircraft retain35(A)/33(B) current false-anomaly frames. Do not hide
+these or add smoothing unless user requests it. Offline viewer was tested with
+Node DOM/canvas stubs; a real graphical browser was unavailable. Existing v1
+results and files remain preserved; new outputs live in D6/v2.

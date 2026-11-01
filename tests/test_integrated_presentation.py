@@ -4,6 +4,7 @@ import pytest
 from PIL import Image
 from src.integrated.presentation import DemoRenderer,display_texts,cached_basemap
 from src.eval import demo_gif as visual
+from src.integrated.scenario_status import current_only_timeline
 
 
 def fixture():
@@ -18,16 +19,19 @@ def fixture():
         for o in row['objects']:o['forecast_origin_frame']=18;o['entry']=dict(entry_samples=0)
     bounds=np.array([[-100,-100],[1600,1100.]])
     pb=visual.enu_to_pixel(bounds,14);pb=np.array([[pb[0,0],pb[1,1]],[pb[1,0],pb[0,1]]])
-    return dict(manifest=dict(scene=dict(context='daytime',scripted_noise_sigma_m_per_axis=1),
+    data=dict(manifest=dict(cutoff_raw=10,scene=dict(context='daytime',scripted_noise_sigma_m_per_axis=1),
         zone=dict(polygon_enu_m=[[0,0],[100,0],[100,100],[0,100]])),timeline=timeline,
         forecasts={18:dict(position=future,medoid=0)},stream=dict(observed=points,reference=points.copy()),
         zoom=14,pb=pb,map_image=Image.new('RGB',(100,100),'#0b1622'))
+    data['timeline']=current_only_timeline(timeline,points,data['manifest'])
+    return data
 
 
 def test_normal_status_has_no_threat_number():
     d=fixture();texts=display_texts(d['timeline'][18],d['manifest'])
-    assert texts['threat']=='Normal traffic'
-    assert texts['background']=='Normal traffic · no threat score'
+    assert texts['scenario']=='Normal traffic'
+    assert texts['objects'].count('Normal traffic')==2
+    assert 'intent' not in texts and 'future' not in texts
 
 
 def test_default_frame_does_not_draw_future_reference_or_future_observations():

@@ -126,3 +126,10 @@ commit. Threat is only computed for tracks with any current state score above
 cutoff during the preceding10s; otherwise Normal traffic and null threat score.
 No anomaly+5 modifier. D4 B must have high warning before reference zone entry;
 if it fails, save results, commit stage outcome and stop without tuning to pass.
+
+User-approved presentation revision2026-11-01 (INTEGRATED_DEMO_PLAN.md D6)
+overrides the10s latch and numeric threat rules for the active demo. Current-only
+object anomaly gets orange boxes/reasons. Scenario statuses aggregate same-object
+anomaly and zone evidence (>=8/32 entry); current intrusion is explicit. No numeric
+threat, intent card or future-anomaly warning in media. Reinterpret D4 saved
+outputs without inference; export D6/v2, preserve D4/D5 and frozen artifacts.

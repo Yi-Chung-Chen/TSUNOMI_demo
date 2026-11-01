@@ -1,0 +1,81 @@
+{
+  "passed": true,
+  "stage": "D6",
+  "tests": "95 passed,19 dependency warnings,52.36s",
+  "scenes": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "first_potential_intrusion_s": null,
+      "reference_entry_s": null,
+      "scenario_counts": {
+        "Collecting observations": 6,
+        "Unusual activity": 310
+      },
+      "gif": "D6/A_daytime_hobbyist/A_daytime_hobbyist.gif",
+      "gif_bytes": 2076729,
+      "mp4": "D6/A_daytime_hobbyist/A_daytime_hobbyist.mp4",
+      "pngs": [
+        "D6/A_daytime_hobbyist/initial.png",
+        "D6/A_daytime_hobbyist/hobbyist_activity.png",
+        "D6/A_daytime_hobbyist/unusual_activity.png",
+        "D6/A_daytime_hobbyist/end.png"
+      ],
+      "viewer": "D6/A_daytime_hobbyist/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "hobbyist_activity": 96,
+        "unusual_activity": 180,
+        "end": 315
+      },
+      "map_zoom": 14,
+      "decoded_gif_frames": 316,
+      "mp4_duration_s": 36.111111,
+      "current_anomaly_frames": [
+        310,
+        35
+      ]
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "first_potential_intrusion_s": 56.0,
+      "reference_entry_s": 80.66666666666667,
+      "scenario_counts": {
+        "Collecting observations": 6,
+        "Intrusion detected": 24,
+        "Potential intrusion": 74,
+        "Unusual activity": 212
+      },
+      "gif": "D6/B_nighttime_approach/B_nighttime_approach.gif",
+      "gif_bytes": 2622704,
+      "mp4": "D6/B_nighttime_approach/B_nighttime_approach.mp4",
+      "pngs": [
+        "D6/B_nighttime_approach/initial.png",
+        "D6/B_nighttime_approach/motion_change.png",
+        "D6/B_nighttime_approach/first_warning.png",
+        "D6/B_nighttime_approach/end.png"
+      ],
+      "viewer": "D6/B_nighttime_approach/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "motion_change": 60,
+        "first_warning": 168,
+        "end": 315
+      },
+      "map_zoom": 14,
+      "decoded_gif_frames": 316,
+      "mp4_duration_s": 36.111111,
+      "current_anomaly_frames": [
+        310,
+        33
+      ]
+    }
+  ],
+  "all1264_current_only_decisions_verified": true,
+  "original_scores_and_forecast_evidence_unchanged": true,
+  "protected_hashes_unchanged": true,
+  "d4_files_unchanged": true,
+  "viewer": "Both actual embedded viewers pass Node DOM/canvas-stub smoke: slider,play,pause,sample/reference toggles,unchanged forecasts; no graphical browser available",
+  "zip_entries": 22,
+  "model_execution": false,
+  "network_requests": false
+}
