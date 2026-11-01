@@ -1271,3 +1271,50 @@ Acceptance:
 - Background aircraft current false-anomaly frames remain visible:35/316 inA,
   33/316 inB. No special background exemption or detector smoothing introduced.
   As requested, no latch/smoothing added to suppress any visible flicker.
+
+## D7 — Sample-weighted representative futures preview (2026-11-01)
+
+Implemented approved preview from saved D4 samples only. Foreground drone shows
+up to4 actual representative paths, each with an A–D endpoint badge and exact
+sample-share percentage in the map legend. Line width/opacity reflect group
+share. Red groups enter the3D protected volume; amber groups stay outside.
+A compact foreground zone-entry share sits inside the existing scenario card.
+Background aircraft retain one medoid; the offline viewer retains the raw32
+sample toggle. Initial endpoint percentage callouts collided with object labels;
+self-review moved percentages to the map legend and retained keyed endpoint
+badges with collision avoidance. No forecast/intent card was reintroduced.
+
+Grouping is descriptive compression, not learned intent or likelihood weighting:
+first partition by ANY entry along the entire remaining3D future, then use
+mean3D pointwise trajectory distance and deterministic medoids within strata.
+Allocate up to4slots proportionally, at least one per populated entry stratum;
+identical paths may yield fewer groups. All32samples are assigned exactly once;
+weights=member_count/32 sum exactly1. Groups update with remaining futures; past
+crossings are not future entry. A–D labels are local to a forecast, not persistent
+intent identities. Scenario rules and overall entry counts still use ALL32,
+never representative-only counts or only endpoint occupancy.
+
+Outputs: outputs/integrated_demo/D7/{A_daytime_hobbyist,B_nighttime_approach}/
+MP4,GIF,4PNG,viewer.html,timeline.json,scores.csv,future_groups.json; root offline
+index/caption/receipt/README and integrated_demo_v3.zip. D6/v2 preserved.
+Command: scripts/catk.sh -m scripts.integrated_d7. No model rerun, training,
+new packages, network or advisor calls; all11frozen hashes and D4 files unchanged.
+
+Acceptance:
+- Full suite101passed,19existing dependency warnings,49.49s. New tests cover
+  complete membership, normalized shares, actual medoids, deterministic output,
+  identical futures, intermediate crossing, altitude and expired crossings.
+- After label-layout refinement, focused presentation/group suite9passed in4.41s,
+  including grouped rendering and unchanged image after mutating futureGT/obs.
+- Both embedded viewers pass actual-data Node DOM/canvas-stub slider/play/pause,
+  sample/reference toggles, unchanged forecast arrays and exact entry percentage.
+  Browser-specific layout remains untested without a graphical browser.
+- All596forecast-bearing frame groupings verified: each sample assigned once,
+  shares sum1, representative belongs to group, <=4groups, group-entering counts
+  match original all32entry counts. All1264current anomaly decisions unchanged.
+- All632GIFframes decoded,2H264MP4 checked,8PNG dimensions checked,24-entryZIP
+  integrity verified. Reviewed8chronological frames per scene and full-sizeB56s;
+  percentage legend and endpoint badges remain readable across the stories.
+- At B56s: A43.75%outside, B34.375%entering, C18.75%outside, D3.125%entering.
+  Entering share37.5%=12/32; original first-warning56s and all scenario states
+  remain unchanged. Receipt docs/integrated_demo_D7.json passed.

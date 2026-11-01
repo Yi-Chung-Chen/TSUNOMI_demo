@@ -258,3 +258,26 @@ active demo; D0–D5 evidence remains preserved as historical acceptance.
   review both new scene media; frozen hashes and D4 files unchanged; local commit.
   Replay command: scripts/catk.sh -m scripts.integrated_d6 (d5 is a compatibility
   alias for this latest exporter, preserving the existing D5 output directory).
+
+## D7 — Approved sampled-future groups preview (2026-11-01)
+
+User approved a preview with representative futures and unequal sample shares.
+Use saved32rollouts only. For the foreground drone, partition by whether each
+remaining full3D trajectory ever enters the protected volume, then cluster by
+mean pointwise3D distance with deterministic medoids, up to4representatives.
+Each displayed path is an actual member; its weight is group_count/32. Exact
+sample-share percentages sum to100%, not likelihood softmax or calibrated risk.
+Identical paths may yield fewer groups. These are display groups, not learned
+intent classes. Allocate slots proportionally, minimum one per populated entry
+stratum. Red means all group members enter; amber means none do. Overall entry
+share and scenario status still use all32 original samples, not representatives.
+Recompute groups for remaining forecast between2s model updates, so past entries
+are not counted as future entries. Labels A–D are local, not persistent identities.
+Background aircraft retain a single medoid to keep the map readable. Keep the
+viewer option showing all32 raw model samples and reference overlay (defaultoff).
+No anomaly/threat/cutoff/zone/model/seed changes. Preserve D6/v2. New output:
+outputs/integrated_demo/D7, integrated_demo_v3.zip. Replay:
+scripts/catk.sh -m scripts.integrated_d7.
+Acceptance: exact memberships/weights, medoid/sample identity, full-path and
+height-aware entry, all32entry consistency, noGTfuture leakage, visual review,
+unchanged frozen/D4 files and prior media, tests and local commit.

@@ -133,3 +133,9 @@ object anomaly gets orange boxes/reasons. Scenario statuses aggregate same-objec
 anomaly and zone evidence (>=8/32 entry); current intrusion is explicit. No numeric
 threat, intent card or future-anomaly warning in media. Reinterpret D4 saved
 outputs without inference; export D6/v2, preserve D4/D5 and frozen artifacts.
+
+User-approved D7 preview adds up to4 foreground representative futures weighted
+by group membership among all32samples. Full remaining3D zone entry stratifies
+red/amber groups; mean3D trajectory medoids select actual sampled paths. Not
+likelihood softmax or calibrated probabilities. Existing scenario rules remain
+unchanged. Read existing D4 only, export D7/v3; preserve D6/v2. No advisor calls.

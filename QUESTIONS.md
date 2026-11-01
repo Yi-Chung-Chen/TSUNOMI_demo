@@ -165,3 +165,13 @@ background aircraft retain35(A)/33(B) current false-anomaly frames. Do not hide
 these or add smoothing unless user requests it. Offline viewer was tested with
 Node DOM/canvas stubs; a real graphical browser was unavailable. Existing v1
 results and files remain preserved; new outputs live in D6/v2.
+
+## D7 sampled-future preview — 2026-11-01
+
+No blocking question/advisor call. Percentages are sample-group frequencies under
+the existing top-k rollout sampler, not calibrated event probabilities or softmax
+likelihoods. Entry/non-entry stratification makes group colours truthful for all
+members; the displayed group medoid alone does not determine the scene alert.
+At a forecast refresh, grouping and labels can change; no persistent intent
+identity or temporal smoothing is implied. Existing background false anomalies
+remain visible. Real-browser review limitation fromD6 remains unchanged.

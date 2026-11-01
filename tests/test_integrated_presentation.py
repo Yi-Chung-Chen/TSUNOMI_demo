@@ -48,3 +48,19 @@ def test_offline_map_cache_miss_never_calls_http(tmp_path,monkeypatch):
     monkeypatch.setattr(requests.Session,'get',forbidden)
     with pytest.raises(FileNotFoundError,match='No complete locally cached'):
         cached_basemap(np.array([[-1000.,-1000],[1000,1000]]),tmp_path)
+
+
+def test_grouped_frame_has_sample_shares_without_gt_future_leakage():
+    from src.integrated.future_groups import group_futures
+    d=fixture();d['grouped']=True
+    d['manifest']['zone']['height_range_m']=[0,180]
+    d['groups']={18:group_futures(d['forecasts'][18]['position'][:,0],d['manifest']['zone'])}
+    renderer=DemoRenderer(d);before=np.asarray(renderer.frame(18))
+    assert renderer.entry_text.get_text()=='Drone 01 · zone entry: 0% (0/32 samples)'
+    assert renderer.group_artists[0][3].get_text()=='A'
+    assert renderer.group_legend[0].get_text()=='A   100%   Outside'
+    renderer.close()
+    changed=deepcopy(d);changed['stream']['reference'][:]=1e9
+    changed['stream']['observed'][:,19:]=1e9
+    renderer=DemoRenderer(changed);after=np.asarray(renderer.frame(18));renderer.close()
+    np.testing.assert_array_equal(before,after)

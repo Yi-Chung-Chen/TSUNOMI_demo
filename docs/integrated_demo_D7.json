@@ -1,0 +1,166 @@
+{
+  "passed": true,
+  "stage": "D7",
+  "tests": "101 passed,19 dependency warnings,49.49s; final presentation/group tests9passed",
+  "scenes": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "first_potential_intrusion_s": null,
+      "reference_entry_s": null,
+      "scenario_counts": {
+        "Collecting observations": 6,
+        "Unusual activity": 310
+      },
+      "gif": "D7/A_daytime_hobbyist/A_daytime_hobbyist.gif",
+      "gif_bytes": 2385853,
+      "mp4": "D7/A_daytime_hobbyist/A_daytime_hobbyist.mp4",
+      "pngs": [
+        "D7/A_daytime_hobbyist/initial.png",
+        "D7/A_daytime_hobbyist/hobbyist_activity.png",
+        "D7/A_daytime_hobbyist/unusual_activity.png",
+        "D7/A_daytime_hobbyist/end.png"
+      ],
+      "viewer": "D7/A_daytime_hobbyist/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "hobbyist_activity": 96,
+        "unusual_activity": 180,
+        "end": 315
+      },
+      "map_zoom": 14,
+      "group_counts": [
+        4
+      ],
+      "decoded_gif_frames": 316,
+      "mp4_duration_s": 36.111111,
+      "current_anomaly_frames": [
+        310,
+        35
+      ]
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "first_potential_intrusion_s": 56.0,
+      "reference_entry_s": 80.66666666666667,
+      "scenario_counts": {
+        "Collecting observations": 6,
+        "Intrusion detected": 24,
+        "Potential intrusion": 74,
+        "Unusual activity": 212
+      },
+      "gif": "D7/B_nighttime_approach/B_nighttime_approach.gif",
+      "gif_bytes": 2952376,
+      "mp4": "D7/B_nighttime_approach/B_nighttime_approach.mp4",
+      "pngs": [
+        "D7/B_nighttime_approach/initial.png",
+        "D7/B_nighttime_approach/motion_change.png",
+        "D7/B_nighttime_approach/first_warning.png",
+        "D7/B_nighttime_approach/end.png"
+      ],
+      "viewer": "D7/B_nighttime_approach/viewer.html",
+      "snapshots": {
+        "initial": 18,
+        "motion_change": 60,
+        "first_warning": 168,
+        "end": 315
+      },
+      "map_zoom": 14,
+      "group_counts": [
+        4
+      ],
+      "first_warning_groups": [
+        {
+          "representative_index": 10,
+          "members": [
+            2,
+            3,
+            4,
+            6,
+            10,
+            14,
+            15,
+            18,
+            19,
+            22,
+            25,
+            27,
+            28,
+            31
+          ],
+          "count": 14,
+          "total_samples": 32,
+          "share": 0.4375,
+          "percentage": "43.75%",
+          "enters_zone": false,
+          "label": "A"
+        },
+        {
+          "representative_index": 5,
+          "members": [
+            5,
+            7,
+            9,
+            11,
+            12,
+            16,
+            17,
+            20,
+            21,
+            24,
+            29
+          ],
+          "count": 11,
+          "total_samples": 32,
+          "share": 0.34375,
+          "percentage": "34.375%",
+          "enters_zone": true,
+          "label": "B"
+        },
+        {
+          "representative_index": 26,
+          "members": [
+            0,
+            1,
+            13,
+            23,
+            26,
+            30
+          ],
+          "count": 6,
+          "total_samples": 32,
+          "share": 0.1875,
+          "percentage": "18.75%",
+          "enters_zone": false,
+          "label": "C"
+        },
+        {
+          "representative_index": 8,
+          "members": [
+            8
+          ],
+          "count": 1,
+          "total_samples": 32,
+          "share": 0.03125,
+          "percentage": "3.125%",
+          "enters_zone": true,
+          "label": "D"
+        }
+      ],
+      "decoded_gif_frames": 316,
+      "mp4_duration_s": 36.111111,
+      "current_anomaly_frames": [
+        310,
+        33
+      ]
+    }
+  ],
+  "all1264_current_only_decisions_verified": true,
+  "original_scores_and_forecast_evidence_unchanged": true,
+  "protected_hashes_unchanged": true,
+  "d4_files_unchanged": true,
+  "viewer": "Both actual embedded viewers pass Node DOM/canvas-stub smoke: slider,play,pause,sample/reference toggles,unchanged forecasts; no graphical browser available",
+  "all596_group_memberships_and_entry_shares_verified": true,
+  "zip_entries": 24,
+  "model_execution": false,
+  "network_requests": false
+}
