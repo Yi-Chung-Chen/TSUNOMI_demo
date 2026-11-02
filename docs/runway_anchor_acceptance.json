@@ -1,0 +1,232 @@
+{
+  "passed": true,
+  "milestone": "M10",
+  "alignment_both_gates": true,
+  "training": {
+    "base20": {
+      "completed": true,
+      "epochs": 20,
+      "global_step": 15360,
+      "best_checkpoint": "outputs/runway_anchor/training/base20/checkpoints/epoch_017.ckpt",
+      "best_epoch": 17,
+      "best_val_loss": 4.3153076171875,
+      "train_batch_size": 32,
+      "val_batch_size": 16,
+      "seed": 817,
+      "selection_date": "2026-10-03",
+      "device": "cuda",
+      "gpu": {
+        "physical": 1,
+        "logical": 0,
+        "uuid": "GPU-565e8748-eb94-2fe5-588b-a97f7f695641",
+        "runtime_pci_bus": "0000:29:00.0",
+        "verified_uuid": "GPU-565e8748-eb94-2fe5-588b-a97f7f695641",
+        "device_name": "NVIDIA RTX A6000",
+        "visible_devices": "1"
+      }
+    },
+    "anchor": {
+      "completed": true,
+      "epochs": 20,
+      "global_step": 15360,
+      "best_checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+      "best_epoch": 18,
+      "best_val_loss": 4.249186992645264,
+      "train_batch_size": 32,
+      "val_batch_size": 16,
+      "seed": 817,
+      "selection_date": "2026-10-03",
+      "device": "cuda",
+      "gpu": {
+        "physical": 3,
+        "logical": 0,
+        "uuid": "GPU-c2baf3e3-cdc8-8ea1-e792-3a90d5d90b73",
+        "runtime_pci_bus": "0000:C1:00.0",
+        "verified_uuid": "GPU-c2baf3e3-cdc8-8ea1-e792-3a90d5d90b73",
+        "device_name": "NVIDIA RTX A6000",
+        "visible_devices": "3"
+      }
+    }
+  },
+  "evaluation": {
+    "epoch_016": {
+      "model": "epoch_016",
+      "checkpoint": "outputs/air_pre_bc/checkpoints/epoch_016.ckpt",
+      "checkpoint_sha256": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+      "checkpoint_epoch": 16,
+      "device": "cpu",
+      "windows": 912,
+      "dates": {
+        "2026-10-03": 488,
+        "2026-10-04": 424
+      },
+      "seed": 817,
+      "n_rollouts": 32,
+      "topk": 5,
+      "temp": 1.0,
+      "anomaly_rows": 28413,
+      "m8_rows_tokens_residuals_identical": true,
+      "elapsed_s": 650.6533307961654,
+      "drone_info": {
+        "native_reads": 902,
+        "unique_native_timestamps": 901,
+        "identical_duplicate_reads": 1,
+        "native_time_range_s": [
+          0.075,
+          300.105
+        ],
+        "grid_frames": 901,
+        "grid_valid_frames": 900,
+        "invalid_grid_frames": [
+          0
+        ],
+        "heading_median_absolute_velocity_difference_rad": 0.00041578094233707397,
+        "native_knot_interpolation_max_error_m": 0.0
+      },
+      "m8_batch_size": 64,
+      "legacy_m8_max_nll_error": 6.67572021484375e-06
+    },
+    "base20": {
+      "model": "base20",
+      "checkpoint": "outputs/runway_anchor/training/base20/checkpoints/epoch_017.ckpt",
+      "checkpoint_sha256": "ac0b392c83a5835e34d9bf907d824ab9b9f1fb3e67c9317a75fc47924526e403",
+      "checkpoint_epoch": 17,
+      "device": "cpu",
+      "windows": 912,
+      "dates": {
+        "2026-10-03": 488,
+        "2026-10-04": 424
+      },
+      "seed": 817,
+      "n_rollouts": 32,
+      "topk": 5,
+      "temp": 1.0,
+      "anomaly_rows": 28413,
+      "m8_rows_tokens_residuals_identical": true,
+      "elapsed_s": 651.0053532540333,
+      "drone_info": {
+        "native_reads": 902,
+        "unique_native_timestamps": 901,
+        "identical_duplicate_reads": 1,
+        "native_time_range_s": [
+          0.075,
+          300.105
+        ],
+        "grid_frames": 901,
+        "grid_valid_frames": 900,
+        "invalid_grid_frames": [
+          0
+        ],
+        "heading_median_absolute_velocity_difference_rad": 0.00041578094233707397,
+        "native_knot_interpolation_max_error_m": 0.0
+      },
+      "m8_batch_size": 64,
+      "legacy_m8_max_nll_error": null
+    },
+    "anchor": {
+      "model": "anchor",
+      "checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+      "checkpoint_sha256": "e311adf37a8160013fc1866586764c92be4a2d3bec71f7bc48da296824a2c461",
+      "checkpoint_epoch": 18,
+      "device": "cpu",
+      "windows": 912,
+      "dates": {
+        "2026-10-03": 488,
+        "2026-10-04": 424
+      },
+      "seed": 817,
+      "n_rollouts": 32,
+      "topk": 5,
+      "temp": 1.0,
+      "anomaly_rows": 28413,
+      "m8_rows_tokens_residuals_identical": true,
+      "elapsed_s": 1521.9735864899121,
+      "drone_info": {
+        "native_reads": 902,
+        "unique_native_timestamps": 901,
+        "identical_duplicate_reads": 1,
+        "native_time_range_s": [
+          0.075,
+          300.105
+        ],
+        "grid_frames": 901,
+        "grid_valid_frames": 900,
+        "invalid_grid_frames": [
+          0
+        ],
+        "heading_median_absolute_velocity_difference_rad": 0.00041578094233707397,
+        "native_knot_interpolation_max_error_m": 0.0
+      },
+      "m8_batch_size": 64,
+      "legacy_m8_max_nll_error": null
+    }
+  },
+  "test_result": "122passed,19dependency warnings,51.38s",
+  "flow_counts": {
+    "2026-09-28": {
+      "east": 114,
+      "none/tie": 22,
+      "west": 52
+    },
+    "2026-09-29": {
+      "none/tie": 38,
+      "west": 52,
+      "east": 20
+    },
+    "2026-09-30": {
+      "west": 79,
+      "none/tie": 24,
+      "east": 3
+    },
+    "2026-10-01": {
+      "west": 54,
+      "none/tie": 35,
+      "east": 19
+    },
+    "2026-10-02": {
+      "east": 72,
+      "none/tie": 34
+    },
+    "2026-10-03": {
+      "east": 68,
+      "none/tie": 23
+    },
+    "2026-10-04": {
+      "west": 39,
+      "none/tie": 37,
+      "east": 15
+    }
+  },
+  "flow_rule_advisor_provisional": true,
+  "attention_figure": "outputs/runway_anchor/anchor_attention.png",
+  "protected_files_unchanged": {
+    "assets/motion_dict_K2048_s6.pkl": "6b21de9ed30a00c70940d514e55d550c289f9771d3043ea1173893a4f7dd79ac",
+    "outputs/air_pre_bc/checkpoints/epoch_016.ckpt": "f1b690467153ccd6247c03d4f54ea39ad58327fe59eadb9702dd4d2210e2751a",
+    "data/splits/legacy_date_splits/split_config.json": "07f71abd9b7bcc1efeeff311743da2bf6aaa46b6a6a8136b822cda65107829ea",
+    "data/splits/legacy_date_splits/test_manifest.txt": "cbc91fd234374cbe3054ea613c27a44c2641b8e7ec1ae5047e2a50417fd315ca",
+    "data/splits/legacy_date_splits/test_windows.csv": "b87f9389a52b8a5baab653d8126bd3ebc51411a55dc8ebab7e561b1028019b5e",
+    "data/splits/legacy_date_splits/val_manifest.txt": "3a190785e49233c555ca86841d5ca07418e827616c62c2ca1a3eff1c22dfc22d",
+    "data/splits/legacy_date_splits/val_windows.csv": "062bc00b8c7abdd303cd0d12feff3ff78bd808cf705d8be4b22d05c6485ebe34",
+    "data/splits/merge_receipt.json": "0a4f2f2cea7c966ca50ff8a742a2d3916428bfbfbaeb59ed7c0a2381a1bcbd55",
+    "data/splits/split_config.json": "2b570a94c8636f8487436668e68504f08ff8161a6e91322c0654e3b1ff7ba8c0",
+    "data/splits/train_manifest.txt": "92d2443dca397ba48ff590e9a71c219bbf5890f116062061677d2774f899d3f3",
+    "data/splits/train_windows.csv": "fbb43326cdf1899a23bf9cf5636eea9565f2140d50f6bd7e92965404900aa162",
+    "data/splits/type_vocab.json": "bd9e4831bba4e4170220c2e0e37e94714f5b1acdd88585fcd29662cfe4d0a18f",
+    "data/splits/val_manifest.txt": "fd9a8697fac8e8e96a13b1440760352f20c9788b2f0cbdab127ac2e6e36461b1",
+    "data/splits/val_windows.csv": "3ef2af08388770999ae71d2a4360bcecb7235cbba29ee8923e33a2b698cad09f"
+  },
+  "reference_files_unchanged": {
+    "m10_reference/kord_runways_ourairports.csv": "8108f95f1d9474b05a3afa05484c7972c468dcf3905fb57a2917b035467c54bd",
+    "m10_reference/runway_alignment_reference.py": "17dac06415b08f3aac880ea4b049b5f2a1b72232dc7b5d5ee7eeb358fa50a3b9",
+    "m10_reference/runway_flow_by_day_reference.py": "8455fefbfbef42e4ccea42a82937dd3d9a20a6e40d21580a541f1a4e4822d640",
+    "m10_reference/runway_alignment_reference_output.txt": "05962c17f04dca44d64e6096589ce8d9527663bff293827f924e22442a07a4ed"
+  },
+  "anchor_csv_sha256": "43a5eee8b5e27807da08233aaca6664c65ca4462d958581ce68c232e462ba8a3",
+  "validation_subset_sha256": "062bc00b8c7abdd303cd0d12feff3ff78bd808cf705d8be4b22d05c6485ebe34",
+  "demo_checkpoint_unchanged": true,
+  "model_default_false_bitwise": true,
+  "no_identity_dropout": true,
+  "no_hyperparameter_search": true,
+  "summary_rows": 303,
+  "no_demo_checkpoint_swap": true
+}

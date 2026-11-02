@@ -216,3 +216,13 @@ This rendering path is offline, uses only locally cached maps and does not run
 the model. Complete observations, per-sample forecasts, scores, CV arrays,
 rules and timeline remain in the two scene directories under
 `outputs/integrated_demo/`; acceptance receipts are in `docs/integrated_demo_D*.json`.
+
+## Runway-anchor attention experiment (M10)
+
+An optional `runway_anchors` flag adds cross-attention to 16 fixed ORD runway
+ends; it defaults to false and preserves the legacy checkpoint/output path.
+See [method and commands](docs/runway_anchor_method.md),
+[results](docs/runway_anchor_results.md),
+[complete comparison table](docs/runway_anchor_summary.csv), and
+[attention diagnostic](docs/runway_anchor_attention.png).
+The integrated demo continues to use `epoch_016.ckpt`.

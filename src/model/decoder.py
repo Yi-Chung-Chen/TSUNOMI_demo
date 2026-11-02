@@ -1,4 +1,4 @@
-"""Map-free SMART decoder wrapper."""
+"""SMART decoder wrapper with optional runway-anchor attention."""
 from torch import nn
 from src.model.agent_decoder import AirAgentDecoder
 

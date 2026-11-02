@@ -26,7 +26,8 @@ class AirSMART(L.LightningModule):
     def __init__(self, motion_dict, hidden_dim=64, num_heads=4, num_layers=4, lr=5e-4,
                  label_smoothing=.1, dropout=.1, time_span=18, current_frame_idx=18,
                  num_future_steps=90, num_types=32, num_freq_bands=16,
-                 open_loop_modes=6, weight_decay=.01, lr_min_ratio=.01):
+                 open_loop_modes=6, weight_decay=.01, lr_min_ratio=.01,
+                 runway_anchors=False, runway_anchor_path=None):
         super().__init__()
         self.save_hyperparameters()
         self.token_processor = AirTokenProcessor(motion_dict)
@@ -37,7 +38,9 @@ class AirSMART(L.LightningModule):
         token_dim = self.token_processor.cluster_centers[0].numel() + self.token_processor.dz[0].numel()
         self.decoder = AirDecoder(K=self.token_processor.K, token_dim=token_dim, hidden_dim=hidden_dim,
                                   num_heads=num_heads, num_layers=num_layers, dropout=dropout,
-                                  shift=shift, time_span=time_span, num_types=num_types, num_freq_bands=num_freq_bands)
+                                  shift=shift, time_span=time_span, num_types=num_types, num_freq_bands=num_freq_bands,
+                                  runway_anchors=runway_anchors,runway_anchor_path=runway_anchor_path,
+                                  pos_scale=self.token_processor.meta['pos_scale'])
 
     @property
     def token_features(self):

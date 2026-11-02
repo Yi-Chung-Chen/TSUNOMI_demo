@@ -158,3 +158,23 @@ rectangles; names only on map; largest-remainder integer shares; no duplicate
 card text; protected-zone label outside polygon and never obscured. Export D10
 separately with D8/D10 comparisons at B56/B63.33/A62.33s, self-check and stop for
 Yi-Chung. No model execution, fitting, network, packages or advisor calls.
+
+M10 runway-anchor attention is authorized by parent plan §4.1.12 (plan2026-11-02),
+overriding the earlier no-training rule only for base20/anchor20, train batch32/val16,
+seed817, one job each on physicalGPUs1/3, noDDP;10-03-only checkpoint selection.
+The historical first attempt failed with underspecified masks. The corrected
+reference and precise-ENU gates now PASS; docs/runway_anchor_alignment.json
+records the corrected result. The old stop condition has been resolved.
+Do not tune alignment to pass. Existing dictionary/splits/epoch016 stay immutable.
+
+M10 corrected plan: execute m10_reference unchanged and require byte-identical
+stdout; then exact-ENU port with airborne heading filter must pass each runway
+±5%. Reference directory is read-only. Supersede earlier batch4 advice: both
+trainings use32/16, seed817,20epochs, num_workers4, lr unchanged. Once both
+alignment gates pass, continue model/tests, GPU1/GPU3 parallel single-device
+runs and CPU evaluations. Keep demo epoch016 and all protected files unchanged.
+
+M10 is complete: both20epoch trainings and CPU evaluations/attention diagnostic
+passed final acceptance. See docs/runway_anchor_results.md and
+docs/runway_anchor_acceptance.json. Stop for user review; do not launch follow-up
+training or swap the demo checkpoint without a new instruction.

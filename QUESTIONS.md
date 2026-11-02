@@ -208,3 +208,54 @@ retain their original precision, so rounded entering-group totals may differ
 slightly from the raw entry share. Static/video review draft only; previous D9
 interactive viewer and all prior media remain intact. Three requested D8/D10
 comparison PNGs provided. Stop for Yi-Chung's review.
+
+## M10 step1 — alignment gate failed; stopped before model/training
+
+The plan is the only authority. Before counting, one --refork advisor call found
+no original script behind the advertised runway counts and supplied a provisional
+recipe (see PROGRESS.md and outputs/runway_anchor/alignment.json). Six of eight
+runways fail ±5%, notably4L/22R expected0 but actual1552 (all air,ground0).
+WGS84 ENU reproduction matches an actual source row below1e-9m, so a sign/frame
+error is not demonstrated. Airborne matching without heading filtering can count
+crossing traffic; whether this explains the original count discrepancy is an
+inference, not verified by changing criteria. No tuning or alternate recipe run.
+
+Needed decision: supply the original reproducible reference-count code or update
+M10 with exact air/ground masks and the corresponding expected counts. Options:
+(1) provide original code, preferred, to reproduce the intended baseline;
+(2) explicitly revise criteria/reference counts in the plan. Do not accept the
+new counts or add an airborne heading filter without that clarification.
+Blocks model implementation and both trainings under the user's step1 stop rule.
+
+Additional plan correction: M5 actual train batch32/val16 with768steps/epoch,
+whereas M10 initially demanded4/4 (SUPERSEDED: corrected plan now mandates32/16). The earlier advisor4/4 confirmation is void; use seed817,20epochs from scratch,
+fulltrain and10-03-only selection. Runtime estimates based on M5 are not directly
+applicable. No training started even though GPUs1/3 were idle when queried.
+
+## M10 corrected plan — previous alignment/batch questions resolved
+
+User supplied read-only m10_reference scripts and exact masks, including an
+airborne heading test, >=10valid frames per track, strict boundaries and no
+height lower bound. Supersedes the provisional first-attempt recipe above.
+Both jobs must use train32/val16 (matching actualM5); prior4/4 advice is void.
+Run reference stdout equality gate, then precise-ENU ±5% gate before proceeding.
+
+## M10 flow-label clarification — provisional advisor decision
+
+The supplied flow reference uses fast E-W ground displacements/majority votes,
+not literal six-runway centreline masks. Advisor after --refork instructed an
+exact port of that reference, with every threshold unchanged; this reproduces
+10-03east68/west0 and10-04east15/west39 (37none/tie skipped). This is a provisional
+interpretation of the plan's flow wording; report it explicitly in summary.
+No tuning or new map features. Reference directory remains read-only.
+
+## M10 final disposition — completed
+
+The original missing-reference/alignment and4/4batch questions are resolved by
+the corrected plan: both gates pass, train32/val16 was used throughout. Both
+trainings and all CPU evaluations completed with protected files unchanged.
+The only provisional interpretation is the supplied flow-reference rule, fully
+documented in the report and reproducing the plan's scenario counts. No open
+blocking implementation question remains. Forecasting improves; airborne-drone
+NLLAUROC remains weak at0.550, and one airborne miss-rate subgroup worsens.
+No remedial score, dropout, map extension or demo checkpoint swap was made.

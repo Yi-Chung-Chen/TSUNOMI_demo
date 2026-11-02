@@ -1,0 +1,13 @@
+# @package _global_
+seed: 817
+trainer:
+  max_epochs: 20
+  limit_train_batches: 1.0
+  limit_val_batches: 1.0
+data:
+  train_batch_size: 32
+  val_batch_size: 16
+  num_workers: 4
+  val_windows_path: ${paths.root_dir}/outputs/runway_anchor/val_10_03_windows.csv
+model:
+  runway_anchors: false

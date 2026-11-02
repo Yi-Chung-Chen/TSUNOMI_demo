@@ -11,7 +11,7 @@
 # without an express license agreement from NVIDIA CORPORATION or
 # its affiliates is strictly prohibited.
 
-"""SMART temporal/agent attention port with no map and 3D geometry.
+"""SMART temporal/agent attention with 3D geometry and optional runway anchors.
 
 Adapted from src/smart/modules/agent_decoder.py; shared attention, Fourier
 embeddings, MLP and initialization are copied with their licenses preserved.
@@ -27,7 +27,8 @@ from src.common.units import FRAME_HZ
 
 class AirAgentDecoder(nn.Module):
     def __init__(self, K, token_dim, hidden_dim=64, num_heads=4, num_layers=4,
-                 num_freq_bands=16, dropout=.1, shift=6, time_span=18, num_types=32):
+                 num_freq_bands=16, dropout=.1, shift=6, time_span=18, num_types=32,
+                 runway_anchors=False, runway_anchor_path=None, pos_scale=10.):
         super().__init__()
         if hidden_dim % num_heads:
             raise ValueError('hidden_dim must be divisible by num_heads')
@@ -44,6 +45,21 @@ class AirAgentDecoder(nn.Module):
         self.temporal_layers = nn.ModuleList([AttentionLayer(**kwargs) for _ in range(num_layers)])
         self.spatial_layers = nn.ModuleList([AttentionLayer(**kwargs) for _ in range(num_layers)])
         self.next_token_head = MLPLayer(hidden_dim, hidden_dim, K)
+        self.runway_anchors = runway_anchors
+        if runway_anchors:
+            import csv
+            from pathlib import Path
+            path = Path(runway_anchor_path) if runway_anchor_path else Path(__file__).resolve().parents[2]/'assets/ord_runway_ends.csv'
+            with path.open() as stream:
+                rows = list(csv.DictReader(stream))
+            if len(rows)!=16 or [int(r['anchor_id']) for r in rows]!=list(range(16)):
+                raise ValueError('Expected fixed16 runway ends in anchor_id order')
+            self.register_buffer('anchor_position',torch.tensor([[float(r[k])/pos_scale for k in ['x_m','y_m','z_m']] for r in rows],dtype=torch.float32))
+            self.register_buffer('anchor_heading',torch.tensor([float(r['inbound_heading_rad']) for r in rows],dtype=torch.float32))
+            self.anchor_emb = nn.Embedding(16,hidden_dim)
+            self.anchor_pos_emb = FourierEmbedding(input_dim=6,hidden_dim=hidden_dim,num_freq_bands=num_freq_bands)
+            self.anchor_layers = nn.ModuleList([AttentionLayer(hidden_dim=hidden_dim,num_heads=num_heads,
+                head_dim=hidden_dim//num_heads,dropout=dropout,bipartite=True,has_pos_emb=True) for _ in range(num_layers)])
 
     def build_edges(self, valid, batch):
         n, steps = valid.shape
@@ -76,6 +92,17 @@ class AirAgentDecoder(nn.Module):
             last = torch.atan2(local[:, 1], local[:, 0])
         return torch.cat([local, delta[:, 2:3], distance[:, None], angle[:, None], last[:, None]], -1)
 
+    def anchor_edges(self,position,heading,valid):
+        """Shared16 sources; pose-dependent features recomputed on EVERY forward."""
+        n,steps=valid.shape
+        nodes=valid.reshape(-1).nonzero(as_tuple=True)[0]
+        edge=torch.stack([torch.arange(16,device=position.device).repeat(len(nodes)),nodes.repeat_interleave(16)])
+        pos=torch.cat([self.anchor_position.to(position.dtype),position.reshape(-1,3)])
+        heads=torch.cat([self.anchor_heading.to(heading.dtype),heading.reshape(-1)])
+        geometry_edge=edge.clone();geometry_edge[1]+=16
+        features=self.relative_features(pos,heads,geometry_edge,steps,False)
+        return edge,features
+
     def forward(self, tokenized, token_features, sampled=False):
         prefix = 'sampled' if sampled else 'gt'
         ids, pos, heading = (tokenized[f'{prefix}_idx'], tokenized[f'{prefix}_pos'].float(),
@@ -94,7 +121,13 @@ class AirAgentDecoder(nn.Module):
         flat_pos, flat_head = pos.reshape(-1, 3), heading.reshape(-1)
         r_t = self.temporal_emb(self.relative_features(flat_pos, flat_head, edge_t, steps, True))
         r_a = self.spatial_emb(self.relative_features(flat_pos, flat_head, edge_a, steps, False))
-        for temporal, spatial in zip(self.temporal_layers, self.spatial_layers):
+        if self.runway_anchors:
+            edge_anchor,features_anchor=self.anchor_edges(pos,heading,valid)
+            r_anchor=self.anchor_pos_emb(features_anchor)
+            anchor_x=self.anchor_emb.weight
+        for layer_index,(temporal, spatial) in enumerate(zip(self.temporal_layers, self.spatial_layers)):
             x = temporal(x, r_t, edge_t)
             x = spatial(x, r_a, edge_a)
+            if self.runway_anchors:
+                x=self.anchor_layers[layer_index]((anchor_x,x),r_anchor,edge_anchor)
         return self.next_token_head(x.reshape(n, steps, -1))

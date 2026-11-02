@@ -1,0 +1,125 @@
+{
+  "stage": "M10 step1",
+  "passed": true,
+  "scenarios": 800,
+  "origin": {
+    "latitude_deg": 41.980103,
+    "longitude_deg": -87.903868,
+    "altitude_m": 2250.0
+  },
+  "coordinates_source": "Fixed M10 table, OurAirports/public domain; no external coordinate substitution",
+  "xy_height_m": 2250.0,
+  "height_note": "Existing verified exact-ENU anchor CSV convention; z separately train-only processed height",
+  "recipe": {
+    "unit": "scenario+agent, independent per runway, ground/air union",
+    "ground_distance_m": 40,
+    "ground_heading_cosine_abs_strict_gt": 0.97,
+    "ground_projection": "finite segment (0,L)",
+    "air_distance_m": 120,
+    "air_height_m": "processed_z<500 (no lower bound)",
+    "air_projection": "(-6000,0) union (L,L+6000)",
+    "air_heading_constraint": "abs(cos(heading-axis))>0.97",
+    "frames": "track>=10validframes; >=6 total separately for ground and air; not required consecutive",
+    "ground_height_radius_m": 100
+  },
+  "ground_height_by_runway": {
+    "10L/28R": 0.800000011920929,
+    "9C/27C": 0.800000011920929,
+    "9L/27R": 0.800000011920929,
+    "10C/28C": 0.800000011920929,
+    "4R/22L": 0.800000011920929,
+    "9R/27L": 0.800000011920929,
+    "10R/28L": 0.800000011920929,
+    "4L/22R": 0.800000011920929
+  },
+  "all_runway_ground_median": 0.800000011920929,
+  "ground_height_train_frame_counts": {
+    "10L/28R": 103825,
+    "9C/27C": 34085,
+    "9L/27R": 12426,
+    "10C/28C": 23833,
+    "4R/22L": 16843,
+    "9R/27L": 1501,
+    "10R/28L": 3450,
+    "4L/22R": 2088
+  },
+  "comparisons": [
+    {
+      "runway": "10L/28R",
+      "expected": 1474,
+      "actual": 1474,
+      "ground": 867,
+      "air": 1453,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "9C/27C",
+      "expected": 1052,
+      "actual": 1052,
+      "ground": 424,
+      "air": 1051,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "9L/27R",
+      "expected": 849,
+      "actual": 849,
+      "ground": 296,
+      "air": 849,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "10C/28C",
+      "expected": 744,
+      "actual": 746,
+      "ground": 344,
+      "air": 744,
+      "relative_error": 0.002688172043010753,
+      "passed": true
+    },
+    {
+      "runway": "4R/22L",
+      "expected": 403,
+      "actual": 403,
+      "ground": 175,
+      "air": 395,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "9R/27L",
+      "expected": 219,
+      "actual": 219,
+      "ground": 23,
+      "air": 218,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "10R/28L",
+      "expected": 171,
+      "actual": 171,
+      "ground": 89,
+      "air": 171,
+      "relative_error": 0.0,
+      "passed": true
+    },
+    {
+      "runway": "4L/22R",
+      "expected": 0,
+      "actual": 0,
+      "ground": 0,
+      "air": 0,
+      "relative_error": null,
+      "passed": true
+    }
+  ],
+  "protected_files_unchanged": true,
+  "model_edited": false,
+  "training_started": false,
+  "count_reference_script_available": true,
+  "reference_output_exact": true
+}

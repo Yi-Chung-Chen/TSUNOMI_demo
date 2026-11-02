@@ -1532,3 +1532,160 @@ reason fits one line, with no clipped text. Both videos/GIFs, three required
 snapshots/comparisons regenerated. D9timeline/groups/map bounds and protected
 hashes remain identical; no inference, training, packages, network or advisor.
 Receipt docs/integrated_demo_D10_pixel_wrap.json. Stop for user review.
+
+## M10 — Step1 alignment gate FAILED (plan revision2026-11-02)
+
+Read the new M10 and §4.1.12 authorization. User requires alignment before model
+implementation/training and an immediate stop if any runway exceeds ±5%.
+No existing model/config/training/evaluation code has been edited for M10.
+
+Before counting, asked the authorized read-only advisor once with --refork,
+batching geometry/counting ambiguities and the batch-size contradiction. Advisor
+could not find any script producing the plan's reference counts. It gave a
+PROVISIONAL recipe: independent scenario+agent per runway; ground on finite
+segment,40m and abs(cosheading)>=cos14deg; air off-ground,0<z<500,120m and outside
+runway ends out6km, NO heading filter; at least6totalframes separately for each
+criterion, union ground/air; training ground-z median finite segment within100m,
+fallback all-runway median. This recipe was fixed before reading any counts.
+Advisor suggested extra diagnostic variants on failure, but the user's explicit
+stop-on-mismatch takes precedence: no variants or threshold tuning were run.
+
+Created assets/ord_runway_ends.csv with all16fixed plan endpoints, WGS84 ENU,
+processed ground-height z and inward headings; source OurAirports/public domain
+as cited in the plan. Advisor provisional xy conversion uses altitude2250 for
+both endpoints and origin; z separately derived from train states. The same
+geodetic-to-ENU formula reproduces an actual raw sample to6.93e-10m max error.
+All16CSVidents and reciprocal headings pass. Read all800scenarios via original
+618train+182val manifests. Outputs outputs/runway_anchor/alignment.json,
+alignment_counts.csv,alignment_track_matches.csv,alignment_summary.md;
+review receipt docs/runway_anchor_alignment.json.
+
+Counts (expected -> reproduced):
+- 10L/28R1474->1498 PASS(+1.63%)
+- 9C/27C1052->1146 FAIL(+8.94%)
+- 9L/27R849->879 PASS(+3.53%)
+- 10C/28C744->1198 FAIL(+61.02%)
+- 4R/22L403->1108 FAIL(+174.94%)
+- 9R/27L219->237 FAIL(+8.22%)
+- 10R/28L171->513 FAIL(+200%)
+- 4L/22R0->1552 FAIL(all1552from air criterion; ground0)
+
+Alignment tests3passed in0.11s: known WGS84 point,16ends/headings, finite ground
+and airborne extension/height/heading semantics. Protected14files (dictionary,
+epoch016 and complete split-directory files) hashed before/after and unchanged.
+
+Read-only nvidia-smi OUTSIDE sandbox succeeded: GPU1/GPU3 are A6000,0MiB/0%
+with no compute processes at the time checked. No GPU job started or reserved.
+Batch plan correction: actual M5 used train32/val16, not4/4. M10 explicitly
+requires4/4, seed817,20epochs from scratch and10-03-only selection. Advisor
+confirmed to obey these; the prior17min estimate cannot be reused as-is.
+
+Stopped at the required gate. No model/rollout/score/demo-checkpoint changes,
+training, package installs, new network data, remote changes or push. M10 is NOT
+complete; no M10 commit made because the user requested commit after completion.
+Need a reproducible original counting script or clarified plan/reference counts
+before proceeding. Questions and provisional advisor decisions in QUESTIONS.md.
+
+## M10 corrected step1 — both alignment gates PASS (2026-11-02)
+
+User supplied read-only m10_reference and corrected the airborne heading filter,
+strict masks, track eligibility and train/val batches32/16. Supersedes the earlier
+provisional recipe and4/4 advisor answer. Reference script executed UNMODIFIED
+with catk Python -I fromPythonProject; stdout is byte-identical to supplied output.
+Reference-file hashes saved. Precise-ENU port with same masks passes all8runways:
+1474,1052,849,746,403,219,171,0 versus1474,1052,849,744,403,219,171,0. Only10C
+has+2tracks(+0.269%); others exact. CSV remains16ends with reciprocal headings and
+train-only processed ground heights. Alignment tests3pass. All14protected files
+unchanged. Counts/recipe receipt docs/runway_anchor_alignment.json updated.
+
+Proceeding to model implementation/tests. Default flagfalse, old checkpoint and
+a pre-change CPU logits/2-rollout fixture retained for bitwise regression. Derived
+488-row10-03 validation CSV from existing912rows; no manifest/window edits.
+M10 trains use32/16,seed817,20epochs,workers4; earlier4/4 instruction is void.
+
+## M10 step2 — anchor model and tests PASS (2026-11-02)
+
+Added default-false runway_anchors flag. False creates no additional parameters
+or buffers and retains the exact legacy path; epoch016 strict load and saved
+pre-change logits/2-rollout arrays match bitwise. True adds16learned identities,
+fixed internal-unit position/heading buffers,6D relative geometry embedding and
+four bipartite layers after each temporal/spatial layer. Every valid agent-time
+node receives16shared anchor edges, recomputed from sampled pose each forward.
+No identity dropout, map polylines or other model/hyperparameter changes.
+
+Validation can read an explicit existing-window subset without editing splits;
+M10 uses488existing10-03windows. Both new experiments fix train32/val16,workers4,
+seed817,max_epochs20,fullbatches; all original lr/optimizer/scheduler settings
+retained. Runner uses one visible physicalGPU per process, noDDP, idle/PID check
+and CUDA-runtime PCI->UUID verification outside sandbox.
+
+Full119tests passed,19dependency warnings,49.88s. New tests cover anchor CSV,
+reference geometry/masks, bitwise false/old strict load,3D rotation invariance,
+16edges per validnode, pose-recomputed causal rollout and10-03-only val subset.
+Preparing to launch base20 onGPU1 and anchor onGPU3, independently in parallel.
+
+## M10 step3 — both GPU trainings complete (2026-11-02)
+
+Two independent single-GPU jobs completed in parallel outside sandbox:
+base20 physicalGPU1, anchor physicalGPU3, exact CUDA PCI/UUID mapping verified.
+Both train32/val16,workers4,seed817,20epochs/full768batches=15360steps. NoDDP,
+identity dropout or hyperparameter changes. Selection only488existing10-03rows.
+base20 best epoch17,val loss4.3153076172; anchor best epoch18,val loss4.2491869926.
+Final epoch19weights also retained as last.ckpt. Completion/GPU/config/CSV logs
+under outputs/runway_anchor/training/{base20,anchor}. Demo remains epoch016.
+
+All122tests passed,19dependency warnings,51.38s; includes a direct comparison
+against a frozen pre-M10 decoder implementation in addition to the saved legacy
+logit/rollout fixture. Flow reference port exactly reproduces plan counts;
+advisor provisional interpretation and skipped37scenarios are recorded.
+Starting independent CPU-only evaluations of all three checkpoints, retaining
+32rollouts/topk5/temp1 and original M6/M8functions unchanged.
+
+## M10 step4 — full CPU evaluation and final acceptance PASS (2026-11-02)
+
+Evaluated epoch016/base20/anchor on the same912windows (48810-03,42410-04),
+32rollouts,topk5,temp1,seed817. Reused original M6metrics and M8functions without
+modification; CV is evaluated as the kinematic reference. All three also score
+exactly28413original M8token rows, with identical GT token IDs and residuals.
+Legacy M8NLL reproduces to max6.68e-6nats. All evaluation models onCPU only;
+no GPU evaluation or replacement of rollout paths withCV/GT.
+
+Primary10-04 results (epoch016 / base20 / anchor):
+- Unsmoothed CE3.49720 /3.46414 /3.36371; accuracy18.751% /19.227% /20.462%.
+-30s horizontal meanFDE225.99m /208.27m /148.05m; CV345.05m. Anchor improves
+  matched-baseline FDE28.9%, separate from base20's improvement over old weights.
+-30s horizontal meanADE84.01m /77.46m /58.06m; minADE39.49m /34.37m /25.31m.
+- Drone vsairborne NLLAUROC0.33624 /0.45347 /0.54998: improved but still weak,
+  only slightly above chance. It is not a reliable standalone anomaly detector.
+- Drone vsground NLLAUROC0.75967 /0.83414 /0.88359.
+- East-flow30s horizontalFDE370.02m /352.64m /245.89m;
+  west-flow177.06m /158.39m /110.18m. Both flows improve; no identity dropout added.
+- Not every metric improves:10-04airborne30s all-samples-miss rate increases
+  3.459%->3.774% (11->12of318agent-window instances) for base20->anchor.
+
+Training elapsed: base20~17.93min onGPU1,anchor~21.86min onGPU3 in parallel.
+CPU evaluation elapsed:epoch016650.7s,base20651.0s,anchor1522.0s, run concurrently.
+Anchor CPU rollout is materially slower than baseline; no samples were dropped.
+
+Flow labeling follows the supplied reference under the recorded provisional
+advisor decision, not literal centreline masks. Counts68east/0west on10-03;
+15east/39west/37none-tie on10-04. Summary discloses east-biased selection, prior
+inspection of10-04, agent-window weighting and single-drone-route limitations.
+
+Produced outputs/runway_anchor/summary.md,summary.csv (303comparison rows),
+flow_metrics.csv,anchor_attention.png,attention_weights.json and per-model raw
+rollouts,CE/token-score tables and completion receipts. Attention plot uses
+threefixed-seed10-04windows,6s observed history only,16ends, head/layer means,
+normalised weights and existing cached zoom13maps only; self-reviewed visually.
+No causal interpretation or new tile downloads. Report/CSV/figure copied to
+committed docs/runway_anchor_{results.md,summary.csv,attention.png}.
+
+Final scripts.verify_runway_experiment passed: both alignment gates,20epochs/
+15360steps each, exact32/16seed817settings and same other hyperparameters,
+10-03-only best-checkpoint choice, physicalGPU1/3UUID mappings, CPU evaluation
+receipts, flow counts, attention normalization and all303summary rows verified.
+All14original protected files and all4read-only reference files retain SHA256.
+Anchor checkpoint buffers match the committed ENUCSV exactly. Demo checkpoint
+remains frozen epoch016. Full122tests passed (19dependency warnings,51.38s).
+Receipt docs/runway_anchor_acceptance.json. M10 complete; commit and STOP for
+Yi-Chung. No extra training, map features, hyperparameter search or remote push.

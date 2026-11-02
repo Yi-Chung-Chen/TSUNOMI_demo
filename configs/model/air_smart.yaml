@@ -12,3 +12,4 @@ num_future_steps: ${data.future_frames}
 num_types: 32
 num_freq_bands: 16
 open_loop_modes: 6
+runway_anchors: false
