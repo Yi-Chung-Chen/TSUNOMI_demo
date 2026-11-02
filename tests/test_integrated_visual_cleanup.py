@@ -71,3 +71,21 @@ def test_each_current_anomaly_has_a_reason_even_when_not_selected_for_scene_aler
     assert '80.7 s' in flattened and 'has left' in flattened
     assert 'unusual direction for this location' in flattened
     assert 'unusual speed for this location' in flattened
+
+
+def test_wrapping_uses_glyph_width_and_preserves_paragraphs_and_long_words():
+    from matplotlib.figure import Figure
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    from matplotlib.font_manager import FontProperties
+    from src.integrated.visual_cleanup import wrap_to_pixels
+    for dpi in [100,200]:
+        fig=Figure(figsize=(4,2),dpi=dpi);renderer=FigureCanvasAgg(fig).get_renderer();font=FontProperties(size=11)
+        measure=lambda text:renderer.get_text_width_height_descent(text,font,ismath=False)[0]
+        limit=measure('WWWWWW')
+        narrow=wrap_to_pixels('iiii iiii iiii',renderer,font,limit)
+        wide=wrap_to_pixels('WWWW WWWW WWWW',renderer,font,limit)
+        assert len(wide.splitlines())>len(narrow.splitlines())
+        raw='one two three\n\n'+'W'*40;wrapped=wrap_to_pixels(raw,renderer,font,limit)
+        assert '\n\n' in wrapped
+        assert ''.join(wrapped.split('\n\n')[1].splitlines())=='W'*40
+        assert all(measure(line)<=limit for line in wrapped.splitlines())

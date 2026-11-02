@@ -48,6 +48,28 @@ def place_label(anchor,size,bounds,occupied,scale=1.):
     raise RuntimeError('No collision-free label placement within unchanged map extent')
 
 
+def wrap_to_pixels(text,renderer,font_properties,width_px):
+    """Greedy word wrapping using actual glyph widths; preserve paragraph breaks."""
+    if width_px<=0:raise ValueError('Text container must have positive width')
+    def width(value):return renderer.get_text_width_height_descent(value,font_properties,ismath=False)[0]
+    lines=[]
+    for paragraph in text.split('\n'):
+        words=paragraph.split();line=''
+        if not words:lines.append('');continue
+        for word in words:
+            candidate=(line+' '+word).strip()
+            if width(candidate)<=width_px:line=candidate;continue
+            if line:lines.append(line);line=''
+            while width(word)>width_px:
+                end=1
+                if width(word[0])>width_px:raise ValueError('Container narrower than one glyph')
+                while end<len(word) and width(word[:end+1])<=width_px:end+=1
+                lines.append(word[:end]);word=word[end:]
+            line=word
+        if line:lines.append(line)
+    return '\n'.join(lines)
+
+
 def cleanup_texts(row):
     """Object lines give state/entry; explanatory reasons occur only in WHY."""
     lines=[]
@@ -63,7 +85,7 @@ def cleanup_texts(row):
                 reasons.append(f'{name}: {reason}.')
     import textwrap
     return dict(scenario=textwrap.fill(row['scenario']['status'],width=19),
-        explanation='\n\n'.join(textwrap.fill(r,width=34) for r in reasons),
+        explanation='\n\n'.join(reasons),
         objects='\n\n'.join(lines))
 
 
@@ -114,6 +136,7 @@ class CleanupRenderer(DemoRenderer):
                 text.set_text('Up to 4 futures per anomalous object · endpoint % = rounded sample share · red = enters zone')
         self.fig.canvas.draw();self.background=self.fig.canvas.copy_from_bbox(self.fig.bbox)
         self.layout_receipt={}
+        self._why_wrap_cache={}
 
     def _label(self,text,anchor,occupied):
         renderer=self.fig.canvas.get_renderer();extent=text.get_window_extent(renderer)
@@ -125,7 +148,13 @@ class CleanupRenderer(DemoRenderer):
     def frame(self,frame):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
-        for key,text in self.cards.items():text.set_text(cleanup_texts(row)[key])
+        contents=cleanup_texts(row)
+        why=self.cards['explanation'];available=(.965-why.get_position()[0])*self.fig.bbox.width
+        raw=contents['explanation']
+        if raw not in self._why_wrap_cache:
+            self._why_wrap_cache[raw]=wrap_to_pixels(raw,self.fig.canvas.get_renderer(),why.get_fontproperties(),available)
+        contents['explanation']=self._why_wrap_cache[raw]
+        for key,text in self.cards.items():text.set_text(contents[key])
         for i,(name,status,entry) in enumerate(self.object_rows):
             obj=row['objects'][i];name.set_text('Drone 01' if i==0 else f'Aircraft {i:02d}')
             state='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
@@ -196,6 +225,6 @@ class CleanupRenderer(DemoRenderer):
                 assert bounds[1]>=.045*self.fig.bbox.height and bounds[3]<=.267*self.fig.bbox.height, 'Object row overflow'
                 card_boxes.append(tuple(bounds))
         for i,box in enumerate(card_boxes):assert not any(intersects(box,other) for other in card_boxes[i+1:]), 'Object cells overlap'
-        self.layout_receipt[frame]=dict(object_card_readable=True,object_card_fontsize=13,time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
+        self.layout_receipt[frame]=dict(why_wrapping='measured pixels',why_available_width_px=float(available),object_card_readable=True,object_card_fontsize=13,time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
             zone_label_outside=True,labels_do_not_overlap=True)
         return Image.fromarray(np.asarray(self.fig.canvas.buffer_rgba())[...,:3].copy())

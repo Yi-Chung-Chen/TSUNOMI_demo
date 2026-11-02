@@ -1512,3 +1512,23 @@ input immutability and retained historical intrusion time/reason. Rechecked both
 GIF/MP4s and three requested snapshots, exact D9timeline/groups/map bounds and
 protected/D4/D8/D9 hashes. Receipt docs/integrated_demo_D10_complete_reasons.json.
 No inference, training, packages, network or advisor calls. Stop for user review.
+
+### D10 review correction — glyph-measured WHY wrapping (2026-11-01)
+
+User requested fixing premature line breaks. Removed fixed34-character WHY
+wrapping from text formatting. Wrap at render time using actual font glyph
+widths and the card's available pixel width, preserving symmetric inner margins
+and paragraph breaks. Cache repeated text within each renderer/DPI. Overlong
+single words are split only when they cannot fit on one line. Text content and
+font size are unchanged; no changes to scores/rules/groups/extent or object rows.
+
+Export outputs/integrated_demo/D10/pixel_wrap; all earlier versions retained.
+Command scripts/catk.sh -m scripts.integrated_d10 --output-subdir pixel_wrap.
+Focused tests6passed,19dependency warnings,4.13s; new test covers proportional
+wide/narrow glyphs, paragraph retention, long tokens and100/200dpi width limits.
+All632frames pass WHY/card bounds and previous label/percentage/row checks.
+Self-reviewed B63.33s: first paragraph uses the available width and the aircraft
+reason fits one line, with no clipped text. Both videos/GIFs, three required
+snapshots/comparisons regenerated. D9timeline/groups/map bounds and protected
+hashes remain identical; no inference, training, packages, network or advisor.
+Receipt docs/integrated_demo_D10_pixel_wrap.json. Stop for user review.
