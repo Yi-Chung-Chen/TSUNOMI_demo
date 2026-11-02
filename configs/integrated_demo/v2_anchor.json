@@ -1,0 +1,99 @@
+{
+  "version": "integrated-v2-anchor",
+  "seed": 20261029,
+  "history_frames": 18,
+  "future_frames": 90,
+  "frame_hz": 3,
+  "forecast_stride_frames": 6,
+  "n_rollouts": 32,
+  "top_k": 5,
+  "temperature": 1.0,
+  "representative": "joint_3d_medoid",
+  "density_dir": "outputs/anomaly_state_smoothed",
+  "checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+  "duration_s": 105,
+  "latch_s": 10,
+  "future_exceedance_min_samples": 8,
+  "ground_enter_m": 10,
+  "ground_exit_m": 20,
+  "zone": {
+    "name": "Demo protected zone",
+    "polygon_enu_m": [
+      [
+        -600,
+        150
+      ],
+      [
+        -300,
+        150
+      ],
+      [
+        -300,
+        550
+      ],
+      [
+        -600,
+        550
+      ]
+    ],
+    "height_range_m": [
+      0,
+      180
+    ],
+    "provenance": "fictional illustrative restricted volume; not an actual airport restriction"
+  },
+  "threat": {
+    "inside_points": 80,
+    "entry_min_samples": 8,
+    "entry_points": 60,
+    "possible_entry_points": 30,
+    "approach_points": 20,
+    "near_m": 500,
+    "closing_mps": 2,
+    "night_points": 10,
+    "acceleration_points": 10,
+    "speed_increase_mps": 5,
+    "medium_min": 30,
+    "high_min": 60
+  },
+  "background": {
+    "path": "data/processed/scenario_000497_aircraft.npz",
+    "agent_id": "aa4e47",
+    "start_frame": 500,
+    "provenance": "unmodified aircraft reference segment, time-shifted into scripted composite"
+  },
+  "scenarios": [
+    {
+      "id": "A_daytime_hobbyist",
+      "context": "daytime",
+      "scripted_noise_sigma_m_per_axis": 1,
+      "route": "circle",
+      "center_m": [
+        2200,
+        -2000,
+        80
+      ],
+      "radius_m": 100,
+      "angular_speed_rad_s": 0.08,
+      "motion_change_s": null,
+      "provenance": "synthetic hobbyist narrative; not an inferred operator identity"
+    },
+    {
+      "id": "B_nighttime_approach",
+      "context": "nighttime",
+      "scripted_noise_sigma_m_per_axis": 3,
+      "route": "circle_then_accelerate_west",
+      "center_m": [
+        1800,
+        300,
+        110
+      ],
+      "radius_m": 60,
+      "angular_speed_rad_s": 0.08,
+      "motion_change_s": 20,
+      "acceleration_end_s": 32,
+      "westward_speed_mps": 38,
+      "provenance": "synthetic approach narrative and nighttime/noise settings"
+    }
+  ]
+}

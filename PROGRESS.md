@@ -1689,3 +1689,56 @@ Anchor checkpoint buffers match the committed ENUCSV exactly. Demo checkpoint
 remains frozen epoch016. Full122tests passed (19dependency warnings,51.38s).
 Receipt docs/runway_anchor_acceptance.json. M10 complete; commit and STOP for
 Yi-Chung. No extra training, map features, hyperparameter search or remote push.
+
+## D11 — approved anchor checkpoint switch (2026-11-02)
+
+Scope synced in AGENTS.md before execution (parent §4.1.13 / integrated D11).
+Copied v1 into v2_anchor.json changing only version/checkpoint. D4 supports an
+explicit config/output directory; default paths and historical receipt remain
+unchanged. Loader constructs from checkpoint hyperparameters and strict-loads;
+removed the historical epoch16-only assertion. All other demos retain epoch016.
+
+Executed D4 ONCE on CPU, seed20261029, 32rollouts/topk5/temp1, no training or tuning:
+`CUDA_VISIBLE_DEVICES='' .../catk/bin/python -m scripts.integrated_d4 --config
+configs/integrated_demo/v2_anchor.json --output-dir outputs/integrated_demo/D11/D4_anchor`.
+100forecast origins (50each),156.22s. A has298anomalous-low frames/no entry.
+B passes the original D4 model-warning gate at58.00s, reference entry80.6667s,
+lead22.6667s; legacy56.00s/24.6667s, hence anchor warning is2s LATER. No adjustment
+made to recover the old timing. D4 numeric-rule acceptance is distinguished from
+the displayed current-only Potential intrusion and observed D9 incident memory.
+
+D10 accepts a saved run directory; D11 uses the same CleanupRenderer/current
+readable_status code, offline cached map imagery and exact original map extents.
+It renders every frame, integer sample shares and current-only orange markers;
+no viewer rebuilt. Exact arrays/timeline invariants and protected hashes are
+checked by scripts.integrated_d11. Comparison includes B56/B63.33/A62.33 plus
+B58.00(first anchor high warning), per-object zone-entry shares, background
+forecast changes and the unchanged observed intrusion memory. Final media/test
+acceptance and review recorded below after completion.
+
+D11 final acceptance PASS:125tests/19dependency warnings/56.20s. Initial new
+loader test referenced a mistaken buffer name; corrected the test to actual
+anchor_position, then the full suite passed. No model/inference rerun.
+Exact observations/current_scores arrays, all score components/explanations,
+cutoffs, orange decisions and observed incident flags/IDs/times match old D4/D10
+for all632frames. Old D10 integer shares and saved map pixel bounds also verified.
+A first Potential intrusion: none (both); B old56.00s -> anchor58.00s, lead24.67s
+->22.67s. Mean background paired-sample change69.61m(A)/70.91m(B), descriptive
+only, not accuracy. 330protected files (all earlier integrated outputs, old D4
+receipt, v1config, old/new checkpoint) SHA256-unchanged; verify_lock also passes.
+
+Self-reviewed all4side-by-side PNGs (A62.33/B56/B58/B63.33), plus decodedB91s:
+labels legible/nonoverlapping, zone label complete, current anomalies unchanged,
+post-exit High incident memory present. Both316-frameGIFs1600x900; MP4s1600x900,
+9fps/3xreplay, complete ffmpeg error-free decode. All-frame label collision checks
+pass. D10 renderer code unchanged, with current readable status/reasons wrapping.
+
+outputs/integrated_demo/D11 has MP4/GIF/reviewPNG,comparison.md,caption.txt,
+zone_entry_over_time.csv/png,acceptance.json,rawD4_anchor and logs. Committed
+copies:docs/integrated_demo_D11_{comparison.md,acceptance.json}. InteractiveD9
+untouched. integrated_demo_v6.zip contains final media/readme/caption/comparison
+and evidence; no raw forecasts/checkpoints/logs. ZIPCRC and every archived file's
+SHA256 vs source verified. Size18,181,995bytes; SHA256
+84b07e7541fccff9a9286a19c681e6962c0565c81f6c3db735e13d404b4865d3.
+No training, advisor, network, packages, extra seeds or tuning. Local commit and
+STOP for Yi-Chung review; no remote push.

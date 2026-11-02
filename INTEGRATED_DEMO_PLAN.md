@@ -338,3 +338,53 @@ A62.33s(187). Compare against existing D8 PNGs at exactly those frames and save
 three side-by-side comparison PNGs. Check all frames for label/zone clarity,
 frozen hashes and prior-media equality; commit and STOP for Yi-Chung's review.
 No advisor, inference, fitting, training, packages, network or further revision.
+
+## D11 — Runway-anchor checkpoint in the demo (2026-11-02)
+
+Yi-Chung approved (parent plan §4.1 item 13) replacing `epoch_016.ckpt` with the
+M10 anchor checkpoint `outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt`
+(best 10-03 val loss, runway_anchors=true). No extra seeds, no training.
+
+What changes and what must not:
+- Only the forecasts change: the 32 rollouts per forecast time, medoid, groups,
+  endpoint shares, zone-entry counts, and the scenario statuses derived from them
+  ("Potential intrusion" uses >=8/32 entry).
+- The object anomaly score is the frozen M8b smoothed state density
+  (`outputs/anomaly_state_smoothed`), not the network. Observations (same seed and
+  noise), current state scores, cutoff, orange-marker decisions and the D9 observed
+  intrusion latch must therefore be identical to D4/D10; assert this exactly.
+  Any difference is a bug, not a result.
+- Same config otherwise: seed 20261029, noise, routes, background segment, zone,
+  rules, 6 s history / 30 s forecast / 2 s stride, 32 rollouts, top_k 5, temp 1.
+
+Steps:
+1. Add `configs/integrated_demo/v2_anchor.json`: a copy of `v1.json` with only
+   `version` and `checkpoint` changed. Do not edit `v1.json`.
+2. Let `scripts.integrated_d4` take `--config` and `--output-dir` (defaults keep
+   current behaviour and paths byte-for-byte). `load_model` must build the model
+   from the checkpoint's own hyperparameters (`runway_anchors`, anchor CSV) and
+   strict-load it. Write the new run to `outputs/integrated_demo/D11/D4_anchor/`;
+   never overwrite `outputs/integrated_demo/D4*`, `A_*`, `B_*` or `docs/integrated_demo_D4.json`.
+3. Inference on CPU, or one job on GPU 1 or 3 after checking `nvidia-smi` (outside
+   the sandbox). Anchor rollout is about 2.3x slower on CPU than epoch_016.
+4. Re-check D4's acceptance on the new run and report it honestly: A shows anomaly
+   without intrusion; B has a model-based high warning before the reference entry,
+   with lead time vs the epoch_016 run (old D4). If B fails, still finish the media,
+   state it in the README and PROGRESS.md, and do not tune anything to pass.
+5. Let `scripts.integrated_d10` read a given D4 run directory; render the D10
+   `readable_status` style unchanged from `D11/D4_anchor` into
+   `outputs/integrated_demo/D11/` (MP4/GIF/PNG, same map extents). Save
+   side-by-side comparisons D10 (epoch_016) vs D11 (anchor) at B56s (frame 168),
+   B63.33s (190), A62.33s (187), plus the frame where B's first high warning occurs.
+6. Write `outputs/integrated_demo/D11/comparison.md`: per scenario, old vs new first
+   Potential-intrusion time, lead time before reference entry, zone-entry share
+   over time (small plot or table), background-aircraft forecast change, and the
+   asserted-identical anomaly/latch timelines. Caption states the checkpoint now uses
+   16 runway-end anchors.
+7. Package `outputs/integrated_demo/integrated_demo_v6.zip` (D11 media + README +
+   caption + comparison). The interactive viewer stays the D9 one; do not rebuild it.
+
+Done when: identical observation/anomaly/latch assertions pass; new and existing
+tests pass; protected hashes (incl. epoch_016 and all earlier demo outputs)
+unchanged; media self-reviewed; PROGRESS.md updated; local commit; STOP for
+Yi-Chung's review. No advisor calls, packages, network, training or rule changes.

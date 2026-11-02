@@ -226,3 +226,12 @@ See [method and commands](docs/runway_anchor_method.md),
 [complete comparison table](docs/runway_anchor_summary.csv), and
 [attention diagnostic](docs/runway_anchor_attention.png).
 The integrated demo continues to use `epoch_016.ckpt`.
+
+Integrated demo D11 (approved 2026-11-02) uses the M10 epoch018 checkpoint with
+16 runway-end anchors. See [comparison](docs/integrated_demo_D11_comparison.md)
+and [acceptance](docs/integrated_demo_D11_acceptance.json). Review media are in
+`outputs/integrated_demo/D11/`, packaged as `outputs/integrated_demo/integrated_demo_v6.zip`.
+B warns22.67s before reference entry,2s later than epoch016; frozen object
+anomalies and observed intrusion memory are unchanged. Historical demos remain
+intact. Rendering from saved D11 inference only:
+`python -m scripts.integrated_d10 --run-dir outputs/integrated_demo/D11/D4_anchor --output-dir outputs/integrated_demo/D11`.

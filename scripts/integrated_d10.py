@@ -25,7 +25,10 @@ def hash_old(output):
             for p in (output/name).rglob('*') if p.is_file()}
 
 
-def main(output_subdir=None):
+def main(output_subdir=None,run_dir=None,output_dir=None):
+    if run_dir is not None:
+        from scripts.integrated_d11 import render
+        return render(Path(__file__).resolve().parents[1],Path(run_dir),Path(output_dir))
     root=Path(__file__).resolve().parents[1];output=root/'outputs/integrated_demo';out=output/'D10';out=out/output_subdir if output_subdir else out;out.mkdir(parents=True,exist_ok=True)
     verify_lock(root);before=source_hashes(output);old=hash_old(output)
     receipt=dict(stage='D10',revision=output_subdir or 'initial',model_execution=False,network_requests=False,scenes=[],comparisons=[])
@@ -85,4 +88,7 @@ def main(output_subdir=None):
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('--output-subdir',choices=['thin_outline','readable_status','complete_reasons','pixel_wrap'])
-    main(parser.parse_args().output_subdir)
+    parser.add_argument('--run-dir');parser.add_argument('--output-dir')
+    args=parser.parse_args()
+    if args.run_dir and not args.output_dir:parser.error('--run-dir requires --output-dir')
+    main(args.output_subdir,args.run_dir,args.output_dir)

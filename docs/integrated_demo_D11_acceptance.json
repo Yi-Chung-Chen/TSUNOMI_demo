@@ -1,0 +1,271 @@
+{
+  "stage": "D11",
+  "checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+  "inference_attempts": 1,
+  "d4_acceptance": {
+    "stage": "D4",
+    "passed": true,
+    "attempt": 1,
+    "retuned": false,
+    "elapsed_s": 156.22221408993937,
+    "A": {
+      "reference_entry_s": null,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": null,
+      "first_model_based_preentry_high_s": null,
+      "model_warning_lead_s": null,
+      "anomalous_low_frames": 298,
+      "background_normal_frames": 244,
+      "max_drone_threat_score": 0,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 298,
+        "Medium": 0,
+        "High": 0,
+        "Insufficient data": 18
+      }
+    },
+    "B": {
+      "reference_entry_s": 80.66666666666667,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": 58.0,
+      "first_model_based_preentry_high_s": 58.0,
+      "model_warning_lead_s": 22.66666666666667,
+      "anomalous_low_frames": 158,
+      "background_normal_frames": 237,
+      "max_drone_threat_score": 100,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 158,
+        "Medium": 54,
+        "High": 86,
+        "Insufficient data": 18
+      }
+    },
+    "decision": "continue to D5"
+  },
+  "old_d4_acceptance": {
+    "stage": "D4",
+    "passed": true,
+    "attempt": 1,
+    "retuned": false,
+    "elapsed_s": 93.58052751701325,
+    "A": {
+      "reference_entry_s": null,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": null,
+      "first_model_based_preentry_high_s": null,
+      "model_warning_lead_s": null,
+      "anomalous_low_frames": 298,
+      "background_normal_frames": 244,
+      "max_drone_threat_score": 0,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 298,
+        "Medium": 0,
+        "High": 0,
+        "Insufficient data": 18
+      }
+    },
+    "B": {
+      "reference_entry_s": 80.66666666666667,
+      "first_current_anomaly_s": 2.0,
+      "first_future_anomaly_warning_s": 6.0,
+      "first_high_s": 56.0,
+      "first_model_based_preentry_high_s": 56.0,
+      "model_warning_lead_s": 24.66666666666667,
+      "anomalous_low_frames": 188,
+      "background_normal_frames": 237,
+      "max_drone_threat_score": 100,
+      "level_counts": {
+        "Normal traffic": 0,
+        "Low": 188,
+        "Medium": 12,
+        "High": 98,
+        "Insufficient data": 18
+      }
+    },
+    "decision": "continue to D5"
+  },
+  "scenes": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "first_potential_old_s": null,
+      "first_potential_anchor_s": null,
+      "potential_lead_old_s": null,
+      "potential_lead_anchor_s": null,
+      "background_mean_paired_sample_change_m": 69.60505140988326,
+      "observations_equal": true,
+      "state_scores_equal": true,
+      "cutoffs_equal": true,
+      "orange_decisions_equal": true,
+      "observed_intrusion_latch_equal": true,
+      "map_extents_equal": true,
+      "frames": 316,
+      "review_frames": [
+        187
+      ],
+      "media_probe": {
+        "width": 1600,
+        "height": 900,
+        "r_frame_rate": "9/1",
+        "nb_frames": "325"
+      }
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "first_potential_old_s": 56.0,
+      "first_potential_anchor_s": 58.0,
+      "potential_lead_old_s": 24.66666666666667,
+      "potential_lead_anchor_s": 22.66666666666667,
+      "background_mean_paired_sample_change_m": 70.90791326396241,
+      "observations_equal": true,
+      "state_scores_equal": true,
+      "cutoffs_equal": true,
+      "orange_decisions_equal": true,
+      "observed_intrusion_latch_equal": true,
+      "map_extents_equal": true,
+      "frames": 316,
+      "review_frames": [
+        168,
+        174,
+        190
+      ],
+      "media_probe": {
+        "width": 1600,
+        "height": 900,
+        "r_frame_rate": "9/1",
+        "nb_frames": "325"
+      }
+    }
+  ],
+  "comparisons": [
+    "comparison_A_daytime_hobbyist_f0187.png",
+    "comparison_B_nighttime_approach_f0168.png",
+    "comparison_B_nighttime_approach_f0174.png",
+    "comparison_B_nighttime_approach_f0190.png"
+  ],
+  "protected_files_unchanged": 330,
+  "all_invariants_passed": true,
+  "media_style": "unchanged D10 readable_status",
+  "model_execution_in_renderer": false,
+  "config": {
+    "version": "integrated-v2-anchor",
+    "seed": 20261029,
+    "history_frames": 18,
+    "future_frames": 90,
+    "frame_hz": 3,
+    "forecast_stride_frames": 6,
+    "n_rollouts": 32,
+    "top_k": 5,
+    "temperature": 1.0,
+    "representative": "joint_3d_medoid",
+    "density_dir": "outputs/anomaly_state_smoothed",
+    "checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+    "duration_s": 105,
+    "latch_s": 10,
+    "future_exceedance_min_samples": 8,
+    "ground_enter_m": 10,
+    "ground_exit_m": 20,
+    "zone": {
+      "name": "Demo protected zone",
+      "polygon_enu_m": [
+        [
+          -600,
+          150
+        ],
+        [
+          -300,
+          150
+        ],
+        [
+          -300,
+          550
+        ],
+        [
+          -600,
+          550
+        ]
+      ],
+      "height_range_m": [
+        0,
+        180
+      ],
+      "provenance": "fictional illustrative restricted volume; not an actual airport restriction"
+    },
+    "threat": {
+      "inside_points": 80,
+      "entry_min_samples": 8,
+      "entry_points": 60,
+      "possible_entry_points": 30,
+      "approach_points": 20,
+      "near_m": 500,
+      "closing_mps": 2,
+      "night_points": 10,
+      "acceleration_points": 10,
+      "speed_increase_mps": 5,
+      "medium_min": 30,
+      "high_min": 60
+    },
+    "background": {
+      "path": "data/processed/scenario_000497_aircraft.npz",
+      "agent_id": "aa4e47",
+      "start_frame": 500,
+      "provenance": "unmodified aircraft reference segment, time-shifted into scripted composite"
+    },
+    "scenarios": [
+      {
+        "id": "A_daytime_hobbyist",
+        "context": "daytime",
+        "scripted_noise_sigma_m_per_axis": 1,
+        "route": "circle",
+        "center_m": [
+          2200,
+          -2000,
+          80
+        ],
+        "radius_m": 100,
+        "angular_speed_rad_s": 0.08,
+        "motion_change_s": null,
+        "provenance": "synthetic hobbyist narrative; not an inferred operator identity"
+      },
+      {
+        "id": "B_nighttime_approach",
+        "context": "nighttime",
+        "scripted_noise_sigma_m_per_axis": 3,
+        "route": "circle_then_accelerate_west",
+        "center_m": [
+          1800,
+          300,
+          110
+        ],
+        "radius_m": 60,
+        "angular_speed_rad_s": 0.08,
+        "motion_change_s": 20,
+        "acceleration_end_s": 32,
+        "westward_speed_mps": 38,
+        "provenance": "synthetic approach narrative and nighttime/noise settings"
+      }
+    ]
+  },
+  "checkpoint_sha256": "e311adf37a8160013fc1866586764c92be4a2d3bec71f7bc48da296824a2c461",
+  "inference_device": "CPU",
+  "forecast_origins_per_scene": 50,
+  "full_tests": "125 passed, 19 dependency warnings, 56.20s",
+  "self_review": {
+    "frames": [
+      "A62.33",
+      "B56.00",
+      "B58.00",
+      "B63.33",
+      "B91.00 (decoded MP4)"
+    ],
+    "labels_legible": true,
+    "labels_nonoverlapping": true,
+    "zone_label_complete": true,
+    "mp4_full_decode_passed": true
+  }
+}

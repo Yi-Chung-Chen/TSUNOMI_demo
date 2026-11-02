@@ -178,3 +178,15 @@ M10 is complete: both20epoch trainings and CPU evaluations/attention diagnostic
 passed final acceptance. See docs/runway_anchor_results.md and
 docs/runway_anchor_acceptance.json. Stop for user review; do not launch follow-up
 training or swap the demo checkpoint without a new instruction.
+
+D11 is authorized by parent plan §4.1.13 (2026-11-02): switch only the integrated
+ demo to M10 anchor epoch018. Copy v1 config changing only version/checkpoint;
+run D4 inference once in D11/D4_anchor, strict checkpoint-hyperparameter load.
+Preserve all older outputs and epoch016; assert identical observations, frozen
+state scores/cutoff, current orange decisions and observed D9 latch. Forecasts
+and forecast-derived statuses may change. Render accepted readable_status D10
+style with fixed old map extents; report failed warning gates honestly without
+tuning. Export D11 comparison/media and integrated_demo_v6.zip, tests, local
+commit and stop. No advisor, training, new packages, network or viewer rebuild.
+CPU or one checked single job on physical GPU1/3 only. Other historical demos
+remain on epoch016. This supersedes M10's stop/checkpoint restriction solely here.

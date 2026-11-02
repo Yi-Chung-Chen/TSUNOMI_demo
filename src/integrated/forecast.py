@@ -7,7 +7,6 @@ from src.rollout.closed_loop import rollout
 
 def load_model(root,checkpoint):
     saved=torch.load(root/checkpoint,map_location='cpu',weights_only=False)
-    assert saved['epoch']==16
     model=AirSMART(**saved['hyper_parameters']);model.load_state_dict(saved['state_dict'],strict=True)
     return model.eval().requires_grad_(False)
 

@@ -48,13 +48,14 @@ def cached_basemap(bounds,cache):
     raise FileNotFoundError('No complete locally cached map zoom; no network requests made')
 
 
-def load_presentation(root,scene_id,grouped=False,all_anomalies=False,intrusion_memory=False):
-    directory=Path(root)/'outputs/integrated_demo'/scene_id
+def load_presentation(root,scene_id,grouped=False,all_anomalies=False,intrusion_memory=False,run_dir=None,fixed_view=None):
+    run_dir=Path(run_dir) if run_dir is not None else Path(root)/'outputs/integrated_demo'
+    directory=run_dir/scene_id
     manifest=json.loads((directory/'manifest.json').read_text())
     timeline=json.loads((directory/'timeline.json').read_text())
     records=json.loads((directory/'forecasts.json').read_text());forecasts={}
     for r in records:
-        with np.load(Path(root)/'outputs/integrated_demo'/r['prediction_file']) as a:
+        with np.load(run_dir/r['prediction_file']) as a:
             # CV is deliberately not read into presentation.
             forecasts[r['frame']]=dict(position=a['position'].copy(),heading=a['heading'].copy(),medoid=int(a['medoid']))
     with np.load(directory/'observations.npz') as a:stream={key:a[key].copy() for key in a.files}
@@ -71,7 +72,10 @@ def load_presentation(root,scene_id,grouped=False,all_anomalies=False,intrusion_
         points += [forecasts[timeline[f]['objects'][agent]['forecast_origin_frame']]['position'][g['representative_index'],agent,:,:2]
                    for f,per_object in object_groups.items() for agent,frame_groups in per_object.items() for g in frame_groups]
     bounds=visual.view_bounds(np.concatenate(points),aspect=(16*.68)/(9*.77))
-    image,zoom,pb=cached_basemap(bounds,Path(root)/'data/basemap_cache')
+    if fixed_view is None:
+        image,zoom,pb=cached_basemap(bounds,Path(root)/'data/basemap_cache')
+    else:
+        bounds=fixed_view['bounds'];image=fixed_view['map_image'];zoom=fixed_view['zoom'];pb=fixed_view['pb'].copy()
     return dict(manifest=manifest,timeline=timeline,forecasts=forecasts,stream=stream,
         map_image=image,zoom=zoom,pb=pb,bounds=bounds,groups=groups,grouped=grouped,object_groups=object_groups,all_anomalies=all_anomalies,intrusion_memory=intrusion_memory)
 
