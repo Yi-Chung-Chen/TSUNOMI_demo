@@ -1840,3 +1840,47 @@ summaryCSV and examplefigure copied to docs/anomaly_context_time*. Limited5day
 coverage and traffic selection/flow can confound apparent time effects. This
 shows learned clock dependence, not that nighttime itself means threat. Commit
 locally and STOP for review before any integration into the demo.
+
+## Selected clock-only anomaly flips (2026-11-03)
+
+Yi-Chung requested examples crossing cutoff by clock alone, including a
+constructed drone normal by day/anomalous by night. Loaded frozen context
+state_density.npz and exact12.636101207578164cutoff. No refit, cutoff/rule changes,
+NN training/rollout, advisor, packages or network. Existing demo untouched.
+
+scripts.context_flip_examples searches a declared finite state grid: height
+30/75/150m, speed2/7.5/15/25m/s,12course-bin centres, occupied cell centres with
+>=100pooled training states in BOTH contexts.37632candidates,44qualify;
+select maximum minimum cutoff margin, explicitly a showcase selection and not
+performance evaluation. Constructed10s constant-velocity drone with2s extra
+history for exact original state features; every displayed state satisfies
+DAYscore<=cutoff<NIGHTscore. Identical geometry, altitude, velocity/course and
+common threshold, no class/identity input and no arbitrary night penalty.
+
+Synthetic drone:height30m,speed25m/s; scores11.79867day vs15.50385night.
+Current grid/height training support4410day/707night. Night-minus-day factors:
+location/height+1.13472nats,speed+2.23199,direction+.33846; speed drives most
+increase. State labelNORMALmeans typical under aircraft reference density,
+not identification as aircraft or safety/permission. Original native-drone
+route was not modified; new example clearly labeled synthetic.
+
+Added two actual10-04reference aircraft states with>=1000support each, distinct
+cells and valid10s histories, same selection objective. Reference01:
+scenario000208/a22003/frame450,11.18915->14.17652,support3272/2566;
+reference02:scenario000208/a24c99/frame762,11.30066->13.89239,support2373/1791.
+Direction is largest contributor in both. Both current-state scores reproduce
+stored context token scores within1e-10. Histories remain original; only the
+clock period is counterfactually changed, not a claim of two actual recordings.
+
+Rendered three paired3200x1600PNGmaps using local cached basemap only, plus
+component_comparison.png,README.md,examples.json and individual trackNPZs in
+outputs/context_flip_examples. Day/night lighting deliberately not simulated;
+12:00/22:00Chicago labels identify the two fixed clock categories. Allcomponent
+sums validated; each pair uses exactly shared track/map/cutoff. Self-reviewed
+all4figures for legibility and agreement. Initial export cache path typo was
+corrected before successful render; no downloads.521frozen context, integrated
+and split files SHA256-unchanged. No additional tests for this presentation-only
+wrapper; data/score invariants execute during export, existing model untouched.
+Committed method/source metadata and primarydrone PNG copies under docs/
+context_flip_examples{.md,.json},context_flip_drone.png. Local commit; stop for
+review. Selection and time/flow/sample-coverage limitations explicitly disclosed.

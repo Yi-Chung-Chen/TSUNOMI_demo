@@ -205,3 +205,12 @@ back off toward global distributions for sparse contexts, evaluate held-out
 training, model inference, weather claims, packages, network or advisor calls.
 Save outputs/anomaly_context_time, methods/results and tests in PROGRESS.md;
 local commit and stop for review. Existing artifacts/demos remain frozen.
+
+Yi-Chung approved selected clock-only anomaly illustrations on2026-11-03:
+construct a clearly labeled synthetic drone track scoring below the existing
+clock-context cutoff by day and above it by night, plus reference examples.
+Use the frozen context model/cutoff; no refit, tuning, model rollout, existing
+artifact edits or demo replacement. Disclose showcase selection and that normal
+means typical under aircraft reference states, not a validated drone class.
+Write separate example artifacts, verify scores/equal tracks, update progress,
+commit locally and stop for review. No network, packages or advisor calls.

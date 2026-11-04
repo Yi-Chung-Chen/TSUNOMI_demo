@@ -1,0 +1,131 @@
+{
+  "cutoff": 12.636101207578164,
+  "model_sha256": "fa3b25bb2959cee4f8b298ba5dc555b666855ba8a46419787eb92957eccf472e",
+  "frozen_files_unchanged": 521,
+  "refit": false,
+  "model_rollout": false,
+  "examples": [
+    {
+      "id": "synthetic_drone",
+      "kind": "synthetic_drone",
+      "source": "Constructed constant-velocity track; not an observed drone recording",
+      "selection": {
+        "searched_states": 37632,
+        "qualifying_states": 44,
+        "rule": "maximum minimum cutoff margin; showcase selection, not test performance"
+      },
+      "position_enu_m": [
+        -813.2728594956274,
+        -1306.8931586450572,
+        30.0
+      ],
+      "speed_mps": 24.999999999999986,
+      "course_rad": 2.8797932657906413,
+      "day_score": 11.798674609976638,
+      "night_score": 15.503845146146167,
+      "cutoff": 12.636101207578164,
+      "support_day": 4410,
+      "support_night": 707,
+      "largest_increase": "Speed at this location",
+      "component_increase": {
+        "Location / height": 1.1347186772425806,
+        "Speed at this location": 2.2319910813933346,
+        "Direction at this location": 0.33846077753361326
+      },
+      "components_day": {
+        "location_height_nll": 7.214741827656364,
+        "speed_nll": 3.3416072585568397,
+        "course_nll": 1.242325523763435
+      },
+      "components_night": {
+        "location_height_nll": 8.349460504898945,
+        "speed_nll": 5.573598339950174,
+        "course_nll": 1.5807863012970482
+      },
+      "same_track_for_both_contexts": true,
+      "image": "synthetic_drone_day_vs_night.png"
+    },
+    {
+      "id": "reference_aircraft_01",
+      "kind": "reference_aircraft",
+      "source": "scenario_000208_aircraft / a22003 / frame 450",
+      "selection": {
+        "qualifying_token_rows": 89,
+        "minimum_support_each": 1000,
+        "rule": "largest minimum margin, distinct cells, valid10s reference history; illustrative selection"
+      },
+      "position_enu_m": [
+        393.9581298828125,
+        913.5068359375,
+        54.97999954223633
+      ],
+      "speed_mps": 58.7414964747559,
+      "course_rad": -3.1363101157557427,
+      "day_score": 11.189149017229623,
+      "night_score": 14.176519791297904,
+      "cutoff": 12.636101207578164,
+      "support_day": 3272,
+      "support_night": 2566,
+      "largest_increase": "Direction at this location",
+      "component_increase": {
+        "Location / height": -0.45220616785000534,
+        "Speed at this location": 1.397264810231038,
+        "Direction at this location": 2.0423121316872495
+      },
+      "components_day": {
+        "location_height_nll": 7.513145688407321,
+        "speed_nll": 2.1611217425284988,
+        "course_nll": 1.5148815862938025
+      },
+      "components_night": {
+        "location_height_nll": 7.060939520557316,
+        "speed_nll": 3.558386552759537,
+        "course_nll": 3.5571937179810518
+      },
+      "same_track_for_both_contexts": true,
+      "image": "reference_aircraft_01_day_vs_night.png"
+    },
+    {
+      "id": "reference_aircraft_02",
+      "kind": "reference_aircraft",
+      "source": "scenario_000208_aircraft / a24c99 / frame 762",
+      "selection": {
+        "qualifying_token_rows": 89,
+        "minimum_support_each": 1000,
+        "rule": "largest minimum margin, distinct cells, valid10s reference history; illustrative selection"
+      },
+      "position_enu_m": [
+        164.65216064453125,
+        913.497802734375,
+        54.97999954223633
+      ],
+      "speed_mps": 56.155456569910626,
+      "course_rad": -3.1415616770461114,
+      "day_score": 11.300661800615313,
+      "night_score": 13.892393345935277,
+      "cutoff": 12.636101207578164,
+      "support_day": 2373,
+      "support_night": 1791,
+      "largest_increase": "Direction at this location",
+      "component_increase": {
+        "Location / height": -0.41388729106602806,
+        "Speed at this location": 1.0836309817472665,
+        "Direction at this location": 1.9219878546387272
+      },
+      "components_day": {
+        "location_height_nll": 7.834395403575773,
+        "speed_nll": 1.9302960556828017,
+        "course_nll": 1.535970341356738
+      },
+      "components_night": {
+        "location_height_nll": 7.4205081125097445,
+        "speed_nll": 3.013927037430068,
+        "course_nll": 3.4579581959954653
+      },
+      "same_track_for_both_contexts": true,
+      "image": "reference_aircraft_02_day_vs_night.png"
+    }
+  ],
+  "visual_self_review": "All three map pairs and component comparison reviewed; labels legible; common track/map/cutoff",
+  "score_checks": "Synthetic entire10s day-below/night-above; reference scores reproduce stored token rows; component sums equal totals"
+}
