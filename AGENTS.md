@@ -214,3 +214,9 @@ artifact edits or demo replacement. Disclose showcase selection and that normal
 means typical under aircraft reference states, not a validated drone class.
 Write separate example artifacts, verify scores/equal tracks, update progress,
 commit locally and stop for review. No network, packages or advisor calls.
+
+Yi-Chung approved animation of the accepted synthetic clock-flip drone example
+on2026-11-04: read its saved10s track and frozen context density, synchronised
+day/night GIF+MP4, identical geometry and unchanged cutoff. No route search,
+refit, NN forecast, network/packages/advisor or edits to earlier outputs.
+Export separately, validate/review, update progress and commit locally.

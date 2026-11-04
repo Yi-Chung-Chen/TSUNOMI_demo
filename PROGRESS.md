@@ -1884,3 +1884,27 @@ wrapper; data/score invariants execute during export, existing model untouched.
 Committed method/source metadata and primarydrone PNG copies under docs/
 context_flip_examples{.md,.json},context_flip_drone.png. Local commit; stop for
 review. Selection and time/flow/sample-coverage limitations explicitly disclosed.
+
+## Clock-flip drone animation (2026-11-04)
+
+Yi-Chung approved GIF/MP4 from the accepted paired synthetic drone illustration.
+Read saved synthetic_drone_track.npz and frozen context density/cutoff only;
+no route search, refit, neural model run, network/packages/advisor. Added optional
+animation callback to existing static renderer; default static behaviour retained.
+scripts.context_flip_animation interpolates the existing3Hz straight track for
+15fps display only. Both panels share position/height/speed/course and timing,
+while clock categories remain12:00/22:00Chicago. Same map/style as accepted PNG.
+
+151frames1600x800, t0..10s real-time; MP4exact15fps, GIF60/70ms centisecond timing
+averages15fps. Scores recomputed/verified all display frames:day11.79867normal,
+night15.50385anomalous, cutoff12.63610. Constants are expected: this track stays
+in the same grid/height/speed/course bins. Original track points unchanged; no
+new forecast or fabricated sensor recording. Reviewed t0/t5/t10PNG screenshots;
+synchronised icons/history and legible score cards. GIF frame count/dimensions,
+MP4ffprobe151frames/15fps and complete ffmpeg decode all PASS.518existing context,
+selected-example and integrated-demo files SHA256-identical after export.
+
+MP4/GIF and still/reviewPNG/receipt/README under outputs/context_flip_animation.
+Committed reproduction script and docs/context_flip_animation{.md,_acceptance.json}.
+Presentation-only wrapper validated with export assertions/media checks; no new
+unit tests or repetition of unchanged model tests. Local commit; stop for review.

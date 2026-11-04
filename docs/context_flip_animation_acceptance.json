@@ -1,0 +1,22 @@
+{
+  "frames": 151,
+  "mp4_fps": 15,
+  "playback": "real time;10s trajectory",
+  "size": [
+    1600,
+    800
+  ],
+  "gif_centisecond_timing": true,
+  "day_score": 11.798674609976638,
+  "night_score": 15.503845146146167,
+  "cutoff": 12.636101207578164,
+  "source_track_sha256": "47801a9a53f4a021807e2ee039f4d61ae760e703d66fda07a9b2c995b84048f9",
+  "no_route_search": true,
+  "no_refit": true,
+  "no_forecast": true,
+  "shared_geometry": true,
+  "interpolated_display_only": true,
+  "protected_files_unchanged": 518,
+  "mp4_full_decode": true,
+  "self_review": "start/mid/end frames inspected; synchronized geometry, readable scores, normal/orange icons; full MP4 decode passed"
+}

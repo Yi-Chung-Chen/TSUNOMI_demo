@@ -90,7 +90,7 @@ def reference_examples(root,model,cutoff):
     return cases
 
 
-def render_pair(case,model,cutoff,out):
+def render_pair(case,model,cutoff,out,animation_callback=None):
     state={k:v[-1:] for k,v in case['states'].items()}
     day=model.score_context(state,0);night=model.score_context(state,1)
     assert day['state_nll'][0]<=cutoff<night['state_nll'][0]
@@ -104,7 +104,7 @@ def render_pair(case,model,cutoff,out):
     projected=visual.enu_to_pixel(xy,zoom)
     cxy=g.bounds[0]+np.array([cell%g.nx,cell//g.nx])*250
     polygon=visual.enu_to_pixel(cxy+np.array([[0,0],[250,0],[250,250],[0,250]]),zoom)
-    fig=plt.figure(figsize=(20,10),facecolor=BG)
+    fig=plt.figure(figsize=(20,10),facecolor=BG);animation_artists=[]
     fig.text(.035,.957,'SYGARD / CONTEXTUAL ANOMALY',color=TEXT,fontsize=21,fontweight='bold')
     fig.text(.035,.918,f"{case['title']}  ·  SAME POSITION, HEIGHT, SPEED AND DIRECTION",color=MUTED,fontsize=12)
     for label,(left,scores,title,clock) in enumerate([(0.035,day,'DAYTIME','12:00 local'),(.525,night,'NIGHTTIME','22:00 local')]):
@@ -117,11 +117,12 @@ def render_pair(case,model,cutoff,out):
         ax.add_patch(Polygon(polygon,closed=True,fill=False,ec='#c77dff',ls=':',lw=1.6,alpha=.8))
         segments=np.stack([projected[:-1],projected[1:]],axis=1)
         colours=np.tile(matplotlib.colors.to_rgba(CYAN),(len(segments),1));colours[:,3]=np.linspace(.15,.95,len(segments))
-        ax.add_collection(LineCollection(segments,colors=colours,linewidths=3))
+        trail=LineCollection(segments,colors=colours,linewidths=3);ax.add_collection(trail)
         course=float(state['course'][0]);marker=(DRONE if case['kind']=='synthetic_drone' else visual.PLANE).transformed(Affine2D().rotate(course))
-        ax.plot(*projected[-1],marker=marker,ms=30,mfc=CYAN,mec=ORANGE if label else BG,mew=.8 if label else 1,ls='',zorder=4)
-        ax.annotate('Drone 01' if case['kind']=='synthetic_drone' else 'Aircraft',projected[-1],xytext=(18,24),textcoords='offset points',color=colour,fontsize=13,
+        icon,=ax.plot(*projected[-1],marker=marker,ms=30,mfc=CYAN,mec=ORANGE if label else BG,mew=.8 if label else 1,ls='',zorder=4)
+        name=ax.annotate('Drone 01' if case['kind']=='synthetic_drone' else 'Aircraft',projected[-1],xytext=(18,24),textcoords='offset points',color=colour,fontsize=13,
                     bbox=dict(fc=BG,ec='none',pad=3))
+        animation_artists.append((trail,icon,name))
         ax.text(.02,.025,'Same 10 s track · dotted outline = 250 m grid cell',transform=ax.transAxes,color=TEXT,fontsize=9,bbox=dict(fc=BG,ec='none',pad=4))
         fig.add_artist(FancyBboxPatch((left,.15),.44,.145,boxstyle='round,pad=.012',fc='#132434',ec='#294052',transform=fig.transFigure))
         fig.text(left+.012,.254,'NORMAL' if label==0 else 'ANOMALY',color=colour,fontsize=21,fontweight='bold')
@@ -133,7 +134,9 @@ def render_pair(case,model,cutoff,out):
     fig.text(.035,.066,'Selected clock-only counterfactual · aircraft reference density · normal does not identify object type or establish safety',color=MUTED,fontsize=10)
     fig.text(.035,.034,'Synthetic drone track' if case['kind']=='synthetic_drone' else 'Reference aircraft track; only clock period is counterfactually changed',color=MUTED,fontsize=10)
     fig.text(.965,.034,'© OpenStreetMap contributors',ha='right',color=MUTED,fontsize=9)
-    target=out/f"{case['id']}_day_vs_night.png";fig.savefig(target,dpi=160,facecolor=BG);plt.close(fig)
+    target=out/f"{case['id']}_day_vs_night.png";fig.savefig(target,dpi=160,facecolor=BG)
+    if animation_callback is not None:animation_callback(fig,animation_artists,image,zoom)
+    plt.close(fig)
     np.savez_compressed(out/f"{case['id']}_track.npz",time_s=case['times'],position=case['path'])
     record=dict(id=case['id'],kind=case['kind'],source=case['source'],selection=case['selection'],
                 position_enu_m=pos.tolist(),speed_mps=float(state['speed'][0]),course_rad=float(state['course'][0]),
