@@ -1,0 +1,97 @@
+{
+  "stage": "context_time_experiment",
+  "timezone": "America/Chicago",
+  "clock_periods": [
+    "day_07_19",
+    "night_19_07"
+  ],
+  "train_scenarios": 618,
+  "train_states": {
+    "day_07_19": 672638,
+    "night_19_07": 334677
+  },
+  "fit_dates": [
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02"
+  ],
+  "eval_tokens": 28413,
+  "cutoffs": {
+    "global": 12.462077425107209,
+    "context": 12.636101207578164
+  },
+  "cutoff_source": "10-03 airborne p95, per model, common to both clock contexts; no10-04 calibration",
+  "joint_prior_states": 1000.0,
+  "local_prior_states": 100.0,
+  "exact_global_baseline_reproduced": true,
+  "source_timestamp_audit_count": 618,
+  "counterfactual_10_04": {
+    "median_night_minus_day": 0.8920901659122755,
+    "p10": -1.0494623034489106,
+    "p90": 1.49003549052453,
+    "flag_flips": 382,
+    "total": 11838,
+    "support_strata": [
+      {
+        "minimum_pooled_support_both_contexts": 0,
+        "tokens": 11838,
+        "flag_flips": 382
+      },
+      {
+        "minimum_pooled_support_both_contexts": 100,
+        "tokens": 11547,
+        "flag_flips": 205
+      },
+      {
+        "minimum_pooled_support_both_contexts": 1000,
+        "tokens": 10022,
+        "flag_flips": 106
+      }
+    ]
+  },
+  "primary_10_04_airborne": {
+    "global_model": {
+      "date": "2026-10-04",
+      "ground": "False",
+      "clock_group": "all",
+      "model": "global",
+      "tokens": 9200,
+      "mean_state_nll": 9.249302444831958,
+      "median_state_nll": 8.832622795857912,
+      "p95_state_nll": 11.387990034013754,
+      "cutoff_10_03_airborne_p95": 12.462077425107209,
+      "fraction_above_cutoff": 0.02,
+      "drone_fraction_above_cutoff": 1.0,
+      "auroc_drone_positive": 0.9997639964264443
+    },
+    "context_model": {
+      "date": "2026-10-04",
+      "ground": "False",
+      "clock_group": "all",
+      "model": "context",
+      "tokens": 9200,
+      "mean_state_nll": 8.99545376299694,
+      "median_state_nll": 8.663246985539072,
+      "p95_state_nll": 11.096792901808167,
+      "cutoff_10_03_airborne_p95": 12.636101207578164,
+      "fraction_above_cutoff": 0.012934782608695652,
+      "drone_fraction_above_cutoff": 1.0,
+      "auroc_drone_positive": 0.9996791244788564
+    }
+  },
+  "elapsed_s": 6.9353482879232615,
+  "model_inference": false,
+  "neural_training": false,
+  "demo_modified": false,
+  "weather_used": false,
+  "protected_files_unchanged": 534,
+  "serialized_model_round_trip_passed": true,
+  "plots_self_reviewed": [
+    "context_density.png",
+    "same_state_context_effect.png",
+    "paired_examples.png"
+  ],
+  "tests": "18 passed, 19 dependency warnings (context density + original state density tests)"
+}

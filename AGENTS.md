@@ -196,3 +196,12 @@ history fades with age over faint raw noisy history; icon position smoothing
 and predicted near-term heading. Read saved D11 only, no inference/training or
 score/rule changes. Keep D11 and all earlier outputs; export D12 for review,
 record checks in PROGRESS.md and commit locally. No advisor/packages/network.
+
+Yi-Chung authorized a separate contextual-anomaly experiment on2026-11-03:
+condition existing grid state density on Chicago local clock period (07–19,
+19–07). Audit source timestamps, fit counts only on existing train dates,
+back off toward global distributions for sparse contexts, evaluate held-out
+10-03/10-04 without selecting a favorable split or changing demo. No neural
+training, model inference, weather claims, packages, network or advisor calls.
+Save outputs/anomaly_context_time, methods/results and tests in PROGRESS.md;
+local commit and stop for review. Existing artifacts/demos remain frozen.

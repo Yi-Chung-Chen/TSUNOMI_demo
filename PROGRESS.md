@@ -1779,3 +1779,64 @@ comparison_*.png,README.md,acceptance.json,display_pose.npz (display-only).
 Packaged integrated_demo_v7.zip,ZIPCRC verified; oldv6 preserved. Committed
 method/acceptance copies in docs/integrated_demo_D12{.md,_acceptance.json}.
 Local commit then STOP for review; no remote push.
+
+## Clock-conditioned anomaly experiment (2026-11-03)
+
+Yi-Chung approved trying time-conditioned grid counting. Separate experiment
+only: outputs/anomaly_context_time, current D12 detector/demo unchanged.
+Audited618train scenario starts across index, metadata and processed UTC, plus
+first raw reference UTC=entry start+frame/3 and source-observation bracketing.
+Read-only dataset documentation identifies original ADS-B route observations;
+no claim of external verification or complete ORD traffic coverage. Chicago
+America/Chicago conversion (not workstation Indiana timezone), fixed07–19 local
+clock vs19–07, not astronomical sunlight. Starts388/230train scenarios;
+actual eligible3Hz states672638day/334677night. Timestamps apply per state,
+including boundary crossings. Weather absent; no context labels from weather.
+
+Added ContextDensity around original M8b StateDensity. Same250m/height bins,
+spatial pooling and speed/course[1,2,1]/4 smoothing. Fit only09-28..10-02train.
+Joint density uses1000global-prior pseudo-states; local speed/course uses100;
+fixed before evaluation, no parameter search. All probabilities normalize.
+Unsupported local speed/course falls back exactly to global; wholly absent
+context does too. Location uses globally normalized shrinkage, not exact
+per-cell fallback: sparse local support can still yield large changes. Global
+model reproduces frozen M8b probabilities and all28413old token scores exactly.
+Serialized count/probability round-trip verified. No NN inference or training.
+
+Scored identical existing28413M8b token rows with actual clocks, and paired
+counterfactual day/night clocks keeping each state fixed. Aircraft uses preserved
+UTC; single synthetic drone uses its scripted18UTC/13Chicago source interval.
+Cutoffs calibrated on10-03AIRBORNEp95per model, common across contexts;10-04
+report-only. Existing inspected10-04demo cutoff unchanged. No rule-based night
+bonus. Counterfactual scores are illustrative, not observed alternate outcomes.
+
+10-04airborne: meanNLL9.2493->8.9955; reference-aircraft exceedance2.00%->1.2935%
+under respective10-03cutoffs12.4621/12.6361. Drone retained100%above bothcutoffs.
+Drone-positiveAUROC0.999764->0.999679(slightly worse, not universal improvement).
+10-04ground exceedance0.6065%->0.4928%;10-03ground5.5701%->6.5266%(worse).
+These exceedance rates are not labeled threat false positives; only one drone
+route, no significance/calibration/generalization claim. Night-subgroupAUROC
+has day-drone positives and is explicitly not a matched-context metric.
+
+Same10-04aircraft state/night-minus-dayNLLp10/median/p90=-1.0495/.8921/1.4900;
+382/11838change flag when only clock changes. Of11547states with>=100pooled
+train support in EACHcontext,205flip; with>=1000each,106/10022flip. Pooled3Hz
+counts are correlated, not independent sample sizes. Fixed10th/90th-quantile
+illustrative examples selected from10-03with>=100each, not tuned on10-04;
+both direction effects are shown even though those two examples do not cross
+cutoff. Coverage/conditional-location map and score-difference plots self-viewed.
+
+18targeted tests pass,19existing dependency warnings,3.68s: clock/DST/boundaries,
+context-dependent rarity, normalized priors/fallback, mixed batches, save/load,
+plus original state-density tests. Experiment6.94sCPU; no GPU, advisor, network,
+packages, neural training or model execution. Protected534existing split, frozen
+state and integrated-demo files retain SHA256; verify_lock passes. No score,
+forecast, manifest, dictionary, checkpoint, threat or media changes to old demos.
+
+Outputs include timestamp_audit.csv,coverage.csv,state_density.npz,token_scores.csv,
+summary.csv/summary.md,context_density.png,same_state_context_effect.png,
+paired_examples.png/csv,acceptance.json and tests.log. Methods/report, acceptance,
+summaryCSV and examplefigure copied to docs/anomaly_context_time*. Limited5day
+coverage and traffic selection/flow can confound apparent time effects. This
+shows learned clock dependence, not that nighttime itself means threat. Commit
+locally and STOP for review before any integration into the demo.
