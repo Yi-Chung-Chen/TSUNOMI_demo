@@ -192,7 +192,9 @@ class CleanupRenderer(DemoRenderer):
         for agent,(history,future,icon,endpoint,text,marker) in enumerate(self.tracks):
             obj=row['objects'][agent];point=self.display_point(agent,frame)
             self.draw_history(history,agent,frame);icon.set_data([point[0]],[point[1]])
-            icon.set_marker(marker.transformed(Affine2D().rotate(self.display_heading(agent,frame))))
+            heading=self.display_heading(agent,frame)
+            icon.set_marker(marker.transformed(Affine2D().rotate(heading)) if np.isfinite(heading) else 'o')
+            icon.set_markersize(24 if np.isfinite(heading) else 7)
             icon.set_mec(ORANGE if obj['anomalous'] else BG)
             # Rotor gaps are narrower than the aircraft body: use a finer drone edge.
             icon.set_mew((.55 if agent==0 else .8) if obj['anomalous'] else 1)

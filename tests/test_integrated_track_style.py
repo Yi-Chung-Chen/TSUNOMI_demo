@@ -20,7 +20,7 @@ def test_orientation_uses_issued_model_forecast_and_short_circular_transition():
     timeline=[{'objects':[{'forecast_origin_frame':18 if f>=18 else None}]} for f in range(24)]
     data=dict(timeline=timeline,forecasts={18:dict(position=path,medoid=0)})
     headings=predicted_headings(data,position)
-    assert abs(headings[0,-1])>3 and np.all(np.abs(np.diff(headings[0]))<1.5)
+    assert abs(headings[0,-1])>3 and np.all(np.abs(np.diff(headings[0,1:]))<1.5)
     other=position.copy();other[:,19:]*=-100
     np.testing.assert_array_equal(predicted_headings(data,other)[:,18:],headings[:,18:])
 
@@ -30,3 +30,39 @@ def test_fixed_time_tail_fades_with_age_and_has_thirty_segments():
     assert start==30 and len(alpha)==30 and np.all(np.diff(alpha)>0)
     assert alpha[-1]==.95
     assert trail_alphas(0)[1].size==0
+
+
+def test_westbound_track_initializes_at_first_valid_direction_without_half_turn():
+    p=np.zeros((1,8,3));p[0,3:,0]=-10*np.arange(1,6)
+    data=dict(timeline=[{'objects':[{'forecast_origin_frame':None}]} for _ in range(8)],forecasts={})
+    heading=predicted_headings(data,p)
+    assert np.isnan(heading[0,:3]).all()
+    np.testing.assert_allclose(np.abs(heading[0,3:]),np.pi)
+    # Changes after the first valid direction cannot influence earlier frames.
+    changed=p.copy();changed[:,4:]=1000
+    np.testing.assert_array_equal(predicted_headings(data,changed)[:,:4],heading[:,:4])
+
+
+def test_first_issued_forecast_can_initialize_heading_without_observed_motion():
+    p=np.zeros((1,4,3));future=np.zeros((1,1,90,3));future[0,0,:,0]=-np.arange(90)
+    data=dict(timeline=[{'objects':[{'forecast_origin_frame':3 if f==3 else None}]} for f in range(4)],
+              forecasts={3:dict(position=future,medoid=0)})
+    heading=predicted_headings(data,p)
+    assert np.isnan(heading[0,:3]).all()
+    assert abs(heading[0,3])==np.pi
+
+
+def test_unknown_heading_draws_dot_then_restores_directional_icon():
+    from tests.test_integrated_presentation import fixture
+    from src.integrated.track_style import TrackStyleRenderer
+    d=fixture();d.update(grouped=True,all_anomalies=True,object_groups={},forecasts={})
+    d['timeline']=d['timeline'][:2]
+    for key in ['observed','reference']:d['stream'][key]=d['stream'][key][:,:2]
+    renderer=TrackStyleRenderer(d)
+    try:
+        renderer.frame(0)
+        assert all(track[2].get_marker()=='o' and track[2].get_markersize()==7 for track in renderer.tracks)
+        renderer.frame(1)
+        assert all(track[2].get_markersize()==24 for track in renderer.tracks)
+        assert all(not isinstance(track[2].get_marker(),str) for track in renderer.tracks)
+    finally:renderer.close()

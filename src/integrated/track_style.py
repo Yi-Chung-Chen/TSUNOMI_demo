@@ -26,10 +26,11 @@ It is solely a display transform, not a replacement tracker or a model input.
 def predicted_headings(data,display_position,tau_s=.6):
     """Causal near-term joint-medoid tangent, circularly eased for display.
 
-Use only the latest already-issued forecast, over its next ~2s. Before the
-first forecast (6s), fall back to the filtered observed displacement.
-"""
-    n,t,_=display_position.shape;result=np.zeros((n,t))
+    Use only the latest already-issued forecast, over its next ~2s. Before the
+    first forecast (6s), fall back to the filtered observed displacement.
+    NaN means direction is unknown; the first valid target initializes directly.
+    """
+    n,t,_=display_position.shape;result=np.full((n,t),np.nan)
     alpha=1-np.exp(-1/(3*tau_s))
     for frame,row in enumerate(data['timeline']):
         for agent,obj in enumerate(row['objects']):
@@ -39,9 +40,13 @@ first forecast (6s), fall back to the filtered observed displacement.
                 start=max(0,frame-origin);end=min(start+6,len(path)-1)
                 delta=path[end,:2]-path[start,:2]
             else:delta=display_position[agent,frame,:2]-display_position[agent,max(0,frame-6),:2]
-            previous=result[agent,frame-1] if frame else 0.
-            target=np.arctan2(delta[1],delta[0]) if np.linalg.norm(delta)>1e-6 else previous
-            result[agent,frame]=target if frame==0 else previous+alpha*np.arctan2(np.sin(target-previous),np.cos(target-previous))
+            previous=result[agent,frame-1] if frame else np.nan
+            if not np.isfinite(delta).all() or np.linalg.norm(delta)<=1e-6:
+                result[agent,frame]=previous
+                continue
+            target=np.arctan2(delta[1],delta[0])
+            # Unknown is not east: initialize from the first causal direction.
+            result[agent,frame]=target if not np.isfinite(previous) else previous+alpha*np.arctan2(np.sin(target-previous),np.cos(target-previous))
     return result
 
 

@@ -230,3 +230,11 @@ frozen context density/cutoff. Export separate full-scene media, no prior-output
 replacement or tuning. Keep existing threat/latch/group rules, disclose context
 counterfactual and source selection. No network/packages/advisor. Validate and
 commit locally after review.
+
+2026-11-04 heading initialization fix authorized: unknown heading is not east.
+Show a non-directional dot until a causal observed/issued-forecast direction is
+available; initialize directly from that first direction, then circular easing.
+Re-render the current full clock-pair scenario from saved forecasts only, output
+separately under context_scenario_demo_heading_fixed; preserve older media and
+all scores/rules/inputs. Add regression checks, progress, local commit. No new
+inference, training, packages, network or advisor calls.

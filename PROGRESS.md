@@ -1950,3 +1950,40 @@ All-frame layout assertions pass.539old integrated/context/example/animation/
 split files SHA256-identical; verify_lock passed. Numeric timelines, allshared
 forecasts and reviewPNGs saved; docs/context_scenario_demo{.md,_acceptance.json}
 record provenance and results. Local commit and STOP for review.
+
+## Heading initialization bug fix (2026-11-04)
+
+User noticed the opening aircraft rotating180degrees and authorized correction.
+Confirmed frame0 had no displacement but predicted_headings assigned0deg/east;
+circular easing then rotated to the actual~180deg/west before any forecast
+existed. This was a display initialization artifact, not a predicted turn.
+
+Heading now startsunknown(NaN). No-direction samples retainunknown/lastknown
+heading; first finite nonzero causal displacement/issued-forecast tangent sets
+heading directly, then existing0.6s circular easing resumes. Unknown directions
+render as7px nondirectional dots; valid directions restore24px rotated icons.
+No future observations or clean-reference/GT heading is used. Shared D12-style
+renderer fixed, historical media preserved.
+
+Added render-only mode to scripts.context_scenario_demo: read saved original
+observations and forecasts, never load/execute model, export separate directory
+outputs/context_scenario_demo_heading_fixed. Original inference guard preserved.
+Zero new inference/NNtraining/refitting. Old timelines and future_groups JSON
+match byte-for-byte; original anomaly/cutoff/status/zone/latch/map/input/forecast
+values unchanged.563old artifact/split files SHA256-unchanged; verify_lock PASS.
+
+Actual opening:frame0unknown,dot; frame1(0.33s) aircraftdirect165.82deg from its
+first observed displacement, rather than old70.68deg eased from fakeeast. Both
+tracks initialize directly. Added regression tests for stationary startup,
+westbound180deg firstvalid direction, no-future leakage, forecast initialization,
+and dot->directional icon transition. Existing circular forecast-easing test
+now excludes unknown prefix. Startup renderer fixture restricted to its actual
+two-frame test interval (the generic long fixture has an expired forecast).
+21targeted history/visual-cleanup/scenario tests PASS,19dependency warnings,4.04s.
+
+Re-rendered day/night MP4/GIF and t0/.33/1/2/6/10 reviewPNG. All-frame label/layout
+assertions and complete MP4decode PASS. Self-viewed first two frames: dot then
+correct westward aircraft, no artificial half-turn. Display heading/validity NPZ,
+acceptance,tests.log and README included. Docs/context_scenario_heading_fix.md
+and acceptance JSON committed for provenance. No packages, network, advisor or
+prior-file overwrites. Local commit and STOP for review.
