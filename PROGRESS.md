@@ -1908,3 +1908,45 @@ MP4/GIF and still/reviewPNG/receipt/README under outputs/context_flip_animation.
 Committed reproduction script and docs/context_flip_animation{.md,_acceptance.json}.
 Presentation-only wrapper validated with export assertions/media checks; no new
 unit tests or repetition of unchanged model tests. Local commit; stop for review.
+
+## Full-scenario clock-context animation correction (2026-11-04)
+
+Yi-Chung clarified that the requested animation should match the earlier full
+scenario demo, not the local split-screen illustration. Superseded local-only
+scope accordingly. New separate outputs/context_scenario_demo has daytime and
+nighttime MP4/GIF, original D12 airport map extents, reference aircraft, saved
+synthetic drone, unchanged fictional protected zone, model forecasts, status/
+WHY/object cards, fading history, smoothed icon positions and predicted heading.
+Object card SCORE shows conditional NLL; cutoff12.63610 visible in footer.
+
+New foreground had no compatible saved forecasts. Rather than borrowing wrong
+D11drone forecasts, executed one deterministic CPU-only joint inference run
+at6/8/10s,32samples/topk5/temp1,seed20261029, M10anchor epoch018. Inference guard
+prevents silent repeats; saved shared rawforecasts and receipt. Day/night reuse
+exact same joint predictions, not independently resampled ones. No NN training,
+parameter search, packages, network/advisor or prior-output replacement.
+
+Observed foreground is exactly the saved10s synthetic track; background is
+first10s of accepted D11B observed/reference aircraft, no reselection. Foreground
+has no added noise; background retains its original3m script noise. Model graph
+uses observed history only. State scoring starts after2s; forecasts after6s,
+same history/stride as existing implementation. Day/night model input identical;
+only frozen clock-conditioned detector changes. Scenario status/group/zone/
+observed-latch functions reused unchanged, no night bonus. Only renderer hook
+allows new object-card score column; old default remains zone-entry percent.
+
+Day:6collecting frames then25Normal traffic frames, drone11.79867. Night:
+6collecting then25Unusual activity frames, drone15.50385. Aircraft remains
+normal in BOTHcontexts throughout valid scoring. No actual/forecast intrusion
+threshold reached; no High or Potential intrusion fabricated. Night shows up
+to4real representative futures for anomalous drone; daytime retains the shared
+joint medoid under normal-object display rules. Both scenes share map/paths.
+
+18targeted presentation/history/scenario tests PASS,19existing dependency
+warnings,4.08s. Both31frameGIFs1600x900; MP4s real-time3Hz-source encoded15fps,
+full ffmpeg decode passes. Self-reviewed daytime/nighttime full t10PNG: cards
+legible, zone text complete, orange outline only at night, no label collisions.
+All-frame layout assertions pass.539old integrated/context/example/animation/
+split files SHA256-identical; verify_lock passed. Numeric timelines, allshared
+forecasts and reviewPNGs saved; docs/context_scenario_demo{.md,_acceptance.json}
+record provenance and results. Local commit and STOP for review.

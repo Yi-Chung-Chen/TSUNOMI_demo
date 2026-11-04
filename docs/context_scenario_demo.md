@@ -1,0 +1,9 @@
+# Full-scene clock-context demo
+
+Two separate full-map scenario animations in D12 style: synthetic drone, existing reference aircraft, unchanged fictional protected zone, model forecasts and right-side scenario/WHY/object cards. Object card shows conditional anomaly score, cutoff12.64. Day/night have exactly the same observed tracks and32 model futures; only clock-conditioned state scores differ. No night bonus or new threat rule.
+
+Saved synthetic10s track is unchanged (height30m,speed25m/s), and the background reuses the first10s of accepted D11 B observations/reference. Foreground is a clean script; background retains its original3m scripted noise. One CPU anchor inference run at6/8/10s,32samples/topk5/temp1,seed20261029; forecasts shared across both clocks. No6s-history forecasts before6s. Current scores need2s history. No training, network, packages or previous demo changes. No fabricated or borrowed drone predictions. The prior local split-screen video remains available separately.
+
+Normal/anomaly refers to aircraft-reference kinematics, not a drone identity or safety classifier. Showcase selected earlier for clock-dependent score flip, not evaluation performance. Daytime07–19/night19–07Chicago are counterfactual conditions. Context is in the anomaly detector, not the neural forecasting model; forecast probabilities are sample shares. Weather unused. Existing entry>=8/32 and observed intrusion latch rules remain unchanged.
+
+MP4/GIF1600x900,real-time3Hz source, MP4 encoded15fps. Review PNGs3200x1800. Full unchanged D12 airport map bounds; recent10s faded history, display-smoothed positions and model-directed heading. Same joint medoid/grouping rules, groups for anomalous objects. Both animations include the first2s collecting observations. Render source: scripts.context_scenario_demo; inference guard prevents accidental repeated runs.

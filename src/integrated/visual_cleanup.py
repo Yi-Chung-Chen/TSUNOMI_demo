@@ -155,6 +155,10 @@ class CleanupRenderer(DemoRenderer):
     def draw_history(self,history,agent,frame):
         history.set_data(*self.observed[agent,:frame+1].T)
 
+    def object_evidence_text(self,obj):
+        evidence=obj['entry']
+        return '—' if evidence is None else f"{100*evidence['entry_samples']/32:g}%"
+
     def frame(self,frame):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
@@ -169,7 +173,7 @@ class CleanupRenderer(DemoRenderer):
             obj=row['objects'][i];name.set_text('Drone 01' if i==0 else f'Aircraft {i:02d}')
             state='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
             status.set_text(state);status.set_color(ORANGE if obj['anomalous'] else (GREEN if state=='Normal' else MUTED))
-            evidence=obj['entry'];entry.set_text('—' if evidence is None else f"{100*evidence['entry_samples']/32:g}%")
+            entry.set_text(self.object_evidence_text(obj))
         self.cards['scenario'].set_color(LEVEL_COLOURS[row['scenario']['status']]);self.entry_text.set_text('')
         active=data['object_groups'].get(frame,{})
         groups=[]

@@ -220,3 +220,13 @@ on2026-11-04: read its saved10s track and frozen context density, synchronised
 day/night GIF+MP4, identical geometry and unchanged cutoff. No route search,
 refit, NN forecast, network/packages/advisor or edits to earlier outputs.
 Export separately, validate/review, update progress and commit locally.
+
+2026-11-04 user corrected the clock-pair animation request to the full scenario
+style (D12 map, aircraft, drone, zone, predictions, cards). This supersedes the
+previous local-animation-only scope: create one shared CPU anchor forecast run
+for the new joint scene, reuse exactly for day/night, no training. Use the saved
+synthetic10s drone and unchanged D11 background/zone; score both clocks with the
+frozen context density/cutoff. Export separate full-scene media, no prior-output
+replacement or tuning. Keep existing threat/latch/group rules, disclose context
+counterfactual and source selection. No network/packages/advisor. Validate and
+commit locally after review.
