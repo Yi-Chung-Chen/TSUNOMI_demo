@@ -1742,3 +1742,40 @@ SHA256 vs source verified. Size18,181,995bytes; SHA256
 84b07e7541fccff9a9286a19c681e6962c0565c81f6c3db735e13d404b4865d3.
 No training, advisor, network, packages, extra seeds or tuning. Local commit and
 STOP for Yi-Chung review; no remote push.
+
+## D12 — Fading tracker history and stable icons (2026-11-03)
+
+Implemented Yi-Chung's approved presentation revision after David's feedback.
+Kept full raw/noisy history as a faint line; last10s uses increasing opacity
+from old to recent, so the fixed-duration tail grows in length with speed.
+Marker display position uses a causal line fit over the last7samples (2s),
+evaluated at current time: no constant-velocity lag, no future observations.
+Marker heading uses the latest already-issued joint-medoid next~2s tangent,
+circularly eased with0.6s time constant; before6s forecast availability, filtered
+observed displacement is the explicit fallback. Forecast coordinates remain
+untouched; only their visual connector starts at the display-smoothed icon.
+These transforms are not used by scoring, model input or scenario decisions.
+
+Added opt-in TrackStyleRenderer and minimal default-preserving display hooks in
+CleanupRenderer. scripts.integrated_d12 reads saved D11/D4_anchor only; outputs
+D12 separately. Cards, sample percentages, current orange decisions, anomaly
+reasons, intrusion incident latch and map extents remain unchanged. Full632frame
+reinterpreted timelines match D11 exactly; raw observation arrays not mutated.
+All471prior integrated-demo files SHA256-identical after rendering and again at
+packaging. verify_lock passes. No inference/training, advisor, packages/network.
+
+9targeted tests pass (19existing dependency warnings,26.11s): causal prefix,
+noise reduction, constant-speed no-lag, model-directed circular heading and
+fixed10s fading; all existing visual-cleanup layout tests included. Both316frame
+GIFs1600x900, MP4s complete error-free ffmpeg decode. All-frame label checks pass.
+Self-reviewed A62.33comparison, B16/32acceleration, B91persistent High. Additional
+B56/58/63.33comparisons and PNGs saved. Display positional second-difference RMS
+is lower for both objects/scenes (raw/display: A2.55/.82 and2.85/1.12m;
+B7.38/2.48 and7.37/2.58m); this is a display diagnostic including real acceleration,
+not an improvement to tracking/model accuracy. B warning unchanged58s/22.67s lead.
+
+Review assets:outputs/integrated_demo/D12/{scene}/{scene}.mp4/.gif and reviewPNG;
+comparison_*.png,README.md,acceptance.json,display_pose.npz (display-only).
+Packaged integrated_demo_v7.zip,ZIPCRC verified; oldv6 preserved. Committed
+method/acceptance copies in docs/integrated_demo_D12{.md,_acceptance.json}.
+Local commit then STOP for review; no remote push.

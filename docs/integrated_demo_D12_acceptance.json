@@ -1,0 +1,89 @@
+{
+  "stage": "D12",
+  "model_execution": false,
+  "network": false,
+  "source": "D11/D4_anchor",
+  "display_position": "causal linear fit, last7samples (2s), evaluated at now",
+  "heading": "latest joint medoid next2s tangent, circular easing tau0.6s; filtered history before6s",
+  "history": "raw noisy positions; faint full history plus age-faded recent10s",
+  "scenes": [
+    {
+      "scene": "A_daytime_hobbyist",
+      "frames": 316,
+      "timeline_unchanged": true,
+      "observations_unchanged": true,
+      "labels_nonoverlapping": true,
+      "map_bounds": [
+        [
+          1072607.1642856784,
+          1557181.1700178576
+        ],
+        [
+          1073556.2313764128,
+          1557785.57130387
+        ]
+      ],
+      "review_frames": [
+        48,
+        96,
+        187
+      ]
+    },
+    {
+      "scene": "B_nighttime_approach",
+      "frames": 316,
+      "timeline_unchanged": true,
+      "observations_unchanged": true,
+      "labels_nonoverlapping": true,
+      "map_bounds": [
+        [
+          1072456.8238511905,
+          1557094.8280433663
+        ],
+        [
+          1073566.6021169052,
+          1557801.601086257
+        ]
+      ],
+      "review_frames": [
+        48,
+        96,
+        168,
+        174,
+        190,
+        273
+      ]
+    }
+  ],
+  "protected_files_unchanged": 471,
+  "tests": "9 passed,19 dependency warnings,26.11s",
+  "media_full_decode_passed": true,
+  "self_review": [
+    "A62.33 comparison",
+    "B16/32 acceleration comparison",
+    "B91 persistent High"
+  ],
+  "unchanged": "raw observations, model forecasts, scores, groups, shares, anomaly reasons, threat timeline, latch, map extent",
+  "jitter_metrics": {
+    "A_daytime_hobbyist": {
+      "raw_xy_second_difference_rms_m": [
+        2.5510311965824872,
+        2.8509077757112764
+      ],
+      "display_xy_second_difference_rms_m": [
+        0.8198910895298428,
+        1.122315163794111
+      ]
+    },
+    "B_nighttime_approach": {
+      "raw_xy_second_difference_rms_m": [
+        7.384633254605588,
+        7.3696453124488395
+      ],
+      "display_xy_second_difference_rms_m": [
+        2.4790076313275,
+        2.5842289372702956
+      ]
+    }
+  }
+}

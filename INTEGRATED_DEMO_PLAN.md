@@ -388,3 +388,13 @@ Done when: identical observation/anomaly/latch assertions pass; new and existing
 tests pass; protected hashes (incl. epoch_016 and all earlier demo outputs)
 unchanged; media self-reviewed; PROGRESS.md updated; local commit; STOP for
 Yi-Chung's review. No advisor calls, packages, network, training or rule changes.
+
+## D12 — Tracker history and display smoothing (2026-11-03)
+
+Yi-Chung approved fading recent10s raw history over a faint full history,
+causal display-only icon position smoothing and forecast-based icon heading.
+Read D11 anchor data only, retain exact scores/forecast groups/threat timeline
+and map bounds. Position: past7samples line fit at now; heading: next~2s joint
+medoid tangent with0.6s circular easing, filtered-track fallback before6s.
+Export D12/v7 separately, test causality/rendering, visually review, commit.
+No model execution, training, advisor, packages, network or historical edits.

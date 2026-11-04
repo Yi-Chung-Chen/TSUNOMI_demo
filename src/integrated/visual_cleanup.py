@@ -145,6 +145,16 @@ class CleanupRenderer(DemoRenderer):
         occupied.append((box[0]-4*self.dpi/100,box[1]-4*self.dpi/100,box[2]+4*self.dpi/100,box[3]+4*self.dpi/100))
         return box
 
+    def display_point(self,agent,frame):
+        return self.observed[agent,frame]
+
+    def display_heading(self,agent,frame):
+        delta=self.data['stream']['observed'][agent,frame,:2]-self.data['stream']['observed'][agent,max(0,frame-6),:2]
+        return float(np.arctan2(delta[1],delta[0]))
+
+    def draw_history(self,history,agent,frame):
+        history.set_data(*self.observed[agent,:frame+1].T)
+
     def frame(self,frame):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
@@ -168,7 +178,7 @@ class CleanupRenderer(DemoRenderer):
         occupied=[self.zone_box];layout=[('zone',self.zone_box)]
         # Reserve all icons and endpoints before placing names and percentages.
         ends=[]
-        for point in self.observed[:,frame]:
+        for point in [self.display_point(a,frame) for a in range(len(self.tracks))]:
             x,y=self.ax.transData.transform(point);occupied.append((x-24*scale,y-24*scale,x+24*scale,y+24*scale))
         for group in groups:
             agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame'];prediction=data['forecasts'][origin]
@@ -176,10 +186,9 @@ class CleanupRenderer(DemoRenderer):
             end=self.ax.transData.transform(visual.enu_to_pixel(path[-1,:2],self.zoom));ends.append(end)
             x,y=end;occupied.append((x-7*scale,y-7*scale,x+7*scale,y+7*scale))
         for agent,(history,future,icon,endpoint,text,marker) in enumerate(self.tracks):
-            obj=row['objects'][agent];point=self.observed[agent,frame]
-            history.set_data(*self.observed[agent,:frame+1].T);icon.set_data([point[0]],[point[1]])
-            delta=data['stream']['observed'][agent,frame,:2]-data['stream']['observed'][agent,max(0,frame-6),:2]
-            icon.set_marker(marker.transformed(Affine2D().rotate(float(np.arctan2(delta[1],delta[0])))))
+            obj=row['objects'][agent];point=self.display_point(agent,frame)
+            self.draw_history(history,agent,frame);icon.set_data([point[0]],[point[1]])
+            icon.set_marker(marker.transformed(Affine2D().rotate(self.display_heading(agent,frame))))
             icon.set_mec(ORANGE if obj['anomalous'] else BG)
             # Rotor gaps are narrower than the aircraft body: use a finer drone edge.
             icon.set_mew((.55 if agent==0 else .8) if obj['anomalous'] else 1)
@@ -199,7 +208,7 @@ class CleanupRenderer(DemoRenderer):
             group=groups[i];agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame']
             path=data['forecasts'][origin]['position'][group['representative_index'],agent,frame-origin:]
             projected=visual.enu_to_pixel(path[:,:2],self.zoom);colour='#ff626b' if group['enters_zone'] else AMBER
-            line.set_data(*np.vstack([self.observed[agent,frame],projected]).T)
+            line.set_data(*np.vstack([self.display_point(agent,frame),projected]).T)
             line.set_color(colour);line.set_linewidth(1.3+2*group['share']);line.set_alpha(.5+.5*group['share'])
             endpoint.set_data([projected[-1,0]],[projected[-1,1]]);endpoint.set_mfc(colour);endpoint.set_ms(6+4*group['share'])
             label.set_text(f"{group['display_percent']}%");label.set_color(colour)

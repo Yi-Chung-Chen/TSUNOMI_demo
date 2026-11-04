@@ -190,3 +190,9 @@ tuning. Export D11 comparison/media and integrated_demo_v6.zip, tests, local
 commit and stop. No advisor, training, new packages, network or viewer rebuild.
 CPU or one checked single job on physical GPU1/3 only. Other historical demos
 remain on epoch016. This supersedes M10's stop/checkpoint restriction solely here.
+
+Yi-Chung approved a presentation-only D12 revision on2026-11-03: recent10s
+history fades with age over faint raw noisy history; icon position smoothing
+and predicted near-term heading. Read saved D11 only, no inference/training or
+score/rule changes. Keep D11 and all earlier outputs; export D12 for review,
+record checks in PROGRESS.md and commit locally. No advisor/packages/network.
