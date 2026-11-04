@@ -238,3 +238,12 @@ Re-render the current full clock-pair scenario from saved forecasts only, output
 separately under context_scenario_demo_heading_fixed; preserve older media and
 all scores/rules/inputs. Add regression checks, progress, local commit. No new
 inference, training, packages, network or advisor calls.
+
+2026-11-04 user rejected the dot workaround: use supplied observed history for
+initial heading and retain directional icons. Full context-scene playback now
+starts at6s after the existing6s observed history (saved source clip0..10s).
+Initialize visible-frame heading directly from that prior history, then follow
+issued forecasts with easing. No invented prehistory, future/GT heading or new
+inference. Render separately to context_scenario_demo_history_heading; preserve
+all original inputs/scores/timelines/forecasts/media. Record shorter visible
+6..10s interval honestly, regress startup causality and commit locally.

@@ -28,12 +28,21 @@ def predicted_headings(data,display_position,tau_s=.6):
 
     Use only the latest already-issued forecast, over its next ~2s. Before the
     first forecast (6s), fall back to the filtered observed displacement.
-    NaN means direction is unknown; the first valid target initializes directly.
+    An explicit playback start uses its preceding6s history for the initial
+    visible heading. NaN only represents direction genuinely absent from inputs.
     """
     n,t,_=display_position.shape;result=np.full((n,t),np.nan)
     alpha=1-np.exp(-1/(3*tau_s))
+    playback_start=int(data.get('playback_start_frame',0))
     for frame,row in enumerate(data['timeline']):
         for agent,obj in enumerate(row['objects']):
+            # Initialize the first visible pose from its supplied past history,
+            # not from an arbitrary angle or a future point in the playback.
+            if frame==playback_start and playback_start>0:
+                history=display_position[agent,frame,:2]-display_position[agent,max(0,frame-18),:2]
+                if np.isfinite(history).all() and np.linalg.norm(history)>1e-6:
+                    result[agent,frame]=np.arctan2(history[1],history[0])
+                    continue
             origin=obj['forecast_origin_frame'];forecast=data['forecasts'].get(origin)
             if forecast is not None:
                 path=forecast['position'][forecast['medoid'],agent]

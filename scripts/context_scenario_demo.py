@@ -95,9 +95,10 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--render-only',action='store_true',help='Read existing scene/forecasts, never execute the model')
     parser.add_argument('--output-dir')
+    parser.add_argument('--playback-start-frame',type=int,default=18,help='Keep preceding frames as observed history; start visible replay here')
     args=parser.parse_args()
     root=Path(__file__).resolve().parents[1];source_run=root/'outputs/context_scenario_demo'
-    out=root/(args.output_dir or ('outputs/context_scenario_demo_heading_fixed' if args.render_only else 'outputs/context_scenario_demo'))
+    out=root/(args.output_dir or ('outputs/context_scenario_demo_history_heading' if args.render_only else 'outputs/context_scenario_demo'))
     if args.render_only and out.resolve()==source_run.resolve():raise SystemExit('Render-only output must preserve the original scene directory')
     out.mkdir(exist_ok=True);verify_lock(root);before=protected(root)
     if args.render_only:
@@ -135,6 +136,10 @@ def main():
         write_json(marker,dict(status='complete',attempt=1,device='CPU',checkpoint=config['checkpoint'],seed=20261029,origins=[18,24,30],shared_across_clocks=True))
     fixed=load_presentation(root,'B_nighttime_approach',True,True,True)
     cases=[create_data(fixed,stream,forecasts,density,cutoff,c) for c in [0,1]]
+    start=args.playback_start_frame
+    if not 18<=start<len(times):raise ValueError('Playback requires at least6s of existing past history')
+    render_frames=list(range(start,len(times)))
+    for data in cases:data['playback_start_frame']=start
     np.testing.assert_array_equal(cases[0]['stream']['observed'],cases[1]['stream']['observed'])
     assert cases[0]['forecasts'] is cases[1]['forecasts']
     assert all(not r['objects'][0]['anomalous'] for r in cases[0]['timeline'][6:])
@@ -147,11 +152,13 @@ def main():
     receipt=dict(stage='full_scene_clock_pair',render_only=args.render_only,shared_inference_attempts=inference_runs,device='CPU',forecast_origins=3,
                  checkpoint=config['checkpoint'],samples=32,top_k=5,temperature=1.,cutoff=cutoff,
                  identical_tracks=True,identical_forecasts=True,unchanged_zone_rules_latch=True,scenes=[])
+    receipt.update(playback_start_frame=start,playback_start_s=float(times[start]),history_frames=18,source_frames=len(times),rendered_frames=len(render_frames))
     for label,data in zip(['daytime','nighttime'],cases):
         directory=out/label;directory.mkdir(exist_ok=True);renderer=ContextScenarioRenderer(data)
         palette=visual.fixed_palette(data['map_image'],extra_colours=['#ff9f43','#ffd166','#ff626b','#132434','#294052'])
         frames=[]
-        for frame in range(len(times)):frames.append(renderer.frame(frame).quantize(palette=palette,dither=0))
+        assert np.isfinite(renderer.icon_headings[:,start]).all(),'Initial directional icons require supplied moving history'
+        for frame in render_frames:frames.append(renderer.frame(frame).quantize(palette=palette,dither=0))
         write_json(directory/'layout_checks.json',renderer.layout_receipt);renderer.close()
         gif=directory/f'{label}_scenario.gif'
         durations=np.diff(np.rint(np.arange(len(frames)+1)*100/3).astype(int)*10).tolist()
@@ -161,12 +168,12 @@ def main():
                         '-c:v','libx264','-threads','1','-preset','fast','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',str(mp4)],check=True)
         subprocess.run([shutil.which('ffmpeg'),'-v','error','-threads','1','-i',str(mp4),'-f','null','-'],check=True)
         renderer=ContextScenarioRenderer(data,dpi=200)
-        for frame in ([0,1,3,6,18,30] if args.render_only else [6,18,30]):
+        for frame in sorted({start,min(start+1,len(times)-1),min(start+3,len(times)-1),len(times)-1}):
             name=f'review_f{frame:04d}.png' if args.render_only else f'review_t{round(frame/3):02d}.png'
             renderer.frame(frame).save(directory/name)
         renderer.close();write_json(directory/'timeline.json',data['timeline']);write_json(directory/'future_groups.json',data['object_groups'])
-        counts={s:sum(r['scenario']['status']==s for r in data['timeline']) for s in sorted({r['scenario']['status'] for r in data['timeline']})}
-        receipt['scenes'].append(dict(scene=label,frames=len(times),statuses=counts,final_drone_score=data['timeline'][-1]['objects'][0]['current_state_nll'],
+        counts={s:sum(r['scenario']['status']==s for r in data['timeline'][start:]) for s in sorted({r['scenario']['status'] for r in data['timeline'][start:]})}
+        receipt['scenes'].append(dict(scene=label,frames=len(render_frames),source_frames=len(times),statuses=counts,final_drone_score=data['timeline'][-1]['objects'][0]['current_state_nll'],
                                       background_normal=True,mp4_full_decode=True,map_bounds=data['pb'].tolist()))
         print(json.dumps(receipt['scenes'][-1]),flush=True)
     assert before=={name:digest(root/name) for name in before};verify_lock(root);receipt['protected_files_unchanged']=len(before)
@@ -179,11 +186,11 @@ Saved synthetic10s track is unchanged (height30m,speed25m/s), and the background
 
 Normal/anomaly refers to aircraft-reference kinematics, not a drone identity or safety classifier. Showcase selected earlier for clock-dependent score flip, not evaluation performance. Daytime07–19/night19–07Chicago are counterfactual conditions. Context is in the anomaly detector, not the neural forecasting model; forecast probabilities are sample shares. Weather unused. Existing entry>=8/32 and observed intrusion latch rules remain unchanged.
 
-MP4/GIF1600x900,real-time3Hz source, MP4 encoded15fps. Review PNGs3200x1800. Full unchanged D12 airport map bounds; recent10s faded history, display-smoothed positions and model-directed heading. Same joint medoid/grouping rules, groups for anomalous objects. Both animations include the first2s collecting observations. Render source: scripts.context_scenario_demo; inference guard prevents accidental repeated runs.
+MP4/GIF1600x900,real-time3Hz source, MP4 encoded15fps. Review PNGs3200x1800. Full unchanged D12 airport map bounds; recent10s faded history, display-smoothed positions and model-directed heading. Same joint medoid/grouping rules, groups for anomalous objects. The first6s remain available as observed history; visible playback starts at6s with directional icons and forecasts, ending at10s (4s visible motion). No collecting-observation frames are shown. Render source: scripts.context_scenario_demo; inference guard prevents accidental repeated runs.
 ''')
     if args.render_only:
         with (out/'README.md').open('a') as f:
-            f.write('\nHeading initialization repair: first frame is a direction-unknown dot; first valid causal direction initializes directly, then circular easing applies. Render-only reads saved inputs and forecasts with ZERO new inference. Timelines/groups match original exactly; old videos are preserved.\n')
+            f.write('\nHistory-based initialization: playback starts at6s, after the existing6s observed history. First visible frame uses history-derived directional aircraft/drone icons, then circular easing follows issued forecasts. The saved10s source leaves4s visible motion; no synthetic prehistory or future observations are used. Render-only reads saved inputs and forecasts with ZERO new inference. Timelines/groups match original exactly; old videos are preserved.\n')
     print(json.dumps(receipt,indent=2),flush=True)
 
 

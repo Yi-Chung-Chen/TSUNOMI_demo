@@ -1,0 +1,79 @@
+{
+  "stage": "full_scene_clock_pair",
+  "render_only": true,
+  "shared_inference_attempts": 0,
+  "device": "CPU",
+  "forecast_origins": 3,
+  "checkpoint": "outputs/runway_anchor/training/anchor/checkpoints/epoch_018.ckpt",
+  "samples": 32,
+  "top_k": 5,
+  "temperature": 1.0,
+  "cutoff": 12.636101207578164,
+  "identical_tracks": true,
+  "identical_forecasts": true,
+  "unchanged_zone_rules_latch": true,
+  "scenes": [
+    {
+      "scene": "daytime",
+      "frames": 13,
+      "source_frames": 31,
+      "statuses": {
+        "Normal traffic": 13
+      },
+      "final_drone_score": 11.798674609976638,
+      "background_normal": true,
+      "mp4_full_decode": true,
+      "map_bounds": [
+        [
+          1072456.8238511905,
+          1557094.8280433663
+        ],
+        [
+          1073566.6021169052,
+          1557801.601086257
+        ]
+      ]
+    },
+    {
+      "scene": "nighttime",
+      "frames": 13,
+      "source_frames": 31,
+      "statuses": {
+        "Unusual activity": 13
+      },
+      "final_drone_score": 15.503845146146167,
+      "background_normal": true,
+      "mp4_full_decode": true,
+      "map_bounds": [
+        [
+          1072456.8238511905,
+          1557094.8280433663
+        ],
+        [
+          1073566.6021169052,
+          1557801.601086257
+        ]
+      ]
+    }
+  ],
+  "playback_start_frame": 18,
+  "playback_start_s": 6.0,
+  "history_frames": 18,
+  "source_frames": 31,
+  "rendered_frames": 13,
+  "protected_files_unchanged": 563,
+  "initial_heading_source": "preceding6s observed history, filtered causally; no future/GT",
+  "initial_heading_degrees": [
+    164.99999999999997,
+    -179.67133696969879
+  ],
+  "visible_directional_icons": true,
+  "visible_time_interval_s": [
+    6.0,
+    10.0
+  ],
+  "visible_motion_duration_s": 4.0,
+  "tests": "23 passed,19 dependency warnings,7.78s",
+  "timelines_and_groups_byte_identical": true,
+  "self_review": "first visible frame at6s: aircraft and drone icons, correct history-based orientation, no dots; layout checks and MP4full decode pass"
+}

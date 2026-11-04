@@ -66,3 +66,31 @@ def test_unknown_heading_draws_dot_then_restores_directional_icon():
         assert all(track[2].get_markersize()==24 for track in renderer.tracks)
         assert all(not isinstance(track[2].get_marker(),str) for track in renderer.tracks)
     finally:renderer.close()
+
+
+def test_first_visible_heading_uses_supplied_history_even_when_forecast_disagrees():
+    p=np.zeros((1,21,3));p[0,:,0]=-np.arange(21)*10
+    future=np.zeros((1,1,90,3));future[0,0,:,0]=np.arange(90)*10
+    data=dict(playback_start_frame=18,
+              timeline=[{'objects':[{'forecast_origin_frame':18 if f>=18 else None}]} for f in range(21)],
+              forecasts={18:dict(position=future,medoid=0)})
+    heading=predicted_headings(data,p)
+    assert abs(heading[0,18])==np.pi # prior history is west, forecast points east
+    assert abs(heading[0,19])<np.pi # prediction-following easing resumes after initialization
+    changed=p.copy();changed[:,19:]=1e6
+    np.testing.assert_array_equal(predicted_headings(data,changed)[:,:19],heading[:,:19])
+
+
+def test_first_visible_renderer_has_directional_icons_from_history():
+    from tests.test_integrated_presentation import fixture
+    from src.integrated.track_style import TrackStyleRenderer
+    d=fixture();d.update(playback_start_frame=18,grouped=True,all_anomalies=True,object_groups={})
+    # Limit to history plus first visible frame; no unused expired fixture forecast.
+    d['timeline']=d['timeline'][:19]
+    for key in ['observed','reference']:d['stream'][key]=d['stream'][key][:,:19]
+    renderer=TrackStyleRenderer(d)
+    try:
+        renderer.frame(18)
+        assert np.isfinite(renderer.icon_headings[:,18]).all()
+        assert all(track[2].get_markersize()==24 and not isinstance(track[2].get_marker(),str) for track in renderer.tracks)
+    finally:renderer.close()

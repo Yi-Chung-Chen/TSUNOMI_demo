@@ -1987,3 +1987,33 @@ correct westward aircraft, no artificial half-turn. Display heading/validity NPZ
 acceptance,tests.log and README included. Docs/context_scenario_heading_fix.md
 and acceptance JSON committed for provenance. No packages, network, advisor or
 prior-file overwrites. Local commit and STOP for review.
+
+## Use supplied history for initial visible heading (2026-11-04)
+
+Yi-Chung rejected the dot workaround: history exists and should determine
+initial heading. Corrected the playback/history boundary rather than inventing
+an initial direction. Existing first6s(18steps) are warm-up history; playback
+starts atframe18/t6. First visible heading is directly atan2 of the past6s
+causally filtered displacement, even if the newly-issued forecast disagrees.
+Subsequent headings retain forecast-following circular easing. Both aircraft
+and drone retain full directional icons from the first visible frame; no dots
+are displayed. No future observations or clean-reference/GT heading used.
+
+Saved source clip is0..10s: visible interval6..10s is4s motion/13source frames
+including endpoints, not a new10s clip. No invented negative-time history or
+route extension to lengthen it. Initial history remains visible as the faded
+trail. Added playback-start argument(default18) and consistent source vsrender
+frame counts/status summaries. Default render-only output now separate
+outputs/context_scenario_demo_history_heading, preserving original and dot
+versions. Recomputed only display headings/media; zero new model inference.
+
+23targeted tests PASS,19existing dependency warnings,7.78s. New regressions prove
+history wins for the initial visible heading despite opposing forecast, future
+observations cannot change that initial heading, and first visible renderer
+shows directional icons. Source timelines and future_groups remain byte-for-byte
+identical. All initial/visible headings finite and equal directhistory angle.
+Both13frameGIFs1600x900; full MP4decode/layout assertions PASS. Self-viewed t6first
+frame: westbound aircraft and drone, no initialization rotation or circles.
+563protected files remain unchanged; no training/packages/network/advisor.
+Numeric heading trace/receipt/tests.log saved. Committed method and receipt in
+docs/context_scenario_history_heading*. Local commit and stop for review.
