@@ -2017,3 +2017,31 @@ frame: westbound aircraft and drone, no initialization rotation or circles.
 563protected files remain unchanged; no training/packages/network/advisor.
 Numeric heading trace/receipt/tests.log saved. Committed method and receipt in
 docs/context_scenario_history_heading*. Local commit and stop for review.
+
+## Joshua's Unreal replay shortlist (2026-11-17)
+
+Screened all 100 native mixed ORD scenarios at dataset revision 7c2c2f4. Joined
+reference/noisy rows by object ID and frame and verified their UTC alignment.
+Applied the frozen integrated-demo state score and cutoff to both inputs.
+The three showcase families yielded 2,255 eligible 30 s windows with a 6 s
+observed prefix, continuous drone tracks and at least one continuous aircraft.
+Selection favors persistent drone flags, low aircraft flag share and continuous
+aircraft coverage. Circling is constrained to the labeled circle phase, and
+the hover case prioritizes the transition into departure.
+
+Checked one 30 s Anchor forecast at each selected clip's start on CPU using
+32 samples and the existing forecast settings. Reviewed all three BEV previews.
+Primary pair: scenario_000073 at 108–138 s and scenario_000094 at 138–168 s.
+In 000073 the drone is outside the fictional demo zone at the forecast origin,
+32/32 samples enter it, and first reference/noisy entry is 108.67/109.00 s.
+This is one preview origin with 0.67 s of lead relative to reference entry.
+In 000094 there is no recorded drone entry or sampled entry at the checked
+origin. Backup 000097 at 90–120 s shows two drones. It had an earlier drone
+entry at 64 s, which matters if incident memory runs from the full scene start.
+All three have continuous drone flags within the displayed clips. No camera
+coverage has been verified. These selected previews are not the full M12
+checkpoint comparison or camera-derived evaluation.
+
+Replay request for Joshua is in docs/unreal_replay_request.md and numeric
+provenance is in docs/unreal_replay_shortlist.json. Local plots, forecast arrays
+and the 100-scenario screening table are in outputs/unreal_replay_shortlist.

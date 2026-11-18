@@ -1,0 +1,89 @@
+{
+  "screened": 100,
+  "candidate_windows": 2255,
+  "cutoff": 11.387990034013754,
+  "picks": [
+    {
+      "scenario": "scenario_000073",
+      "family": "circle",
+      "start": 324,
+      "end": 414,
+      "drone_ids": [
+        "~drone01"
+      ],
+      "aircraft_ids": [
+        "a7ff34",
+        "a9f67d",
+        "aa8bfa",
+        "ac72f0"
+      ],
+      "min_drone_flag_fraction": 1.0,
+      "aircraft_flag_fraction": 0.0,
+      "phase_change": false,
+      "start_utc": "2026-10-12T17:00:00+00:00",
+      "aircraft_medoid_horizontal_ADE_m": 235.02029162452317,
+      "drone_predicted_zone_samples": {
+        "~drone01": 32
+      },
+      "observed_demo_zone_entry": true,
+      "replay_from_utc": "2026-10-12T17:01:42+00:00",
+      "display_from_utc": "2026-10-12T17:01:48+00:00",
+      "display_to_utc": "2026-10-12T17:02:18+00:00"
+    },
+    {
+      "scenario": "scenario_000094",
+      "family": "hover_turn",
+      "start": 414,
+      "end": 504,
+      "drone_ids": [
+        "~drone01"
+      ],
+      "aircraft_ids": [
+        "a06bd3",
+        "a0b867",
+        "a13608",
+        "ac8a9c"
+      ],
+      "min_drone_flag_fraction": 1.0,
+      "aircraft_flag_fraction": 0.0018181818181818182,
+      "phase_change": true,
+      "start_utc": "2026-10-13T17:45:00+00:00",
+      "aircraft_medoid_horizontal_ADE_m": 260.03229371260477,
+      "drone_predicted_zone_samples": {
+        "~drone01": 0
+      },
+      "observed_demo_zone_entry": false,
+      "replay_from_utc": "2026-10-13T17:47:12+00:00",
+      "display_from_utc": "2026-10-13T17:47:18+00:00",
+      "display_to_utc": "2026-10-13T17:47:48+00:00"
+    },
+    {
+      "scenario": "scenario_000097",
+      "family": "two_crossings",
+      "start": 270,
+      "end": 360,
+      "drone_ids": [
+        "~drone01",
+        "~drone02"
+      ],
+      "aircraft_ids": [
+        "aa797d",
+        "ab2c8e",
+        "ad8f18"
+      ],
+      "min_drone_flag_fraction": 1.0,
+      "aircraft_flag_fraction": 0.0,
+      "phase_change": false,
+      "start_utc": "2026-10-14T17:00:00+00:00",
+      "aircraft_medoid_horizontal_ADE_m": 122.39252500878878,
+      "drone_predicted_zone_samples": {
+        "~drone01": 0,
+        "~drone02": 0
+      },
+      "observed_demo_zone_entry": false,
+      "replay_from_utc": "2026-10-14T17:01:24+00:00",
+      "display_from_utc": "2026-10-14T17:01:30+00:00",
+      "display_to_utc": "2026-10-14T17:02:00+00:00"
+    }
+  ]
+}
