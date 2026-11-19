@@ -2088,3 +2088,15 @@ The past-incident latch, frozen anomaly thresholds, and checkpoint remain
 the same. Source clips reviewed and all MP4s fully decoded. 28 existing
 presentation and status tests passed. Current videos are indexed under
 outputs/unreal_replay_shortlist/d12_replay and the old renders are preserved.
+
+## Early-warning shortlist refinement
+
+Screened the 100 native mixed scenarios for earlier pre-entry evidence.
+With the existing frozen scorer, zone and Anchor checkpoint, 10 of 13
+checked drone cases achieved two successive 8/32 warnings while outside,
+with at least six seconds of lead at the second update. The fixed D12
+display-track check confirms 000073 at t=100/102 s (9/32, 14/32) and 000052
+at t=86/88 s (20/32, 30/32). First reference entry is 108.67 and 99.67 s,
+respectively. Recommend displaying 98–128 s or 84–114 s. See
+docs/unreal_early_warning.md for record starts, UTC and qualifications.
+No media regenerated or sent.
