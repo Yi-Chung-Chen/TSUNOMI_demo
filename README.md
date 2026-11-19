@@ -1,5 +1,7 @@
 # sygard-motion
 
+[Demo 與輸出索引](docs/demo_catalog.md) · 找目前的影片、早期版本、相機軌跡展示和實驗結果。
+
 BC aircraft trajectory Demo on the 800-scenario SYGARD ORD dataset. Current scope follows `../SYGARD_MOTION_PLAN.md` D1, §4.1 items 6–10, M6 Demo, M7 Demo GIFs and M8/M8b anomaly scoring MVP. No CAT-K or NN retraining is part of this scope.
 
 Run from this repository in the existing catk environment:

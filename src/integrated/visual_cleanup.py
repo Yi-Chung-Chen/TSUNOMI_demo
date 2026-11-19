@@ -158,6 +158,14 @@ class CleanupRenderer(DemoRenderer):
     def draw_history(self,history,agent,frame):
         history.set_data(*self.observed[agent,:frame+1].T)
 
+    def forecast_display_path(self, agent, frame, origin, sample):
+        paths=self.data['forecasts'][origin]['position']
+        projected=visual.enu_to_pixel(paths[sample,agent,frame-origin:,:2],self.zoom)
+        if self.data.get('preserve_forecast_geometry'):
+            # Keep the issued curve separate from the later observed aircraft.
+            return projected
+        return np.vstack([self.display_point(agent,frame),projected])
+
     def object_evidence_text(self,obj):
         evidence=obj['entry']
         return '—' if evidence is None else f"{100*evidence['entry_samples']/32:g}%"
@@ -207,7 +215,8 @@ class CleanupRenderer(DemoRenderer):
             origin=obj['forecast_origin_frame'];prediction=data['forecasts'].get(origin)
             if prediction is not None and agent not in active:
                 path=prediction['position'][prediction['medoid'],agent,frame-origin:]
-                projected=visual.enu_to_pixel(path[:,:2],self.zoom);future.set_data(*np.vstack([point,projected]).T)
+                projected=visual.enu_to_pixel(path[:,:2],self.zoom)
+                future.set_data(*self.forecast_display_path(agent,frame,origin,prediction['medoid']).T)
                 endpoint.set_data([projected[-1,0]],[projected[-1,1]])
             else:future.set_data([],[]);endpoint.set_data([],[])
         for i,artists in enumerate(self.group_artists):
@@ -217,7 +226,7 @@ class CleanupRenderer(DemoRenderer):
             group=groups[i];agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame']
             path=data['forecasts'][origin]['position'][group['representative_index'],agent,frame-origin:]
             projected=visual.enu_to_pixel(path[:,:2],self.zoom);colour='#ff626b' if group['enters_zone'] else AMBER
-            line.set_data(*np.vstack([self.display_point(agent,frame),projected]).T)
+            line.set_data(*self.forecast_display_path(agent,frame,origin,group['representative_index']).T)
             line.set_color(colour);line.set_linewidth(1.3+2*group['share']);line.set_alpha(.5+.5*group['share'])
             endpoint.set_data([projected[-1,0]],[projected[-1,1]]);endpoint.set_mfc(colour);endpoint.set_ms(6+4*group['share'])
             label.set_text(f"{group['display_percent']}%");label.set_color(colour)

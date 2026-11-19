@@ -2065,3 +2065,26 @@ outputs/unreal_replay_shortlist/scenario_videos. Reviewed opening PNGs and
 decoded all three videos after export. Each includes 91 source frames across
 its 30 s interval at real-time speed. Existing presentation, scenario status,
 track style and visual cleanup tests passed (28 tests).
+
+## D12 replay with refreshed forecasts for the mixed ORD shortlist
+
+Rendered 000073, 000094, and 000097 in the existing D12 interface at the
+shortlisted scenario times. Each has 16 forecast origins at 2 s intervals,
+32 unchanged Anchor samples per origin, 6 s of past observations, and
+91 source frames presented at the D12 3x pace (9 fps MP4). Scenario time
+stays absolute to the recording. The curves are drawn in their issued
+coordinates, without adding a connector from later observed positions.
+Forecasts and original scenario timestamps are saved beside the media.
+000073 uses the cached shortlist viewport because the expanded forecast
+viewport exceeds local tile coverage.
+
+For the two aircraft with visibly misplaced opening trajectories, the
+tokenized history started with default east heading because a complete
+pre-window velocity chord was unavailable. The mixed replay adapter now
+uses the start chord from the already-observed history when that happens.
+The opening horizontal reconstruction offsets fell from about 223 m to
+1.74 m (000073, aa8bfa) and from 243 m to 2.51 m (000094, a0b867).
+The past-incident latch, frozen anomaly thresholds, and checkpoint remain
+the same. Source clips reviewed and all MP4s fully decoded. 28 existing
+presentation and status tests passed. Current videos are indexed under
+outputs/unreal_replay_shortlist/d12_replay and the old renders are preserved.
