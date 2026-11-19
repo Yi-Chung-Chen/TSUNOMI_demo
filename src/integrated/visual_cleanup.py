@@ -70,12 +70,12 @@ def wrap_to_pixels(text,renderer,font_properties,width_px):
     return '\n'.join(lines)
 
 
-def cleanup_texts(row):
+def cleanup_texts(row,labels=None):
     """Object lines give state/entry; explanatory reasons occur only in WHY."""
     lines=[]
     reasons=list(row['scenario']['reasons'])
     for i,obj in enumerate(row['objects']):
-        name='Drone 01' if i==0 else f'Aircraft {i:02d}'
+        name=labels[i] if labels is not None else ('Drone 01' if i==0 else f'Aircraft {i:02d}')
         status='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
         entry=obj['entry'];share='—' if entry is None else f"{100*entry['entry_samples']/32:g}%"
         lines.append(f'{name} · {status} · zone entry {share}')
@@ -106,10 +106,13 @@ class CleanupRenderer(DemoRenderer):
         self.object_rows=[]
         for x,title in [(.75,'OBJECT'),(.835,'STATUS'),(.925,'ZONE ENTRY')]:
             self.fig.text(x,.267,title,fontsize=9,color=MUTED,va='top')
-        for i in range(len(data['timeline'][0]['objects'])):
+        n_objects=len(data['timeline'][0]['objects'])
+        row_step=min(.075,.16/max(1,n_objects-1))
+        self.object_fontsize=13 if n_objects<=3 else 11
+        for i in range(n_objects):
             row=[]
             for x in [.75,.835,.925]:
-                item=self.fig.text(x,.224-i*.075,'',fontsize=13,color=TEXT,va='top',animated=True)
+                item=self.fig.text(x,.224-i*row_step,'',fontsize=self.object_fontsize,color=TEXT,va='top',animated=True)
                 row.append(item);self.artists.append(item)
             self.object_rows.append(row)
         # This label is outside the polygon and drawn last over an opaque backing.
@@ -162,7 +165,7 @@ class CleanupRenderer(DemoRenderer):
     def frame(self,frame):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
-        contents=cleanup_texts(row)
+        contents=cleanup_texts(row,self.object_labels)
         why=self.cards['explanation'];available=(.965-why.get_position()[0])*self.fig.bbox.width
         raw=contents['explanation']
         if raw not in self._why_wrap_cache:
@@ -170,7 +173,7 @@ class CleanupRenderer(DemoRenderer):
         contents['explanation']=self._why_wrap_cache[raw]
         for key,text in self.cards.items():text.set_text(contents[key])
         for i,(name,status,entry) in enumerate(self.object_rows):
-            obj=row['objects'][i];name.set_text('Drone 01' if i==0 else f'Aircraft {i:02d}')
+            obj=row['objects'][i];name.set_text(self.object_labels[i])
             state='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
             status.set_text(state);status.set_color(ORANGE if obj['anomalous'] else (GREEN if state=='Normal' else MUTED))
             entry.set_text(self.object_evidence_text(obj))
@@ -197,9 +200,9 @@ class CleanupRenderer(DemoRenderer):
             icon.set_markersize(24 if np.isfinite(heading) else 7)
             icon.set_mec(ORANGE if obj['anomalous'] else BG)
             # Rotor gaps are narrower than the aircraft body: use a finer drone edge.
-            icon.set_mew((.55 if agent==0 else .8) if obj['anomalous'] else 1)
+            icon.set_mew((.55 if agent in self.drone_agents else .8) if obj['anomalous'] else 1)
             icon.set_path_effects([]) # Preserve the fine drone/aircraft details inside the orange edge.
-            text.set_text('Drone 01' if agent==0 else f'Aircraft {agent:02d}');text.set_color(ORANGE if obj['anomalous'] else TEXT)
+            text.set_text(self.object_labels[agent]);text.set_color(ORANGE if obj['anomalous'] else TEXT)
             box=self._label(text,self.ax.transData.transform(point),occupied);layout.append((f'object_{agent}',box))
             origin=obj['forecast_origin_frame'];prediction=data['forecasts'].get(origin)
             if prediction is not None and agent not in active:
@@ -240,6 +243,6 @@ class CleanupRenderer(DemoRenderer):
                 assert bounds[1]>=.045*self.fig.bbox.height and bounds[3]<=.267*self.fig.bbox.height, 'Object row overflow'
                 card_boxes.append(tuple(bounds))
         for i,box in enumerate(card_boxes):assert not any(intersects(box,other) for other in card_boxes[i+1:]), 'Object cells overlap'
-        self.layout_receipt[frame]=dict(why_wrapping='measured pixels',why_available_width_px=float(available),object_card_readable=True,object_card_fontsize=13,time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
+        self.layout_receipt[frame]=dict(why_wrapping='measured pixels',why_available_width_px=float(available),object_card_readable=True,object_card_fontsize=self.object_fontsize,time_s=row['time_s'],labels=[dict(name=name,bounds=list(box)) for name,box in actual],
             zone_label_outside=True,labels_do_not_overlap=True)
         return Image.fromarray(np.asarray(self.fig.canvas.buffer_rgba())[...,:3].copy())

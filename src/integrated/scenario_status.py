@@ -38,7 +38,7 @@ def scenario_status(objects, positions, zone, min_samples=8):
     status = 'Intrusion detected' if inside else ('Potential intrusion' if entering else 'Unusual activity')
     reasons = []
     for i in selected:
-        obj = objects[i];name = OBJECT_NAMES[i] if i < len(OBJECT_NAMES) else obj['id']
+        obj = objects[i];name = obj.get('label', OBJECT_NAMES[i] if i < len(OBJECT_NAMES) else obj['id'])
         driver = object_reason(obj).lower()
         if i in inside:
             action = 'is currently inside the protected zone'
@@ -96,7 +96,7 @@ observations. A new call/scenario starts with no incidents; no future GT is read
         if not incidents:continue
         reasons=[]
         for incident in incidents.values():
-            agent=incident['object_index'];name=OBJECT_NAMES[agent] if agent<len(OBJECT_NAMES) else incident['object_id']
+            agent=incident['object_index'];name=row['objects'][agent].get('label', OBJECT_NAMES[agent] if agent<len(OBJECT_NAMES) else incident['object_id'])
             point=observed[agent,frame]
             if not np.isfinite(point).all():current='Current position is unavailable; the high alert remains active.'
             elif bool(inside_zone(point,zone)):current='It is still inside; the high alert remains active.'

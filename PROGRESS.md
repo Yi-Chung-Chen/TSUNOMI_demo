@@ -2045,3 +2045,23 @@ checkpoint comparison or camera-derived evaluation.
 Replay request for Joshua is in docs/unreal_replay_request.md and numeric
 provenance is in docs/unreal_replay_shortlist.json. Local plots, forecast arrays
 and the 100-scenario screening table are in outputs/unreal_replay_shortlist.
+
+## Full scenario videos for the Unreal shortlist (2026-11-19)
+
+Replaced the review experience with the existing D12 presentation for all
+three candidates. The renderer accepts multiple named drones and aircraft
+and fits five rows in the object card. The three videos show the complete
+tracks selected for each clip, heading initialized from the preceding six
+seconds, and the original scenario clock for camera synchronization.
+
+Used only the saved Anchor forecast issued at each clip's opening. Dashed
+paths show its remaining horizon. The forecast issue time is shown onscreen.
+Anomaly decisions update from the noisy observations. The existing incident
+latch runs over the full preceding source history for the displayed objects,
+so the 64 s event in 000097 is represented correctly at the 90 s opening.
+
+Saved MP4, opening PNG, object ID mapping and visible timeline under
+outputs/unreal_replay_shortlist/scenario_videos. Reviewed opening PNGs and
+decoded all three videos after export. Each includes 91 source frames across
+its 30 s interval at real-time speed. Existing presentation, scenario status,
+track style and visual cleanup tests passed (28 tests).

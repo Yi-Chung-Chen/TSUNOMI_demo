@@ -146,13 +146,17 @@ class DemoRenderer:
                         fontweight='bold',va='top',animated=True,bbox=dict(fc=BG,ec='none',pad=3))
                     self.group_legend.append(legend)
         self.observed=visual.enu_to_pixel(data['stream']['observed'][...,:2],self.zoom)
-        for agent,(colour,marker,label) in enumerate([(CYAN,DRONE,'Drone 01'),(GREEN,visual.PLANE,'Aircraft 01')]):
-            history,=self.ax.plot([],[],color=colour,lw=3 if agent==0 else 2,animated=True,
+        self.object_labels = data.get('object_labels', ['Drone 01', 'Aircraft 01'])
+        self.drone_agents = data.get('drone_agents', (0,))
+        for agent,label in enumerate(self.object_labels):
+            is_drone = agent in self.drone_agents
+            colour,marker = (CYAN,DRONE) if is_drone else (GREEN,visual.PLANE)
+            history,=self.ax.plot([],[],color=colour,lw=3 if is_drone else 2,animated=True,
                 path_effects=[pe.Stroke(linewidth=5,foreground=BG),pe.Normal()])
-            future,=self.ax.plot([],[],color=AMBER if agent==0 else GREEN,lw=2.8 if agent==0 else 1.5,
-                ls=(0,(6,4)),alpha=1 if agent==0 else .65,animated=True)
+            future,=self.ax.plot([],[],color=AMBER if is_drone else GREEN,lw=2.8 if is_drone else 1.5,
+                ls=(0,(6,4)),alpha=1 if is_drone else .65,animated=True)
             icon,=self.ax.plot([],[],marker=marker,ms=24,mfc=colour,mec=BG,mew=1,ls='',animated=True)
-            endpoint,=self.ax.plot([],[],marker='D',ms=7,mfc=AMBER if agent==0 else GREEN,mec=BG,ls='',animated=True)
+            endpoint,=self.ax.plot([],[],marker='D',ms=7,mfc=AMBER if is_drone else GREEN,mec=BG,ls='',animated=True)
             text=self.ax.text(0,0,label,color=TEXT,fontsize=10,animated=True,
                 bbox=dict(fc=BG,ec=colour,pad=2))
             box=Rectangle((0,0),1,1,fill=False,edgecolor=ORANGE,lw=2.5,animated=True,visible=False)

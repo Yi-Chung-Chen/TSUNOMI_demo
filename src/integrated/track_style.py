@@ -71,7 +71,8 @@ class TrackStyleRenderer(CleanupRenderer):
         self.icon_pixels=visual.enu_to_pixel(self.filtered[...,:2],self.zoom)
         self.icon_headings=predicted_headings(data,self.filtered)
         self.trails=[]
-        for colour in [CYAN,GREEN]:
+        for i in range(len(self.tracks)):
+            colour=CYAN if i in self.drone_agents else GREEN
             trail=LineCollection([],linewidths=3,animated=True,capstyle='round',zorder=3)
             self.ax.add_collection(trail);self.trails.append((trail,colour))
             # Draw before icons, labels and forecast paths.
