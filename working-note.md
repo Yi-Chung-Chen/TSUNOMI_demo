@@ -11,6 +11,11 @@ Maintain this file in English. Yi-Chung may give instructions in Chinese or Engl
 - Ask separately before changing a deliverable's scope, format, audience, timing, or established defaults. Where a new choice would materially affect the result, explain the alternatives and tradeoff before acting.
 - Keep confirmed decisions distinct from suggestions when updating this note. Record the scope of an approval and the relevant open question. Prefer short entries that help the next session resume without guessing.
 
+### Uncertain choices
+- When a problem has more than one reasonable solution and the choice affects what Yi-Chung will see or conclude, do not pick one yourself.
+- Raise it as a short standalone message: the problem, the options with their tradeoffs, and your recommendation. Wait for an explicit answer.
+- Continue other work that does not depend on the answer.
+
 ## Current decisions and open items
 
 - **D12 review format.** The established D12 review output covers the full scenario. A timestamp or range used to point out an event is a viewing cue. An excerpt as the deliverable requires separate agreement.
