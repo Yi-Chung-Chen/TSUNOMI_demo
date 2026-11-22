@@ -106,9 +106,9 @@ class CleanupRenderer(DemoRenderer):
         self.object_rows=[]
         for x,title in [(.75,'OBJECT'),(.835,'STATUS'),(.925,'ZONE ENTRY')]:
             self.fig.text(x,.267,title,fontsize=9,color=MUTED,va='top')
-        n_objects=len(data['timeline'][0]['objects'])
+        n_objects=max(sum(obj.get('observed',True) for obj in row['objects']) for row in data['timeline'])
         row_step=min(.075,.16/max(1,n_objects-1))
-        self.object_fontsize=13 if n_objects<=3 else 11
+        self.object_fontsize=13 if n_objects<=3 else min(11, 70/max(1,n_objects))
         for i in range(n_objects):
             row=[]
             for x in [.75,.835,.925]:
@@ -173,14 +173,22 @@ class CleanupRenderer(DemoRenderer):
     def frame(self,frame):
         data=self.data;row=data['timeline'][frame];scale=self.dpi/100
         self.fig.canvas.restore_region(self.background);self.clock.set_text(f"t = {row['time_s']:5.1f} s")
+        visible=[i for i,obj in enumerate(row['objects']) if obj.get('observed',True)]
         contents=cleanup_texts(row,self.object_labels)
         why=self.cards['explanation'];available=(.965-why.get_position()[0])*self.fig.bbox.width
         raw=contents['explanation']
         if raw not in self._why_wrap_cache:
             self._why_wrap_cache[raw]=wrap_to_pixels(raw,self.fig.canvas.get_renderer(),why.get_fontproperties(),available)
         contents['explanation']=self._why_wrap_cache[raw]
+        if 'max_why_lines' in data:
+            lines=contents['explanation'].splitlines()
+            if len(lines)>data['max_why_lines']:
+                contents['explanation']='\n'.join(lines[:data['max_why_lines']-1]+['See Object Status for additional tracks.'])
         for key,text in self.cards.items():text.set_text(contents[key])
-        for i,(name,status,entry) in enumerate(self.object_rows):
+        for slot,(name,status,entry) in enumerate(self.object_rows):
+            for artist in (name,status,entry):artist.set_visible(slot<len(visible))
+            if slot>=len(visible):continue
+            i=visible[slot]
             obj=row['objects'][i];name.set_text(self.object_labels[i])
             state='Anomalous' if obj['anomalous'] else ('Normal' if obj['current_state_nll'] is not None else 'Pending')
             status.set_text(state);status.set_color(ORANGE if obj['anomalous'] else (GREEN if state=='Normal' else MUTED))
@@ -193,7 +201,7 @@ class CleanupRenderer(DemoRenderer):
         occupied=[self.zone_box];layout=[('zone',self.zone_box)]
         # Reserve all icons and endpoints before placing names and percentages.
         ends=[]
-        for point in [self.display_point(a,frame) for a in range(len(self.tracks))]:
+        for point in [self.display_point(a,frame) for a in visible]:
             x,y=self.ax.transData.transform(point);occupied.append((x-24*scale,y-24*scale,x+24*scale,y+24*scale))
         for group in groups:
             agent=group['agent'];origin=row['objects'][agent]['forecast_origin_frame'];prediction=data['forecasts'][origin]
@@ -201,11 +209,15 @@ class CleanupRenderer(DemoRenderer):
             end=self.ax.transData.transform(visual.enu_to_pixel(path[-1,:2],self.zoom));ends.append(end)
             x,y=end;occupied.append((x-7*scale,y-7*scale,x+7*scale,y+7*scale))
         for agent,(history,future,icon,endpoint,text,marker) in enumerate(self.tracks):
+            for artist in (history,future,icon,endpoint,text):artist.set_visible(agent in visible)
+            if agent not in visible:continue
             obj=row['objects'][agent];point=self.display_point(agent,frame)
             self.draw_history(history,agent,frame);icon.set_data([point[0]],[point[1]])
             heading=self.display_heading(agent,frame)
             icon.set_marker(marker.transformed(Affine2D().rotate(heading)) if np.isfinite(heading) else 'o')
             icon.set_markersize(24 if np.isfinite(heading) else 7)
+            if data.get('hide_icon_without_heading') and not np.isfinite(heading):
+                icon.set_visible(False)
             icon.set_mec(ORANGE if obj['anomalous'] else BG)
             # Rotor gaps are narrower than the aircraft body: use a finer drone edge.
             icon.set_mew((.55 if agent in self.drone_agents else .8) if obj['anomalous'] else 1)
@@ -237,7 +249,7 @@ class CleanupRenderer(DemoRenderer):
         for i,(name,box) in enumerate(layout):
             assert not any(intersects(box,other) for _,other in layout[i+1:]),f'Overlapping labels at frame {frame}: {name}'
         actual=[]
-        for name,text in [('zone',self.zone_label)]+[(f'object_{i}',t[4]) for i,t in enumerate(self.tracks)]+[(f'percentage_{i}',a[3]) for i,a in enumerate(self.group_artists) if a[3].get_visible()]:
+        for name,text in [('zone',self.zone_label)]+[(f'object_{i}',t[4]) for i,t in enumerate(self.tracks) if i in visible]+[(f'percentage_{i}',a[3]) for i,a in enumerate(self.group_artists) if a[3].get_visible()]:
             patch=text.get_bbox_patch();b=(patch or text).get_window_extent(self.fig.canvas.get_renderer())
             actual.append((name,tuple(b.extents)))
         for i,(name,box) in enumerate(actual):
@@ -247,6 +259,7 @@ class CleanupRenderer(DemoRenderer):
         card_boxes=[]
         for i,items in enumerate(self.object_rows):
             for j,item in enumerate(items):
+                if not item.get_visible():continue
                 bounds=item.get_window_extent(self.fig.canvas.get_renderer()).extents
                 assert bounds[0]>=.735*self.fig.bbox.width and bounds[2]<=.98*self.fig.bbox.width, 'Object row overflow'
                 assert bounds[1]>=.045*self.fig.bbox.height and bounds[3]<=.267*self.fig.bbox.height, 'Object row overflow'

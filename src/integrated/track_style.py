@@ -18,8 +18,11 @@ It is solely a display transform, not a replacement tracker or a model input.
         start=max(0,frame-window+1);segment=observed[:,start:frame+1]
         t=np.arange(segment.shape[1],dtype=float);t-=t.mean()
         if len(t)<3:continue
+        finite=np.isfinite(segment).all(axis=(1,2))
+        if not finite.any():continue
+        segment=segment[finite]
         slope=np.einsum('t,atd->ad',t,segment)/(t@t)
-        result[:,frame]=segment.mean(axis=1)+slope*t[-1]
+        result[finite,frame]=segment.mean(axis=1)+slope*t[-1]
     return result
 
 
@@ -36,6 +39,8 @@ def predicted_headings(data,display_position,tau_s=.6):
     playback_start=int(data.get('playback_start_frame',0))
     for frame,row in enumerate(data['timeline']):
         for agent,obj in enumerate(row['objects']):
+            if not obj.get('observed',True):
+                continue
             # Initialize the first visible pose from its supplied past history,
             # not from an arbitrary angle or a future point in the playback.
             if frame==playback_start and playback_start>0:
@@ -48,7 +53,10 @@ def predicted_headings(data,display_position,tau_s=.6):
                 path=forecast['position'][forecast['medoid'],agent]
                 start=max(0,frame-origin);end=min(start+6,len(path)-1)
                 delta=path[end,:2]-path[start,:2]
-            else:delta=display_position[agent,frame,:2]-display_position[agent,max(0,frame-6),:2]
+            else:
+                history=display_position[agent,max(0,frame-6):frame,:2]
+                usable=history[np.isfinite(history).all(axis=1)]
+                delta=display_position[agent,frame,:2]-usable[0] if len(usable) else np.zeros(2)
             previous=result[agent,frame-1] if frame else np.nan
             if not np.isfinite(delta).all() or np.linalg.norm(delta)<=1e-6:
                 result[agent,frame]=previous
@@ -84,6 +92,11 @@ class TrackStyleRenderer(CleanupRenderer):
                 text.set_text('Display-smoothed icons · forecast-based heading · endpoint % = rounded sample share · red = enters zone')
         self.fig.canvas.draw();self.background=self.fig.canvas.copy_from_bbox(self.fig.bbox)
 
+    def frame(self,frame):
+        for agent,(trail,_) in enumerate(self.trails):
+            trail.set_visible(self.data['timeline'][frame]['objects'][agent].get('observed',True))
+        return super().frame(frame)
+
     def display_point(self,agent,frame):return self.icon_pixels[agent,frame]
 
     def display_heading(self,agent,frame):return float(self.icon_headings[agent,frame])
@@ -93,6 +106,7 @@ class TrackStyleRenderer(CleanupRenderer):
         history.set_alpha(.16);history.set_linewidth(1.2);history.set_path_effects([])
         start,alphas=trail_alphas(frame);points=self.observed[agent,start:frame+1]
         trail,colour=self.trails[agent]
+        trail.set_visible(bool(np.isfinite(self.observed[agent,frame]).all()))
         trail.set_segments(np.stack([points[:-1],points[1:]],axis=1))
         colours=np.tile(to_rgba(colour),(len(alphas),1));colours[:,3]=alphas
         trail.set_color(colours)
