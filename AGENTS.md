@@ -1,5 +1,7 @@
 # Repository instructions
 
+**Read [working-note.md](working-note.md) before starting work in this repository.** Maintain it in English and follow its scope and approval rules. Ask Yi-Chung for explicit approval in a standalone message before implementing any proposed addition.
+
 
 The implementer is Codex or Yi-Chung. The plan author wrote this plan only and does not implement it.
 
