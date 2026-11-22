@@ -70,6 +70,7 @@ sygard-motion/
 
 ## Commands
 Use `scripts/catk.sh -m src.run --help` and `scripts/test.sh -q`. Follow the parent SYGARD_MOTION_PLAN.md sections 4.1 and 4.2. Record validation in PROGRESS.md; unresolved advisor decisions in QUESTIONS.md. GPU visibility must be 1,3 and usage checked before training.
+When a task creates a new top-level output folder, add it to docs/outputs_index.md in the same commit.
 
 ## Current scope override (2026-10-16)
 D1 / plan §4.1 items6/7 override earlier text: val=10-03+10-04, merge existing indexes only; no test split. M6 is BC-only Demo from epoch_016.ckpt, 32 rollouts, topk5/temp1, CPU if GPU busy. No CAT-K, no retraining, no old M7. Future BC config20epochs only; do not launch training. Preserve train manifests/windows, vocabulary, dictionary and checkpoint bytes.
