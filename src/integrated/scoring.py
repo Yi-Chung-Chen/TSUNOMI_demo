@@ -19,7 +19,11 @@ class FrozenStateScorer:
         self.median,self.iqr=reference['median'],reference['iqr']
         with (directory/'summary.csv').open() as stream:
             rows=list(csv.DictReader(stream))
-        self.cutoff=float(next(r['p95'] for r in rows if r['score']=='state_nll' and r['group']=='aircraft-airborne (2026-10-04)'))
+        cutoff_file=directory/'cutoff.json'
+        if cutoff_file.exists():
+            self.cutoff=float(json.loads(cutoff_file.read_text())['state_nll_cutoff'])
+        else:
+            self.cutoff=float(next(r['p95'] for r in rows if r['score']=='state_nll' and r['group']=='aircraft-airborne (2026-10-04)'))
         self.z_cutoff=(self.cutoff-self.median)/self.iqr
 
     def states(self,position,previous):

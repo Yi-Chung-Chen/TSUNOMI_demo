@@ -128,7 +128,15 @@ def load_processed(path):
         return {key:arrays[key] for key in arrays.files}
 
 
-def fit_density(root,bin_smoothing=True,height_edges=None):
+EXCLUDED_EXTRA_DATES = {
+    '2026-09-28','2026-09-29','2026-09-30','2026-10-01','2026-10-02',
+    '2026-10-03','2026-10-04',
+    '2026-10-06','2026-10-07','2026-10-08','2026-10-09','2026-10-10',
+    '2026-10-11','2026-10-12','2026-10-13','2026-10-14',
+}
+
+
+def fit_density(root,bin_smoothing=True,height_edges=None,extra_manifest=None,extra_processed_dir=None):
     names = (root/'data/splits/train_manifest.txt').read_text().splitlines()
     model,expected_bounds = None,None
     receipt = dict(scenarios=len(names),dates={},eligible_by_scenario={},raw_eligible_states=0)
@@ -150,6 +158,42 @@ def fit_density(root,bin_smoothing=True,height_edges=None):
         receipt['raw_eligible_states'] += len(frames)
         if (i+1)%100==0 or i+1==len(names):
             print(json.dumps(dict(train_scenarios=i+1,total=len(names),eligible_states=receipt['raw_eligible_states'])),flush=True)
+    if extra_manifest is not None:
+        manifest_path = Path(extra_manifest)
+        if not manifest_path.is_absolute():
+            manifest_path = root/manifest_path
+        extra_dir = Path(extra_processed_dir) if extra_processed_dir is not None else root/'data/processed_extra'
+        if not extra_dir.is_absolute():
+            extra_dir = root/extra_dir
+        extra_names = [line.strip() for line in manifest_path.read_text().splitlines() if line.strip()]
+        extra_dates = {}
+        extra_states = 0
+        for i,name in enumerate(extra_names):
+            data = load_processed(extra_dir/f'{name}.npz')
+            date = str(data['date'])
+            if date in EXCLUDED_EXTRA_DATES:
+                raise ValueError(f'Excluded date in extra density manifest: {date} ({name})')
+            bounds = json.loads(str(data['bounds_json']))
+            assert bounds==expected_bounds
+            agents,frames = np.nonzero(data['valid'][:,6:] & data['valid'][:,:-6])
+            if len(frames):
+                states = states_at(data,agents,frames+6)
+                model.add(states)
+            receipt['dates'][date] = receipt['dates'].get(date,0)+1
+            extra_dates[date] = extra_dates.get(date,0)+1
+            receipt['eligible_by_scenario'][name] = len(frames)
+            receipt['raw_eligible_states'] += len(frames)
+            extra_states += len(frames)
+            if (i+1)%250==0 or i+1==len(extra_names):
+                print(json.dumps(dict(extra_scenarios=i+1,total=len(extra_names),eligible_states=receipt['raw_eligible_states'])),flush=True)
+        receipt['scenarios'] += len(extra_names)
+        receipt.update(
+            extra_manifest=str(manifest_path),
+            extra_manifest_sha256=hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+            extra_scenarios=len(extra_names),
+            extra_dates=extra_dates,
+            extra_raw_eligible_states=extra_states,
+        )
     assert model.eligible_count==receipt['raw_eligible_states']
     receipt.update(bounds_latlon=expected_bounds,bounds_enu_m=model.bounds.tolist(),grid=[int(model.nx),int(model.ny)],
         cells_including_outside=int(model.n_cells),cell_size_m=CELL_M,alpha=ALPHA,

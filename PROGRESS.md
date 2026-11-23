@@ -2100,3 +2100,58 @@ at t=86/88 s (20/32, 30/32). First reference entry is 108.67 and 99.67 s,
 respectively. Recommend displaying 98–128 s or 84–114 s. See
 docs/unreal_early_warning.md for record starts, UTC and qualifications.
 No media regenerated or sent.
+
+## M13 — More normal traffic for state density (v2a) (2026-11-22)
+
+Implemented M13 Steps 1–6 per parent plan §4.1 item 16 and Yi-Chung's confirmed
+scope adjustment in `working-note.md`: build `v2a` only (keep existing 3×3
+spatial pooling across all 5 height layers; skip `v2b`), and add a 3-line
+backward-compatible `cutoff.json` check to `FrozenStateScorer` so `v2a` loads
+the combined 10-03+10-04 airborne p95 cutoff while `outputs/anomaly_state_smoothed/`
+stays byte-identical. No neural training, package installs, demo config edits,
+or video re-renders.
+
+- **Step 1 (METAR day selection):** Downloaded KORD hourly METAR (`2026-08-15..11-20`)
+  from Iowa Environmental Mesonet and cross-checked `adsblol/globe_history_2026`
+  `prod-0` releases. Selected 8 days (5 east-likely + 3 west-likely, 6 ISO weeks,
+  3 weekend days, 29.85 GB total): `2026-09-06`, `09-18`, `09-22`, `09-24`, `10-15`
+  (east) and `11-05`, `11-08`, `11-14` (west).
+- **Step 2 Gate A (interpolation on all 800 SYGARD scenarios):** **PASS** —
+  `0/800` scenarios with any row-set difference (`1,231,609/1,231,609` exact rows),
+  median 3D ENU position error `9.32e-10 m` (limit ≤ 0.1 m), `on_ground` agreement
+  `99.9993%`.
+- **Step 2 Gate B (`2026-09-29` tarball vs Josh's 110 intervals):** Stopped and
+  reported to Yi-Chung because raw all-110 median Jaccard was `0.6667` (< 0.80);
+  verified in Josh's `metadata.json` that 74/110 intervals are intentionally
+  incomplete cached subsets (`median Jaccard = 0.5714`), whereas the 36 complete
+  airport-inventory intervals achieved **`median Jaccard = 0.9412`** and overall
+  median recall of Josh's aircraft was **`1.0000`** (`95/110` superset). Yi-Chung
+  explicitly approved proceeding to the 8 selected days.
+- **Step 3 (Ingest & flow check):** Converted all 8 days under
+  `/local/scratch/a/chen5262/sygard_adsb/` (SHA256-verified against GitHub
+  digests) and ingested into `data/processed_extra/` + `data/splits/density_extra_manifest.txt`:
+  `1,977` scenarios, `14,633` aircraft tracks, `4,492,573` valid 3 Hz rows
+  (`4,373,622` eligible state pairs). Actual flow split via `src/eval/runway_flow.py`:
+  **1,076 east (54.4% of all, 61.4% of decided) / 677 west / 224 none-tie**
+  (≥ 40% east met; no backup days needed).
+- **Step 4 (`v2a` refit):** Fitted `outputs/anomaly_state_v2a/` on all `2,595`
+  scenarios (`5,380,937` eligible 3 Hz states = 5 train days + 8 extra days).
+  Combined 10-03+10-04 airborne state NLL cutoffs (`20,297` tokens):
+  **p95 = `11.8226` nats**, **p98 = `12.6728` nats** (vs current 10-04-only p95
+  `11.3880` nats). Verified `FrozenStateScorer` loads `outputs/anomaly_state_v2a/`
+  with exact combined p95 and `outputs/anomaly_state_smoothed/` unchanged.
+- **Step 5 (100 mixed scenarios, noisy input, + 4 shortlist timelines):**
+  - Overall aircraft flag rate: `10.93%` (current) → `7.87%` (`v2a` p95) → `3.37%` (`v2a` p98).
+  - East-flow aircraft: `18.75%` → `11.57%` (p95) → `3.96%` (p98).
+  - West-flow aircraft: `7.23%` → `6.04%` (p95) → `2.91%` (p98).
+  - Ground aircraft: `10.59%` → `6.66%` (p95) → `2.57%` (p98).
+  - `scenario_000052` Aircraft 07 (`a4f2ee`, rare `09C` arrival: `1.0%` of new scenarios vs `39.6%` `09C` departures): `140/174` → `140/174` (p95) → `55/174` (p98); Aircraft 03 (`a19e61`): `146/146` → `146/146` (p95) → `79/146` (p98).
+  - Drones (all 120 across 5 families): **100.00% time flagged**, **0 missed**, median/max first-flag lag **2.00 / 2.00 s** for current, `v2a` p95, and `v2a` p98.
+  - All 4 Unreal shortlist scenes (`000052`, `000073`, `000094`, `000097`, replayed on cached Anchor forecasts) keep **identical** first Potential intrusion and High/Intrusion timestamps.
+  - Sanity check (`10-03` airborne): `14.63%` → `5.60%` (p95) → `2.23%` (p98); `10-04` airborne `4.99%` → `4.28%` (p95) → `1.72%` (p98).
+- **Step 6 (Report, tests & protection):** Full plain-language report in
+  `outputs/density_v2/summary.md`; new top-level output folders (`anomaly_state_v2a/`,
+  `density_v2/`) indexed in `docs/outputs_index.md`. Full test suite
+  `scripts/test.sh -q`: **140 passed**, 19 upstream warnings in `47.81 s`
+  (including 3 new M13 tests in `tests/test_m13_density_v2.py`). All protected
+  artifacts verified SHA256 byte-identical. Local commit only; STOP for Yi-Chung review.
