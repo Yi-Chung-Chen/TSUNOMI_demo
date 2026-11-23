@@ -99,11 +99,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('scenario')
     parser.add_argument('--workers',type=int,default=1,help='Number of CPU forecast workers')
+    parser.add_argument('--scorer-dir',type=Path,default=None,help='Optional state density directory (default: outputs/anomaly_state_smoothed)')
+    parser.add_argument('--cutoff',type=float,default=None,help='Optional explicit state NLL cutoff override')
+    parser.add_argument('--out-root',type=Path,default=None,help='Optional output root (default: outputs/unreal_replay_shortlist/d12_full_scenes)')
+    parser.add_argument('--forecast-cache-root',type=Path,default=None,help='Optional existing forecast cache root to reuse saved Anchor rollouts')
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     dataset = root.parent/'SYGARD-Dataset/ord_mixed_100_3hz'
     entry = next(row for row in read_jsonl(dataset/'index.jsonl') if row['scenario'] == args.scenario)
-    out = root/'outputs/unreal_replay_shortlist/d12_full_scenes'/args.scenario
+    out_root = (root/args.out_root if args.out_root and not args.out_root.is_absolute() else args.out_root) or (root/'outputs/unreal_replay_shortlist/d12_full_scenes')
+    out = out_root/args.scenario
     out.mkdir(parents=True, exist_ok=True)
     _, observed, valid, ids, drone = read_scene(dataset/entry['path'], entry)
     labels = ['']*len(ids)
@@ -112,13 +117,30 @@ def main():
             labels[index] = f'{name} {number:02}'
     config = json.loads((root/'configs/integrated_demo/v2_anchor.json').read_text())
     torch.set_num_threads(1)
-    model = load_model(root,config['checkpoint'])
-    scorer_dir = root/'outputs/anomaly_state_smoothed'
+    scorer_dir = (root/args.scorer_dir if args.scorer_dir and not args.scorer_dir.is_absolute() else args.scorer_dir) or (root/'outputs/anomaly_state_smoothed')
     scorer = FrozenStateScorer(scorer_dir)
+    if args.cutoff is not None:
+        scorer.cutoff = float(args.cutoff)
+        scorer.z_cutoff = (scorer.cutoff - scorer.median) / scorer.iqr
     with (scorer_dir/'summary.csv').open() as stream:
         medians = {row['score']: float(row['median']) for row in csv.DictReader(stream)
                    if row['group']=='aircraft-airborne (2026-10-04)' and row['score'] in COMPONENTS}
-    forecasts = build_forecasts(model, observed, valid, args.scenario, out/'forecasts', args.workers)
+    if args.forecast_cache_root is not None:
+        cache_root = root/args.forecast_cache_root if not args.forecast_cache_root.is_absolute() else args.forecast_cache_root
+        cache_dir = cache_root/args.scenario/'forecasts'
+        forecasts = {}
+        for npz_path in sorted(cache_dir.glob('*.npz')):
+            frame = int(npz_path.stem)
+            with np.load(npz_path) as arr:
+                members = arr['members']
+                pos = arr['position']
+                medoid = int(arr['medoid'])
+            full = np.full((32, len(valid), 90, 3), np.nan, dtype=pos.dtype)
+            full[:, members] = pos
+            forecasts[frame] = dict(position=full, medoid=medoid, members=members)
+    else:
+        model = load_model(root,config['checkpoint'])
+        forecasts = build_forecasts(model, observed, valid, args.scenario, out/'forecasts', args.workers)
     positions = np.where(valid[..., None], observed, np.nan)
     zone = config['zone']
     timeline = build_timeline(positions,valid,ids,labels,forecasts,scorer,medians,zone)
